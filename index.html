@@ -1,0 +1,837 @@
+<title>Falcon Preflop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@500;700&display=swap">
+<style>
+/* Layout: app bar with tool tabs → Ranges view (controls + 13×13 grid | hand panel) or Trainer view (table + cards + actions | session stats) */
+:root{
+  --bg:#121214; --surface:#1a1a1d; --surface-2:#232327; --line:#323238;
+  --text:#f5f5f6; --muted:#a29fa1; --dim:#6f6c70; --fold-ink:#9a979a;
+  --red:#e23b3f; --call:#6e6f78; --fold:#26262a;
+  --good:#3fbf7f; --warn:#e0a83a;
+  --card:#f3f1f2; --card-ink:#151517; --card-red:#cf2a2e;
+  --display:"Barlow Condensed","Arial Narrow",sans-serif;
+  --body:"IBM Plex Sans",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:var(--body);font-size:14px;line-height:1.5}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:2px}
+
+.appbar{display:flex;align-items:center;gap:24px;flex-wrap:wrap;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.brand i{width:10px;height:10px;background:var(--red);transform:rotate(45deg);display:inline-block}
+.tabs{display:flex;gap:4px;flex-wrap:wrap}
+.tab{position:relative;background:none;border:0;padding:6px 12px;border-radius:6px;color:var(--muted);font-weight:500;cursor:pointer}
+.tab:hover:not([disabled]){color:var(--text)}
+.tab[aria-current="page"]{color:var(--text);background:var(--surface-2)}
+.tab[aria-current="page"]::after{content:"";position:absolute;left:10px;right:10px;bottom:0;height:2px;border-radius:2px;background:var(--red)}
+.tab:focus:not(:focus-visible){outline:none}
+.tab[disabled]{cursor:default;opacity:.55}
+.tab small{font-size:10px;letter-spacing:.08em;text-transform:uppercase;margin-left:6px;color:var(--dim)}
+
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px;padding-inline:16px;display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:24px}
+.wrap[hidden]{display:none!important}
+@media (max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}}
+
+.label{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.controls{display:grid;gap:14px;margin-bottom:18px}
+.row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.seg{display:inline-flex;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:3px;gap:2px;flex-wrap:wrap}
+.seg button{border:0;background:none;padding:6px 14px;border-radius:6px;cursor:pointer;color:var(--muted);font-weight:500}
+.seg button[aria-pressed="true"]{background:var(--surface-2);color:var(--text)}
+.chip{border:1px solid var(--line);background:var(--surface);padding:6px 12px;border-radius:999px;cursor:pointer;font-family:var(--mono);font-size:13px;color:var(--muted)}
+.chip:hover{border-color:var(--dim);color:var(--text)}
+.chip[aria-pressed="true"]{border-color:var(--red);color:var(--text);background:color-mix(in srgb,var(--red) 16%,var(--surface))}
+.chip[disabled]{opacity:.35;cursor:not-allowed}
+
+.summary{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-bottom:10px}
+.summary h1{font-family:var(--display);font-weight:600;font-size:30px;margin:0;line-height:1.1;text-wrap:balance}
+.summary .ctx{color:var(--muted);font-size:13px}
+
+.bar{display:flex;height:8px;border-radius:4px;overflow:hidden;background:var(--fold);margin:8px 0 6px}
+.bar span{display:block;height:100%}
+.stats{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--muted);margin-bottom:14px;font-variant-numeric:tabular-nums}
+.stats b{color:var(--text);font-family:var(--mono);font-weight:700}
+.sw{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:-1px}
+
+/* Grid: bigger labels, suit letter set smaller, readable ink on every fill */
+.gridbox{overflow-x:auto}
+.grid{display:grid;grid-template-columns:repeat(13,minmax(26px,1fr));gap:3px;min-width:362px;max-width:720px;user-select:none}
+.cell{aspect-ratio:1;border:0;border-radius:4px;padding:0;cursor:pointer;color:#fff;display:flex;align-items:baseline;justify-content:center;flex-direction:row;line-height:1;position:relative;transition:transform .08s;text-shadow:0 0 3px rgba(0,0,0,.85),0 1px 1px rgba(0,0,0,.9)}
+.cell{align-items:center}
+.cell .r{font-family:var(--mono);font-weight:700;font-size:clamp(10px,1.55vw,15px);letter-spacing:-.02em}
+.cell .s{font-family:var(--body);font-weight:600;font-size:clamp(8px,1.05vw,11px);opacity:.85;margin-left:1px;align-self:flex-end;margin-bottom:28%}
+.cell.zero{color:var(--fold-ink);text-shadow:none}
+.cell.pair{box-shadow:inset 0 0 0 1px rgba(255,255,255,.14)}
+.cell:hover{transform:scale(1.1);z-index:2}
+.cell[aria-pressed="true"]{outline:2px solid var(--text);outline-offset:1px;z-index:3}
+.cell.hl{outline:2px solid var(--warn);outline-offset:1px;z-index:3}
+.axis{display:flex;justify-content:space-between;max-width:720px;margin-top:8px;font-size:12px;color:var(--dim)}
+
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:20px;align-self:start;position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);display:grid;gap:18px;min-width:0}
+@media (max-width:900px){.panel{position:static}}
+.hand{display:flex;align-items:baseline;gap:12px}
+.hand .big{font-family:var(--display);font-weight:700;font-size:56px;line-height:1}
+.hand .meta{color:var(--muted);font-size:13px}
+.verdict{font-weight:600;font-size:15px}
+.freqs{display:grid;gap:8px}
+.freq{display:grid;grid-template-columns:62px 1fr 48px;gap:10px;align-items:center;font-size:13px}
+.freq .track{height:6px;border-radius:3px;background:var(--surface-2);overflow:hidden}
+.freq .track span{display:block;height:100%}
+.freq .pct{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.panel p,.fb p{margin:0;color:#d6d4d6;max-width:62ch}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.fact{background:var(--surface);padding:10px 12px}
+.fact b{display:block;font-family:var(--mono);font-size:17px;font-variant-numeric:tabular-nums}
+.fact span{font-size:12px;color:var(--muted)}
+.note{font-size:12px;color:var(--dim);border-top:1px solid var(--line);padding-top:14px}
+.insight{border-left:2px solid var(--red);padding-left:12px}
+
+/* Trainer */
+.felt{background:radial-gradient(ellipse at 50% 30%,#1e1e22 0%,var(--surface) 70%);border:1px solid var(--line);border-radius:16px;padding:24px 20px;display:grid;gap:22px;justify-items:center;text-align:center}
+.seats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;width:100%;max-width:560px}
+.seat{border:1px solid var(--line);border-radius:8px;padding:6px 2px;font-family:var(--mono);font-size:12px;font-weight:700;color:var(--dim);display:grid;gap:2px;background:var(--bg)}
+.seat small{font-family:var(--body);font-weight:500;font-size:10px;letter-spacing:.04em;text-transform:uppercase}
+.seat.folded{opacity:.45;text-decoration:line-through}
+.seat.folded small{text-decoration:none}
+.seat.hero{border-color:var(--red);color:var(--text);background:color-mix(in srgb,var(--red) 18%,var(--bg))}
+.seat.vil{border-color:var(--text);color:var(--text)}
+.seat.wait{color:var(--muted)}
+.sit{font-size:16px;color:var(--text);max-width:44ch;text-wrap:balance}
+.sit b{color:var(--red)}
+.cards{display:flex;gap:12px}
+.pcard{width:84px;height:118px;border-radius:10px;background:var(--card);color:var(--card-ink);display:grid;place-items:center;position:relative;box-shadow:0 8px 24px rgba(0,0,0,.45);animation:deal .25s ease-out both}
+.pcard:nth-child(2){animation-delay:.06s}
+.pcard.red{color:var(--card-red)}
+.pcard .rk{font-family:var(--display);font-weight:700;font-size:48px;line-height:1}
+.pcard .st{font-size:30px;line-height:1;margin-top:-6px}
+.pcard .c{position:absolute;top:6px;left:8px;font-family:var(--display);font-weight:700;font-size:16px;line-height:1;text-align:center}
+@keyframes deal{from{transform:translateY(-14px);opacity:0}to{transform:none;opacity:1}}
+.cls{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%}
+.act{min-width:120px;flex:1;max-width:180px;padding:14px 12px;border-radius:10px;border:1px solid var(--line);cursor:pointer;font-weight:600;font-size:16px;display:grid;gap:2px;transition:filter .1s}
+.act kbd{font-family:var(--mono);font-size:11px;font-weight:500;opacity:.7}
+.act:hover:not([disabled]){filter:brightness(1.15)}
+.act[disabled]{cursor:default;opacity:.45}
+.act.picked{opacity:1!important;outline:2px solid var(--text);outline-offset:2px}
+.act.fold{background:var(--fold)}
+.act.call{background:var(--call)}
+.act.raise{background:var(--red);border-color:var(--red)}
+.fb{width:100%;text-align:left;border-radius:12px;padding:16px 18px;background:var(--bg);border:1px solid var(--line);display:grid;gap:12px}
+.fb .head{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:26px;font-weight:700;line-height:1}
+.fb .dot{width:12px;height:12px;border-radius:50%}
+.fb.good{border-color:color-mix(in srgb,var(--good) 60%,var(--line))}
+.fb.ok{border-color:color-mix(in srgb,var(--warn) 60%,var(--line))}
+.fb.bad{border-color:var(--red)}
+.fb .btns{display:flex;gap:8px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:var(--surface-2);padding:9px 16px;border-radius:8px;cursor:pointer;font-weight:600}
+.btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn:hover{filter:brightness(1.1)}
+.scores{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.score{background:var(--surface);padding:12px}
+.score b{display:block;font-family:var(--mono);font-size:24px;font-variant-numeric:tabular-nums;line-height:1.2}
+.score span{font-size:12px;color:var(--muted)}
+.log{display:grid;gap:6px;max-height:320px;overflow:auto}
+.log button{display:grid;grid-template-columns:44px 1fr auto;gap:8px;align-items:center;text-align:left;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:8px 10px;cursor:pointer;font-size:12px}
+.log button:hover{border-color:var(--dim)}
+.log .h{font-family:var(--mono);font-weight:700;font-size:14px}
+.log .sp{color:var(--muted)}
+.tag{font-size:11px;font-weight:600;padding:2px 7px;border-radius:999px}
+.tag.bad{background:color-mix(in srgb,var(--red) 25%,transparent);color:#ff9a9c}
+.tag.ok{background:color-mix(in srgb,var(--warn) 22%,transparent);color:var(--warn)}
+.tag.good{background:color-mix(in srgb,var(--good) 20%,transparent);color:var(--good)}
+.empty{color:var(--dim);font-size:13px}
+.linkbtn{background:none;border:0;color:var(--dim);font-size:12px;cursor:pointer;text-decoration:underline;padding:0}
+.linkbtn:hover{color:var(--text)}
+.linkbtn.armed{color:var(--red)}
+.leaks{display:grid;gap:10px}
+.leak{display:grid;grid-template-columns:1fr auto;gap:4px 10px;font-size:12px;align-items:baseline}
+.leak b{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.leak .n{color:var(--dim)}
+.leak .track{grid-column:1/-1;height:5px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.leak .track span{display:block;height:100%}
+.hint{margin:0;font-size:13px;color:var(--muted)}
+
+/* Theory */
+.theory{max-width:1180px;margin:0 auto;padding-block:28px 64px;padding-inline:16px;display:grid;grid-template-columns:190px minmax(0,1fr);gap:48px}
+.theory[hidden]{display:none!important}
+.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 20px);align-self:start;display:grid;gap:2px}
+.toc a{color:var(--muted);text-decoration:none;font-size:13px;padding:5px 10px;border-left:2px solid var(--line)}
+.toc a:hover{color:var(--text);border-left-color:var(--red)}
+.article{max-width:720px;display:grid;gap:56px;min-width:0}
+.article header h1{font-family:var(--display);font-size:46px;font-weight:700;line-height:1;margin:0 0 10px;text-wrap:balance}
+.article header p{color:var(--muted);font-size:16px;margin:0;max-width:60ch}
+.article section{display:grid;gap:16px;scroll-margin-top:20px}
+.article h2{font-family:var(--display);font-size:32px;font-weight:600;line-height:1.1;margin:0;text-wrap:balance}
+.article p{margin:0;color:#d6d4d6;line-height:1.7;font-size:15px;max-width:66ch}
+.article strong{color:var(--text)}
+.formula{font-family:var(--mono);font-size:14px;background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--red);border-radius:6px;padding:12px 14px;overflow-x:auto}
+.calc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;display:grid;gap:16px}
+.calc .ctrl{display:grid;gap:6px}
+.calc .ctrl label{display:flex;justify-content:space-between;font-size:13px;color:var(--muted)}
+.calc .ctrl label b{color:var(--text);font-family:var(--mono)}
+.calc input[type=range]{width:100%;accent-color:var(--red)}
+.outs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:var(--line);border-radius:8px;overflow:hidden;border:1px solid var(--line)}
+.outs div{background:var(--bg);padding:12px}
+.outs b{display:block;font-family:var(--mono);font-size:24px;line-height:1.2;font-variant-numeric:tabular-nums}
+.outs span{font-size:12px;color:var(--muted)}
+@media (max-width:520px){.outs{grid-template-columns:minmax(0,1fr)}}
+.presets{display:flex;gap:6px;flex-wrap:wrap}
+.potbar{display:flex;height:22px;border-radius:5px;overflow:hidden;font-size:11px;font-family:var(--mono);font-weight:700}
+.potbar span{display:flex;align-items:center;justify-content:center;white-space:nowrap;overflow:hidden}
+.mtable{overflow-x:auto}
+.mtable table{width:100%;border-collapse:collapse;font-size:13px;min-width:460px}
+.mtable td,.mtable th{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+.mtable th{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.mtable .hh{font-family:var(--mono);font-weight:700;white-space:nowrap}
+.eq{display:flex;height:18px;border-radius:4px;overflow:hidden;font-family:var(--mono);font-size:11px;font-weight:700;min-width:150px}
+.eq span{display:flex;align-items:center;padding:0 6px}
+.eq span:last-child{justify-content:flex-end}
+.example{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:grid;gap:6px}
+.example .label{color:var(--red)}
+.seatbars{display:grid;gap:8px}
+.seatbar{display:grid;grid-template-columns:44px 1fr 52px;gap:10px;align-items:center;font-family:var(--mono);font-size:13px}
+.seatbar .t{height:14px;background:var(--surface-2);border-radius:3px;overflow:hidden}
+.seatbar .t span{display:block;height:100%;background:var(--red)}
+.seatbar .v{text-align:right;font-variant-numeric:tabular-nums}
+.gloss{display:grid;grid-template-columns:110px minmax(0,1fr);gap:10px 18px;margin:0}
+.gloss dt{font-family:var(--mono);font-weight:700;color:var(--text)}
+.gloss dd{margin:0;color:#d6d4d6}
+@media (max-width:900px){.theory{grid-template-columns:minmax(0,1fr);gap:24px}.toc{position:static;display:flex;flex-wrap:wrap;gap:6px}.toc a{border:1px solid var(--line);border-radius:999px;padding:4px 10px}}
+@media (max-width:480px){.gloss{grid-template-columns:minmax(0,1fr);gap:2px}.gloss dd{margin-bottom:10px}}
+
+@media (max-width:480px){.pcard{width:72px;height:102px}.pcard .rk{font-size:40px}.act{min-width:0}}
+@media (prefers-reduced-motion:reduce){.cell,.act{transition:none}.cell:hover{transform:none}.pcard{animation:none}}
+</style>
+
+<header class="appbar">
+  <div class="brand"><i aria-hidden="true"></i>Falcon</div>
+  <nav class="tabs" aria-label="Tools">
+    <button class="tab" id="t-ranges" aria-current="page">Preflop ranges</button>
+    <button class="tab" id="t-train">Trainer</button>
+    <button class="tab" id="t-theory">Theory</button>
+    <button class="tab" disabled>Postflop<small>Soon</small></button>
+    <button class="tab" disabled>Equity calc<small>Soon</small></button>
+  </nav>
+</header>
+
+<!-- RANGES VIEW -->
+<main class="wrap" id="view-ranges">
+  <section style="min-width:0">
+    <div class="controls">
+      <div class="row">
+        <div class="seg" role="group" aria-label="Situation">
+          <button id="m-rfi" aria-pressed="true">First in (open)</button>
+          <button id="m-vs" aria-pressed="false">Facing a raise</button>
+        </div>
+        <span class="label" style="margin-left:auto">6-max · 100bb · cash</span>
+      </div>
+      <div>
+        <div class="label" id="pick-label" style="margin-bottom:6px">Your seat</div>
+        <div class="row" id="picker"></div>
+      </div>
+    </div>
+    <div class="summary"><h1 id="title"></h1><span class="ctx" id="ctx"></span></div>
+    <div class="bar" id="bar"></div>
+    <div class="stats" id="stats"></div>
+    <div class="gridbox"><div class="grid" id="grid" role="group" aria-label="Starting hands"></div></div>
+    <div class="axis"><span>Suited above the diagonal (s)</span><span>Offsuit below (o)</span></div>
+  </section>
+  <aside class="panel" id="panel" aria-live="polite"></aside>
+</main>
+
+<!-- TRAINER VIEW -->
+<main class="wrap" id="view-train" hidden>
+  <section style="min-width:0;display:grid;gap:16px;align-content:start">
+    <div class="row">
+      <div class="seg" role="group" aria-label="Spots to practice">
+        <button data-pool="all" aria-pressed="true">All spots</button>
+        <button data-pool="rfi" aria-pressed="false">Opening</button>
+        <button data-pool="vs" aria-pressed="false">Facing a raise</button>
+        <button data-pool="leaks" aria-pressed="false">My leaks</button>
+      </div>
+      <button class="chip" id="skip-easy" aria-pressed="true" title="Re-deals most hands that are obvious folds, so you practice the decisions that matter">Skip easy folds</button>
+    </div>
+    <p class="hint" id="leak-hint" hidden></p>
+    <div class="felt">
+      <div class="seats" id="seats"></div>
+      <div class="sit" id="sit"></div>
+      <div class="cards" id="cards"></div>
+      <div class="cls" id="cls"></div>
+      <div class="acts" id="acts"></div>
+      <div id="fbwrap" style="width:100%"></div>
+    </div>
+  </section>
+  <aside class="panel">
+    <div>
+      <div class="label" style="margin-bottom:8px">This session</div>
+      <div class="scores">
+        <div class="score"><b id="s-acc">–</b><span>accuracy</span></div>
+        <div class="score"><b id="s-n">0</b><span>hands played</span></div>
+        <div class="score"><b id="s-streak">0</b><span>current streak</span></div>
+        <div class="score"><b id="s-best">0</b><span>best streak (all time)</span></div>
+      </div>
+    </div>
+    <div>
+      <div class="row" style="justify-content:space-between;margin-bottom:8px"><span class="label">Your weakest spots</span><button class="linkbtn" id="reset">Reset stats</button></div>
+      <div class="leaks" id="leaks"></div>
+    </div>
+    <div>
+      <div class="label" style="margin-bottom:8px">Recent hands</div>
+      <div class="log" id="log"><div class="empty">Your decisions will show up here. Tap one to review it.</div></div>
+    </div>
+    <div class="note">Keys: <b>F</b> fold, <b>C</b> call, <b>R</b> raise, <b>Space</b> next hand. Mixed hands count as correct if the chart plays your action at least 25% of the time. "My leaks" deals more of the spots you miss and repeats hands you got wrong until you get them right twice.</div>
+  </aside>
+</main>
+
+<!-- THEORY VIEW -->
+<main class="theory" id="view-theory" hidden>
+  <nav class="toc" aria-label="Theory sections">
+    <a href="#odds">Pot odds</a>
+    <a href="#outs">Counting outs</a>
+    <a href="#combos">Combos and blockers</a>
+    <a href="#matchups">Preflop matchups</a>
+    <a href="#position">Position</a>
+    <a href="#gto">What GTO means</a>
+    <a href="#glossary">Glossary</a>
+  </nav>
+  <div class="article">
+    <header>
+      <h1>The math behind the charts</h1>
+      <p>Every color in the range grid comes from a few simple ideas. Learn these and the charts stop being something to memorize and start making sense.</p>
+    </header>
+
+    <section id="odds">
+      <h2>Equity and pot odds</h2>
+      <p><strong>Equity</strong> is your share of the pot if all the remaining cards were dealt right now. If you win 30% of the time, you own 30% of the pot on average.</p>
+      <p><strong>Pot odds</strong> tell you how much equity you need to call. Divide what you have to call by the size of the pot after you call.</p>
+      <div class="formula">equity needed = call ÷ (pot + bet + call)</div>
+      <p>The same bet tells the bettor something too. A pure bluff only needs to work a certain share of the time to break even, and the defender has to continue often enough to stop that. That share is the <strong>minimum defense frequency</strong> (MDF).</p>
+      <div class="calc" aria-label="Pot odds calculator">
+        <div class="ctrl">
+          <label for="betpct">Bet size <b id="betpct-v"></b></label>
+          <input type="range" id="betpct" min="10" max="200" step="5" value="50">
+        </div>
+        <div class="presets" id="bet-presets"></div>
+        <div class="potbar" id="potbar"></div>
+        <div class="outs">
+          <div><b id="o-call"></b><span>equity the caller needs</span></div>
+          <div><b id="o-bluff"></b><span>how often a bluff must work</span></div>
+          <div><b id="o-mdf"></b><span>defender must continue (MDF)</span></div>
+        </div>
+      </div>
+      <div class="example">
+        <span class="label">In the charts</span>
+        <p>The button opens to 2.5bb. The pot is 4bb and the big blind calls 1.5bb more, so it needs only 1.5 ÷ 5.5 = <strong>27%</strong> equity. That cheap price is why the BB defends so many hands.</p>
+      </div>
+    </section>
+
+    <section id="outs">
+      <h2>Counting outs</h2>
+      <p>An <strong>out</strong> is a card that should give you the best hand. A quick estimate is the rule of 4 and 2: on the flop, multiply your outs by 4 to estimate your chance of hitting by the river. On the turn, multiply by 2.</p>
+      <div class="calc" aria-label="Outs calculator">
+        <div class="ctrl">
+          <label for="outs-n">Outs <b id="outs-v"></b></label>
+          <input type="range" id="outs-n" min="1" max="21" step="1" value="9">
+        </div>
+        <div class="presets" id="outs-presets"></div>
+        <div class="outs">
+          <div><b id="o-flop"></b><span>flop to river (2 cards)</span></div>
+          <div><b id="o-turn"></b><span>turn to river (1 card)</span></div>
+          <div><b id="o-rule"></b><span>rule of 4 and 2 estimate</span></div>
+        </div>
+      </div>
+      <p>The rule is close for small draws but runs high for big ones. With 15 outs it says 60%, but the real chance is about 54%.</p>
+    </section>
+
+    <section id="combos">
+      <h2>Combinations and blockers</h2>
+      <p>There are <strong>1,326</strong> possible two-card hands, grouped into the 169 squares of the grid. Each square holds a different number of combinations:</p>
+      <div class="formula">pair = 6 combos · suited = 4 combos · offsuit = 12 combos</div>
+      <p>So AKo is three times as common as AKs, and any unpaired hand like AK (16 combos) is more likely than any specific pair (6 combos). That is why the offsuit corner of the grid has a big effect on how wide a range really is.</p>
+      <p>Cards in your hand also <strong>block</strong> combos for your opponent. If you hold an ace, there are fewer aces left for them.</p>
+      <div class="example">
+        <span class="label">Example: why A5s is a 3-bet bluff</span>
+        <p>Holding the A♠ drops your opponent's AA combos from 6 to 3 and their AK combos from 16 to 12. The hands most likely to 4-bet you become much rarer, and A5s can still make the nut flush or a wheel straight when called.</p>
+      </div>
+    </section>
+
+    <section id="matchups">
+      <h2>Preflop matchups</h2>
+      <p>No hand is a lock before the flop. These approximate all-in equities show the common patterns worth knowing.</p>
+      <div class="mtable">
+        <table>
+          <thead><tr><th>Matchup</th><th>Equity</th><th>Pattern</th></tr></thead>
+          <tbody id="mrows"></tbody>
+        </table>
+      </div>
+      <p>Two lessons stand out. Domination is brutal: sharing a card with a better kicker leaves you around 26%. And a pair against two overcards is roughly a coin flip, which is why small pairs and big suited cards both have value.</p>
+    </section>
+
+    <section id="position">
+      <h2>Why position matters</h2>
+      <p>Acting last means you see what your opponent does before you decide. You can take free cards, keep pots small with medium hands, and bluff when they show weakness. Out of position you guess first on every street.</p>
+      <p>The result is visible in the opening charts. The later your seat, the more hands are profitable to open:</p>
+      <div class="seatbars" id="seatbars"></div>
+    </section>
+
+    <section id="gto">
+      <h2>What GTO means</h2>
+      <p>A <strong>game-theory optimal</strong> (GTO) strategy is one that cannot be exploited: if you play it, no opposing strategy beats you in the long run. Solvers find an approximation by playing against themselves billions of times and adjusting until neither side can improve.</p>
+      <p>When two actions earn the same amount, a solver often splits between them. Those are the <strong>mixed</strong> squares in the grid. Mixing keeps your range balanced so opponents cannot tell what you hold from what you do.</p>
+      <p><strong>Exploitative</strong> play means deviating on purpose to punish an opponent's mistakes. If someone folds too often, you bluff more. Exploits win more against weak players but leave you open to counter-exploitation, so GTO works best as the baseline you adjust from.</p>
+    </section>
+
+    <section id="glossary">
+      <h2>Glossary</h2>
+      <dl class="gloss">
+        <dt>RFI</dt><dd>Raise first in. Opening the pot with a raise when everyone before you folded.</dd>
+        <dt>3-bet</dt><dd>A re-raise of an open raise. A raise of that is a 4-bet.</dd>
+        <dt>IP / OOP</dt><dd>In position (acting last after the flop) or out of position (acting first).</dd>
+        <dt>Range</dt><dd>All the hands a player could have in a spot, rather than one specific hand.</dd>
+        <dt>Combo</dt><dd>One specific two-card holding, such as A♠K♥.</dd>
+        <dt>Equity</dt><dd>Your share of the pot based on how often you would win if all cards were dealt.</dd>
+        <dt>EV</dt><dd>Expected value. The average amount an action wins or loses over the long run.</dd>
+        <dt>Blocker</dt><dd>A card in your hand that removes combos from your opponent's range.</dd>
+        <dt>MDF</dt><dd>Minimum defense frequency. How often you must continue so bluffs with any two cards do not profit.</dd>
+        <dt>Squeeze</dt><dd>A 3-bet after one player opens and another calls.</dd>
+        <dt>Limp</dt><dd>Entering the pot by just calling the big blind instead of raising.</dd>
+      </dl>
+    </section>
+  </div>
+</main>
+
+<script>
+const R="AKQJT98765432";
+const ri=c=>R.indexOf(c);
+
+function expand(tok){
+  let [h,f]=tok.trim().split(":"); f=f===undefined?1:+f; const out=[];
+  const add=x=>out.push([x,f]);
+  const suits=(a,b,s)=>s?[a+b+s]:[a+b+"s",a+b+"o"];
+  if(h.includes("-")){
+    const [a,b]=h.split("-");
+    if(a[0]===a[1]){const lo=Math.max(ri(a[0]),ri(b[0])),hi=Math.min(ri(a[0]),ri(b[0]));for(let k=hi;k<=lo;k++)add(R[k]+R[k]);}
+    else{const x=ri(a[1]),y=ri(b[1]);for(let k=Math.min(x,y);k<=Math.max(x,y);k++)suits(a[0],R[k],a[2]).forEach(add);}
+  }else if(h.endsWith("+")){
+    h=h.slice(0,-1);
+    if(h[0]===h[1]){for(let k=ri(h[0]);k>=0;k--)add(R[k]+R[k]);}
+    else{const t=ri(h[0]);for(let k=ri(h[1]);k>t;k--)suits(h[0],R[k],h[2]).forEach(add);}
+  }else if(h[0]===h[1])add(h);
+  else suits(h[0],h[1],h[2]).forEach(add);
+  return out;
+}
+function parse(str){const m={};if(!str)return m;str.split(",").forEach(t=>expand(t).forEach(([h,f])=>m[h]=f));return m;}
+
+/* Simplified teaching ranges, hand-built to mirror the shape of solver strategies. */
+const RFI={
+  UTG:{raise:"55+, A2s+, K9s+, QTs+, JTs, T9s, 98s, 87s:0.5, 76s:0.5, 44:0.5, AJo+, KQo, ATo:0.5, KJo:0.5",
+       note:"Five players act after you, so someone often wakes up with a strong hand. Open tight and lean on hands that hold up: pairs, suited aces and big cards."},
+  HJ:{raise:"33+, 22:0.5, A2s+, K7s+, Q9s+, J9s+, T9s, 98s, 87s, 76s, 65s:0.5, ATo+, KJo+, QJo, A9o:0.5, KTo:0.5",
+      note:"One seat later, one fewer player to get through. The range widens mostly with suited hands, which play well after the flop."},
+  CO:{raise:"22+, A2s+, K5s+, Q8s+, J8s+, T8s+, 97s+, 86s+, 75s+, 65s, 54s, A8o+, KTo+, QTo+, JTo, A5o:0.5, K9o:0.5, Q9o:0.5, K4s:0.5",
+      note:"Only the button and blinds remain. You will often play in position after the flop, so weaker suited hands and more offsuit broadways become profitable."},
+  BTN:{raise:"22+, A2s+, K2s+, Q4s+, J6s+, T6s+, 96s+, 85s+, 74s+, 64s+, 53s+, 43s, A2o+, K8o+, Q9o+, J9o+, T9o, 98o, K7o:0.5, Q8o:0.5, J8o:0.5, T8o:0.5, 87o:0.5, Q3s:0.5",
+       note:"The best seat at the table: you act last on every street. Only the blinds can stop you, so you open close to half of all hands."},
+  SB:{raise:"22+, A2s+, K2s+, Q5s+, J7s+, T7s+, 96s+, 86s+, 75s+, 64s+, 54s, A2o+, K9o+, Q9o+, J9o+, T9o, K8o:0.5, 98o:0.5, Q4s:0.5",
+      note:"Only the big blind is left, but you will be out of position on every street. This chart uses a simple raise-or-fold strategy; some solvers also limp."}
+};
+const VS=[
+  {id:"BB vs BTN",hero:"BB",vil:"BTN",
+   raise:"TT+, AJs+, KQs, AQo+, A5s, A4s, A3s:0.5, K9s:0.5, Q9s:0.5, J9s:0.5, 76s:0.5, 65s:0.5",
+   call:"22-99, A2s-ATs, K2s+, Q2s+, J4s+, T6s+, 96s+, 85s+, 74s+, 63s+, 53s+, 43s, A2o-AJo, K5o+, Q8o+, J8o+, T8o+, 98o, 87o, 76o:0.5",
+   note:"You already have 1bb in the pot and the button opens wide, so you get a great price. Defend a lot, mostly by calling; 3-bet your best hands and some suited blockers."},
+  {id:"BB vs UTG",hero:"BB",vil:"UTG",
+   raise:"QQ+, AKs, AKo, AQs:0.5, A5s:0.5, A4s:0.5, KQs:0.25",
+   call:"22-JJ, A2s-AQs, KTs+, QTs+, J9s+, T9s, 98s, 87s, 76s, 65s, 54s:0.5, K9s, Q9s:0.5, AJo+, KQo",
+   note:"UTG opens a strong range. The price is still good, but offsuit hands get dominated, so defense shifts toward pairs and suited hands."},
+  {id:"SB vs BTN",hero:"SB",vil:"BTN",
+   raise:"88+, ATs+, A5s-A2s, KTs+, QTs+, JTs, AJo+, KQo, A9s:0.5, K9s:0.5, T9s:0.5, 98s:0.5, 87s:0.5, 77:0.5",
+   call:"77:0.5, 66:0.5",
+   note:"Calling here leaves the big blind behind you and puts you out of position. That is why the small blind mostly 3-bets or folds."},
+  {id:"BTN vs CO",hero:"BTN",vil:"CO",
+   raise:"TT+, AJs+, KQs, AQo+, A5s, A4s, K9s:0.5, Q9s:0.5, 76s:0.5",
+   call:"22-99, A8s-ATs, KTs-KJs, QTs+, J9s+, T9s, 98s, 87s, 76s, 65s, AJo, KQo, ATo:0.5, KJo:0.5",
+   note:"You have position on the opener for the whole hand. Call with hands that play well postflop and 3-bet for value plus a few blocker bluffs."},
+  {id:"CO vs UTG",hero:"CO",vil:"UTG",
+   raise:"QQ+, AKs, AKo, AQs:0.5, A5s:0.5, KQs:0.25",
+   call:"77-JJ, AJs-AQs, KQs, KJs, QJs, JTs, T9s:0.5, AQo:0.5, 66:0.5",
+   note:"Facing the tightest opener with players still behind you. Stay tight: anyone left to act can squeeze."}
+];
+const SEATS=["UTG","HJ","CO","BTN","SB","BB"];
+const COLORS={raise:"var(--red)",call:"var(--call)",fold:"var(--fold)"};
+
+const combos=h=>h.length===2?6:h[2]==="s"?4:12;
+function handAt(i,j){return i===j?R[i]+R[j]:i<j?R[i]+R[j]+"s":R[j]+R[i]+"o";}
+function posOf(h){const a=ri(h[0]),b=ri(h[1]);return h.length===2?[a,a]:h[2]==="s"?[a,b]:[b,a];}
+
+/* A "spot" is {mode:'rfi',seat} or {mode:'vs',vs:index} */
+function getRange(spot){
+  if(spot.mode==="rfi"){const s=RFI[spot.seat];return{raise:parse(s.raise),call:{},note:s.note,labels:{raise:"Raise",call:"Call",fold:"Fold"},vs:false,hero:spot.seat};}
+  const s=VS[spot.vs];return{raise:parse(s.raise),call:parse(s.call),note:s.note,labels:{raise:"3-bet",call:"Call",fold:"Fold"},vs:true,s,hero:s.hero,vil:s.vil};
+}
+function freqs(rng,h){const r=rng.raise[h]||0;const c=Math.min(rng.call[h]||0,1-r);return{raise:r,call:c,fold:Math.max(0,1-r-c)};}
+const pct=x=>(Math.round(x*1000)/10).toFixed(1).replace(".0","")+"%";
+
+function bg(f){
+  if(f.fold>=0.999)return"var(--fold)";
+  const a=f.raise*100,b=a+f.call*100;
+  return`linear-gradient(to right,var(--red) 0 ${a}%,var(--call) ${a}% ${b}%,var(--fold) ${b}% 100%)`;
+}
+
+/* ---------- RANGES VIEW ---------- */
+let state={mode:"rfi",seat:"BTN",vs:0,sel:"A5s"};
+const spotFromState=()=>state.mode==="rfi"?{mode:"rfi",seat:state.seat}:{mode:"vs",vs:state.vs};
+
+function renderPicker(){
+  const p=document.getElementById("picker");p.innerHTML="";
+  if(state.mode==="rfi"){
+    document.getElementById("pick-label").textContent="Your seat";
+    SEATS.forEach(s=>{const b=document.createElement("button");b.className="chip";b.textContent=s;
+      if(s==="BB"){b.disabled=true;b.title="The big blind never opens: if everyone folds, you win the blinds.";}
+      b.setAttribute("aria-pressed",s===state.seat);b.onclick=()=>{state.seat=s;render();};p.appendChild(b);});
+  }else{
+    document.getElementById("pick-label").textContent="Spot (you vs opener)";
+    VS.forEach((v,i)=>{const b=document.createElement("button");b.className="chip";b.textContent=v.id;
+      b.setAttribute("aria-pressed",i===state.vs);b.onclick=()=>{state.vs=i;render();};p.appendChild(b);});
+  }
+}
+
+function render(){
+  document.getElementById("m-rfi").setAttribute("aria-pressed",state.mode==="rfi");
+  document.getElementById("m-vs").setAttribute("aria-pressed",state.mode==="vs");
+  renderPicker();
+  const rng=getRange(spotFromState());
+  const tot={raise:0,call:0,fold:0};
+  const g=document.getElementById("grid");g.innerHTML="";
+  for(let i=0;i<13;i++)for(let j=0;j<13;j++){
+    const h=handAt(i,j),f=freqs(rng,h),c=combos(h);
+    tot.raise+=f.raise*c;tot.call+=f.call*c;tot.fold+=f.fold*c;
+    const b=document.createElement("button");
+    b.className="cell"+(f.fold>=0.999?" zero":"")+(i===j?" pair":"");
+    b.innerHTML=`<span class="r">${h.slice(0,2)}</span>${h.length===3?`<span class="s">${h[2]}</span>`:""}`;
+    b.style.background=bg(f);b.setAttribute("aria-pressed",h===state.sel);
+    b.setAttribute("aria-label",`${h}: ${rng.labels.raise} ${pct(f.raise)}${rng.vs?`, call ${pct(f.call)}`:""}, fold ${pct(f.fold)}`);
+    b.onclick=()=>{state.sel=h;render();};
+    g.appendChild(b);
+  }
+  if(rng.vs){
+    document.getElementById("title").textContent=`${rng.hero} facing ${rng.vil} open`;
+    document.getElementById("ctx").textContent=`${rng.vil} opens to 2.5bb. 3-bet to about ${rng.hero==="BTN"||rng.hero==="CO"?"7.5":"11"}bb.`;
+  }else{
+    document.getElementById("title").textContent=`${state.seat} open-raise`;
+    document.getElementById("ctx").textContent=`Everyone before you folded. Open to ${state.seat==="SB"?"3":"2.5"}bb.`;
+  }
+  const keys=rng.vs?["raise","call","fold"]:["raise","fold"];
+  document.getElementById("bar").innerHTML=keys.map(k=>`<span style="width:${tot[k]/1326*100}%;background:${COLORS[k]}"></span>`).join("");
+  document.getElementById("stats").innerHTML=keys.map(k=>`<span><i class="sw" style="background:${COLORS[k]};${k==="fold"?"outline:1px solid var(--line)":""}"></i>${rng.labels[k]} <b>${pct(tot[k]/1326)}</b> · ${Math.round(tot[k])} combos</span>`).join("");
+  renderPanel(rng);
+}
+
+function explain(h){
+  const a=ri(h[0]),b=ri(h[1]);
+  if(h.length===2){
+    if(a<=4)return"Premium pair. It is ahead of every unpaired hand before the flop and wins big pots when it holds up.";
+    if(a<=7)return"Medium pair. It often wins without improving and flops a set about 1 time in 8.5, but overcards on the flop make it awkward.";
+    return"Small pair. It rarely wins unimproved, so it plays mainly to flop a set (11.8% of the time). That needs cheap entry and deep stacks.";
+  }
+  const s=h[2]==="s",gap=b-a;
+  if(h[0]==="A"&&s&&b>=9)return"Suited wheel ace. It makes the nut flush and wheel straights, and the ace makes it less likely opponents hold AA or AK. A classic 3-bet bluff.";
+  if(h[0]==="A"&&s)return"Suited ace. Its kicker is weak, but it can make the nut flush, which keeps it playable from most seats.";
+  if(a<=4&&b<=4)return s?"Suited broadway. Two high cards plus flush and straight potential: strong in almost every spot.":"Offsuit broadway. Good high-card strength, but when it gets action it is often dominated by a hand with a better kicker.";
+  if(s&&gap<=2&&b>=4)return"Suited connector. Rarely the best hand preflop, but it makes straights and flushes that win big pots. It plays best in position.";
+  if(h[0]==="A")return"Offsuit ace. Ace-high wins small pots, but a weak kicker leaves it dominated by better aces.";
+  if(s)return"Suited hand with some flush potential but little high-card value. Playable from late seats, a fold from early ones.";
+  return"Weak offsuit hand: no flush potential, little straight potential and low cards. Folding is almost always right.";
+}
+
+function verdictText(rng,f){
+  const keys=rng.vs?["raise","call","fold"]:["raise","fold"];
+  const on=keys.filter(k=>f[k]>0.001);
+  const main=keys.reduce((m,k)=>f[k]>f[m]?k:m,keys[0]);
+  return{mixed:on.length>1,main,keys,
+    text:on.length>1?`Mixed: ${on.map(k=>`${rng.labels[k].toLowerCase()} ${pct(f[k])}`).join(", ")}`:`Always ${rng.labels[main].toLowerCase()}`};
+}
+function freqBars(rng,f,keys){
+  return`<div class="freqs">${keys.map(k=>`<div class="freq"><span>${rng.labels[k]}</span><span class="track"><span style="width:${f[k]*100}%;background:${k==="fold"?"var(--dim)":COLORS[k]}"></span></span><span class="pct">${pct(f[k])}</span></div>`).join("")}</div>`;
+}
+
+function renderPanel(rng){
+  const h=state.sel,f=freqs(rng,h),c=combos(h);
+  const type=h.length===2?"Pocket pair":h[2]==="s"?"Suited":"Offsuit";
+  const v=verdictText(rng,f);
+  const odds=h.length===2?{v:"11.8%",l:"flops a set or better"}:h[2]==="s"?{v:"10.9%",l:"flops a flush draw"}:{v:"0%",l:"chance of a flush on the flop"};
+  document.getElementById("panel").innerHTML=`
+    <div class="hand"><span class="big">${h}</span><span class="meta">${type}<br>${c} combos</span></div>
+    <div>
+      <div class="verdict" style="color:${v.main==="raise"&&!v.mixed?"var(--red)":"var(--text)"}">${v.text}</div>
+      ${v.mixed?`<p style="font-size:13px;color:var(--muted);margin-top:4px">A mixed strategy means the options are worth about the same. Mixing keeps you from being predictable.</p>`:""}
+    </div>
+    ${freqBars(rng,f,v.keys)}
+    <p>${explain(h)}</p>
+    <div class="facts">
+      <div class="fact"><b>${pct(c/1326)}</b><span>of all starting hands</span></div>
+      <div class="fact"><b>${odds.v}</b><span>${odds.l}</span></div>
+    </div>
+    <div class="insight"><div class="label" style="margin-bottom:4px">This spot</div><p style="font-size:13px">${rng.note}</p></div>
+    <div class="note">Simplified reference ranges for learning, hand-built to match the shape of solver strategies. They are not exact solver output.</div>`;
+}
+
+document.getElementById("m-rfi").onclick=()=>{state.mode="rfi";render();};
+document.getElementById("m-vs").onclick=()=>{state.mode="vs";render();};
+
+/* ---------- TRAINER ---------- */
+const SUITS=[{s:"♠",red:false},{s:"♥",red:true},{s:"♦",red:true},{s:"♣",red:false}];
+const ALL_SPOTS=[...Object.keys(RFI).map(seat=>({mode:"rfi",seat})),...VS.map((_,i)=>({mode:"vs",vs:i}))];
+let tr={pool:"all",skipEasy:true,cur:null,answered:false,n:0,good:0,streak:0,best:0,log:[]};
+try{tr.best=+localStorage.getItem("falcon.bestStreak")||0;}catch(e){}
+
+/* Long-term stats for leak drilling: per-spot accuracy + a review queue of missed hands */
+let ST={spots:{},missed:[]};
+try{const s=JSON.parse(localStorage.getItem("falcon.stats")||"null");if(s&&s.spots&&Array.isArray(s.missed))ST=s;}catch(e){}
+const saveST=()=>{try{localStorage.setItem("falcon.stats",JSON.stringify(ST));}catch(e){}};
+const spotKey=s=>s.mode==="rfi"?"rfi:"+s.seat:"vs:"+VS[s.vs].id;
+function spotFromKey(k){
+  const [m,rest]=[k.slice(0,k.indexOf(":")),k.slice(k.indexOf(":")+1)];
+  if(m==="rfi")return RFI[rest]?{mode:"rfi",seat:rest}:null;
+  const i=VS.findIndex(v=>v.id===rest);return i<0?null:{mode:"vs",vs:i};
+}
+const spotLabel=s=>s.mode==="rfi"?`${s.seat} open`:VS[s.vs].id;
+const totalPlayed=()=>Object.values(ST.spots).reduce((a,s)=>a+s.n,0);
+function weightedPick(items,w){const tot=items.reduce((a,x)=>a+w(x),0);let r=Math.random()*tot;for(const x of items){r-=w(x);if(r<=0)return x;}return items[items.length-1];}
+function cardsFor(h){
+  const a=ri(h[0]),b=ri(h[1]);const s1=Math.floor(Math.random()*4);
+  let s2=s1;
+  if(h.length===2||h[2]==="o"){do{s2=Math.floor(Math.random()*4);}while(s2===s1);}
+  return[{r:a,s:s1},{r:b,s:s2}];
+}
+
+function isEasyFold(rng,h){
+  const f=freqs(rng,h);if(f.fold<0.999)return false;
+  const [i,j]=posOf(h);
+  for(const [di,dj] of [[1,0],[-1,0],[0,1],[0,-1]]){
+    const a=i+di,b=j+dj;if(a<0||b<0||a>12||b>12)continue;
+    if(freqs(rng,handAt(a,b)).fold<0.999)return false;
+  }
+  return true;
+}
+function dealCards(){
+  const c1=Math.floor(Math.random()*52);let c2;do{c2=Math.floor(Math.random()*52);}while(c2===c1);
+  let a={r:Math.floor(c1/4),s:c1%4},b={r:Math.floor(c2/4),s:c2%4};
+  if(b.r<a.r)[a,b]=[b,a];
+  const h=a.r===b.r?R[a.r]+R[a.r]:R[a.r]+R[b.r]+(a.s===b.s?"s":"o");
+  return{cards:[a,b],hand:h};
+}
+function deal(){
+  const hint=document.getElementById("leak-hint");
+  hint.hidden=tr.pool!=="leaks";
+  if(tr.pool==="leaks"){
+    const played=totalPlayed();
+    if(played<10){
+      hint.textContent=`Play ${10-played} more hand${10-played===1?"":"s"} so Falcon can find your weak spots. Until then you get a mix of everything.`;
+    }else{
+      const queue=ST.missed.filter(m=>spotFromKey(m.key));
+      hint.textContent=`Dealing more of your weakest spots${queue.length?`, plus ${queue.length} missed hand${queue.length===1?"":"s"} waiting for review`:""}.`;
+      if(queue.length&&Math.random()<0.5){
+        const m=weightedPick(queue,x=>x.count);const spot=spotFromKey(m.key);
+        tr.cur={spot,rng:getRange(spot),hand:m.hand,cards:cardsFor(m.hand),review:true};tr.answered=false;renderTrainer();return;
+      }
+      const w=s=>{const st=ST.spots[spotKey(s)];if(!st||!st.n)return 0.4;const err=(st.n-st.good+0.5)/(st.n+1);return 0.05+err*err*4;};
+      let spot,rng,d,tries=0;
+      do{spot=weightedPick(ALL_SPOTS,w);rng=getRange(spot);d=dealCards();tries++;}
+      while(tries<60&&isEasyFold(rng,d.hand)&&Math.random()<0.9);
+      tr.cur={spot,rng,...d};tr.answered=false;renderTrainer();return;
+    }
+  }
+  const pool=ALL_SPOTS.filter(s=>tr.pool==="all"||tr.pool==="leaks"||s.mode===tr.pool);
+  let spot,rng,d,tries=0;
+  do{
+    spot=pool[Math.floor(Math.random()*pool.length)];rng=getRange(spot);d=dealCards();tries++;
+  }while(tr.skipEasy&&tries<40&&isEasyFold(rng,d.hand)&&Math.random()<0.85);
+  tr.cur={spot,rng,...d};tr.answered=false;renderTrainer();
+}
+
+function seatStrip(rng){
+  const hi=SEATS.indexOf(rng.hero),vi=rng.vs?SEATS.indexOf(rng.vil):-1;
+  return SEATS.map((s,i)=>{
+    let cls="seat",note="";
+    if(i===hi){cls+=" hero";note="You";}
+    else if(i===vi){cls+=" vil";note="Raised";}
+    else if(rng.vs){ if(i<hi && i!==vi){cls+=" folded";note="Fold";} else {cls+=" wait";note="To act";} }
+    else{ if(i<hi){cls+=" folded";note="Fold";} else {cls+=" wait";note=s==="SB"?"0.5bb":s==="BB"?"1bb":"To act";} }
+    if(rng.vs&&i>hi&&i!==vi){note=s==="SB"?"0.5bb":s==="BB"?"1bb":"To act";}
+    return`<div class="${cls}">${s}<small>${note}</small></div>`;
+  }).join("");
+}
+function cardHTML(c){const su=SUITS[c.s];return`<div class="pcard${su.red?" red":""}"><span class="c">${R[c.r]}<br>${su.s}</span><span><div class="rk">${R[c.r]==="T"?"10":R[c.r]}</div><div class="st">${su.s}</div></span></div>`;}
+
+function renderTrainer(){
+  const {rng,cards,hand}=tr.cur;
+  document.getElementById("seats").innerHTML=seatStrip(rng);
+  document.getElementById("sit").innerHTML=rng.vs
+    ?`<b>${rng.vil}</b> opens to 2.5bb. You are in the <b>${rng.hero}</b>. What do you do?`
+    :`Everyone folds to you in the <b>${rng.hero}</b>. What do you do?`;
+  document.getElementById("cards").innerHTML=cards.map(cardHTML).join("");
+  document.getElementById("cls").textContent=`${hand} · ${hand.length===2?"pocket pair":hand[2]==="s"?"suited":"offsuit"}${tr.cur.review?" · review: you missed this before":""}`;
+  const keys=rng.vs?["fold","call","raise"]:["fold","raise"];
+  const kb={fold:"F",call:"C",raise:"R"};
+  document.getElementById("acts").innerHTML=keys.map(k=>`<button class="act ${k}" data-act="${k}">${rng.labels[k]}${k==="raise"?` ${rng.vs?(rng.hero==="BTN"||rng.hero==="CO"?"7.5bb":"11bb"):(rng.hero==="SB"?"3bb":"2.5bb")}`:""}<kbd>${kb[k]}</kbd></button>`).join("");
+  document.querySelectorAll(".act").forEach(b=>b.onclick=()=>answer(b.dataset.act));
+  document.getElementById("fbwrap").innerHTML="";
+}
+
+function grade(f,act){const x=f[act];return x>=0.25?"good":x>0?"ok":"bad";}
+
+function answer(act){
+  if(tr.answered||!tr.cur)return;
+  const {rng,hand,spot}=tr.cur;
+  if(!rng.vs&&act==="call")return;
+  tr.answered=true;
+  const f=freqs(rng,hand),g=grade(f,act),v=verdictText(rng,f);
+  tr.n++;if(g==="good"){tr.good++;tr.streak++;}else tr.streak=0;
+  if(tr.streak>tr.best){tr.best=tr.streak;try{localStorage.setItem("falcon.bestStreak",tr.best);}catch(e){}}
+  tr.log.unshift({hand,spot,act,g,label:rng.vs?rng.s.id:`${rng.hero} open`});tr.log=tr.log.slice(0,25);
+  const key=spotKey(spot),st=ST.spots[key]||(ST.spots[key]={n:0,good:0});
+  st.n++;if(g==="good")st.good++;
+  const mi=ST.missed.findIndex(m=>m.key===key&&m.hand===hand);
+  if(g!=="good"){if(mi>=0)ST.missed[mi].count=Math.min(ST.missed[mi].count+1,3);else ST.missed.push({key,hand,count:2});}
+  else if(mi>=0){ST.missed[mi].count--;if(ST.missed[mi].count<=0)ST.missed.splice(mi,1);}
+  ST.missed=ST.missed.slice(-60);saveST();
+
+  document.querySelectorAll(".act").forEach(b=>{b.disabled=true;if(b.dataset.act===act)b.classList.add("picked");});
+  const head={good:["Correct","var(--good)"],ok:["Inaccurate","var(--warn)"],bad:["Mistake","var(--red)"]}[g];
+  const you=rng.labels[act].toLowerCase();
+  const line=g==="good"
+    ?(v.mixed?`You chose ${you}. The chart mixes here, and ${you} is played ${pct(f[act])} of the time.`:`You chose ${you}, which is what the chart does with ${hand} here every time.`)
+    :g==="ok"?`You chose ${you}. The chart only does that ${pct(f[act])} of the time; the main play is ${rng.labels[v.main].toLowerCase()}.`
+    :`You chose ${you}, but the chart never does that with ${hand} here. ${v.text}.`;
+  document.getElementById("fbwrap").innerHTML=`
+    <div class="fb ${g}">
+      <div class="head"><span class="dot" style="background:${head[1]}"></span>${head[0]}</div>
+      <p>${line}</p>
+      ${freqBars(rng,f,v.keys)}
+      <p style="font-size:13px;color:var(--muted)">${explain(hand)}</p>
+      <div class="btns">
+        <button class="btn primary" id="next">Next hand <span style="opacity:.6;font-weight:500">(Space)</span></button>
+        <button class="btn" id="see">See in chart</button>
+      </div>
+    </div>`;
+  document.getElementById("next").onclick=deal;
+  document.getElementById("see").onclick=()=>openInChart(spot,hand);
+  document.getElementById("next").focus({preventScroll:true});
+  renderScore();
+}
+
+function renderScore(){
+  document.getElementById("s-acc").textContent=tr.n?Math.round(tr.good/tr.n*100)+"%":"–";
+  document.getElementById("s-n").textContent=tr.n;
+  document.getElementById("s-streak").textContent=tr.streak;
+  document.getElementById("s-best").textContent=tr.best;
+  renderLeaks();
+  const L=document.getElementById("log");
+  if(!tr.log.length)return;
+  const tagText={good:"Correct",ok:"Inaccurate",bad:"Mistake"};
+  L.innerHTML=tr.log.map((e,i)=>`<button data-i="${i}"><span class="h">${e.hand}</span><span class="sp">${e.label} · you ${getRange(e.spot).labels[e.act].toLowerCase()}</span><span class="tag ${e.g}">${tagText[e.g]}</span></button>`).join("");
+  L.querySelectorAll("button").forEach(b=>b.onclick=()=>{const e=tr.log[+b.dataset.i];openInChart(e.spot,e.hand);});
+}
+
+function openInChart(spot,hand){
+  state.mode=spot.mode;if(spot.mode==="rfi")state.seat=spot.seat;else state.vs=spot.vs;state.sel=hand;
+  show("ranges");render();window.scrollTo({top:0});
+}
+
+document.querySelectorAll("[data-pool]").forEach(b=>b.onclick=()=>{
+  tr.pool=b.dataset.pool;document.querySelectorAll("[data-pool]").forEach(x=>x.setAttribute("aria-pressed",x===b));deal();
+});
+document.getElementById("skip-easy").onclick=e=>{tr.skipEasy=!tr.skipEasy;e.currentTarget.setAttribute("aria-pressed",tr.skipEasy);};
+
+function renderLeaks(){
+  const el=document.getElementById("leaks");
+  const rows=Object.entries(ST.spots).map(([k,s])=>({spot:spotFromKey(k),...s})).filter(r=>r.spot&&r.n>=3)
+    .sort((a,b)=>a.good/a.n-b.good/b.n).slice(0,5);
+  if(!rows.length){el.innerHTML=`<div class="empty">Play at least 3 hands in a spot to see how you do there.</div>`;return;}
+  el.innerHTML=rows.map(r=>{const a=r.good/r.n,c=a<0.6?"var(--red)":a<0.85?"var(--warn)":"var(--good)";
+    return`<div class="leak"><span>${spotLabel(r.spot)} <span class="n">· ${r.n} hands</span></span><b>${Math.round(a*100)}%</b><span class="track"><span style="width:${a*100}%;background:${c}"></span></span></div>`;}).join("")
+    +(ST.missed.length?`<div class="empty">${ST.missed.length} missed hand${ST.missed.length===1?"":"s"} in your review queue.</div>`:"");
+}
+let resetTimer;
+document.getElementById("reset").onclick=e=>{
+  const b=e.currentTarget;
+  if(!b.classList.contains("armed")){b.classList.add("armed");b.textContent="Tap again to reset";resetTimer=setTimeout(()=>{b.classList.remove("armed");b.textContent="Reset stats";},3000);return;}
+  clearTimeout(resetTimer);ST={spots:{},missed:[]};saveST();tr.best=0;tr.streak=0;tr.n=0;tr.good=0;tr.log=[];
+  try{localStorage.removeItem("falcon.bestStreak");}catch(err){}
+  b.classList.remove("armed");b.textContent="Reset stats";
+  document.getElementById("log").innerHTML=`<div class="empty">Your decisions will show up here. Tap one to review it.</div>`;
+  renderScore();if(tr.pool==="leaks")deal();
+};
+
+/* ---------- Theory calculators ---------- */
+function initTheory(){
+  const bp=document.getElementById("betpct");
+  const presetsB=[[33,"⅓ pot"],[50,"½ pot"],[75,"¾ pot"],[100,"Pot"],[150,"1.5× pot"]];
+  document.getElementById("bet-presets").innerHTML=presetsB.map(([v,l])=>`<button class="chip" data-v="${v}">${l}</button>`).join("");
+  const updB=()=>{
+    const b=+bp.value/100,P=1;
+    document.getElementById("betpct-v").textContent=`${bp.value}% of pot`;
+    document.getElementById("o-call").textContent=pct(b/(P+2*b));
+    document.getElementById("o-bluff").textContent=pct(b/(P+b));
+    document.getElementById("o-mdf").textContent=pct(P/(P+b));
+    const T=P+2*b;
+    document.getElementById("potbar").innerHTML=`<span style="width:${P/T*100}%;background:var(--surface-2)">Pot 100</span><span style="width:${b/T*100}%;background:var(--red)">Bet ${Math.round(b*100)}</span><span style="width:${b/T*100}%;background:var(--call)">Call ${Math.round(b*100)}</span>`;
+    document.querySelectorAll("#bet-presets .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.v===bp.value));
+  };
+  bp.oninput=updB;
+  document.querySelectorAll("#bet-presets .chip").forEach(c=>c.onclick=()=>{bp.value=c.dataset.v;updB();});
+  updB();
+
+  const on=document.getElementById("outs-n");
+  const presetsO=[[4,"Gutshot"],[8,"Open-ended"],[9,"Flush draw"],[15,"Flush + straight draw"]];
+  document.getElementById("outs-presets").innerHTML=presetsO.map(([v,l])=>`<button class="chip" data-v="${v}">${l} · ${v}</button>`).join("");
+  const updO=()=>{
+    const o=+on.value;
+    document.getElementById("outs-v").textContent=o;
+    document.getElementById("o-flop").textContent=pct(1-((47-o)*(46-o))/(47*46));
+    document.getElementById("o-turn").textContent=pct(o/46);
+    document.getElementById("o-rule").textContent=`${o*4}% / ${o*2}%`;
+    document.querySelectorAll("#outs-presets .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.v===on.value));
+  };
+  on.oninput=updO;
+  document.querySelectorAll("#outs-presets .chip").forEach(c=>c.onclick=()=>{on.value=c.dataset.v;updO();});
+  updO();
+
+  const M=[["AA","KK",82,"Overpair vs underpair"],["KK","AKo",70,"Pair vs one overcard"],["AKo","AQo",74,"Domination: same card, better kicker"],
+           ["QQ","AKs",54,"Pair vs two overcards"],["22","AKo",52,"Small pair vs two overcards"],["AKo","76s",60,"Two high cards vs two low cards"],["AA","87s",77,"Best hand vs suited connector"]];
+  document.getElementById("mrows").innerHTML=M.map(([a,b,e,t])=>`<tr><td class="hh">${a} vs ${b}</td><td><div class="eq"><span style="width:${e}%;background:var(--red)">${e}%</span><span style="width:${100-e}%;background:var(--call)">${100-e}%</span></div></td><td>${t}</td></tr>`).join("");
+
+  document.getElementById("seatbars").innerHTML=Object.keys(RFI).map(s=>{
+    const m=parse(RFI[s].raise);let c=0;for(const h in m)c+=m[h]*combos(h);const p=c/1326;
+    return`<div class="seatbar"><span>${s}</span><span class="t"><span style="width:${p*100/0.5}%"></span></span><span class="v">${pct(p)}</span></div>`;}).join("");
+  document.querySelectorAll(".toc a").forEach(a=>a.onclick=e=>{e.preventDefault();document.querySelector(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});});
+}
+initTheory();
+
+/* ---------- Tabs & keys ---------- */
+let view="ranges";
+const VIEWS={ranges:["view-ranges","t-ranges"],train:["view-train","t-train"],theory:["view-theory","t-theory"]};
+function show(v){
+  view=v;
+  for(const [k,[vid,tid]] of Object.entries(VIEWS)){
+    document.getElementById(vid).hidden=k!==v;
+    const t=document.getElementById(tid);if(k===v)t.setAttribute("aria-current","page");else t.removeAttribute("aria-current");
+  }
+  if(v==="train"&&!tr.cur){deal();renderLeaks();}
+}
+for(const [k,[,tid]] of Object.entries(VIEWS))document.getElementById(tid).onclick=()=>{show(k);window.scrollTo({top:0});};
+document.addEventListener("keydown",e=>{
+  if(view!=="train"||e.metaKey||e.ctrlKey||e.altKey)return;
+  const k=e.key.toLowerCase();
+  if(!tr.answered&&({f:"fold",c:"call",r:"raise"})[k]){answer({f:"fold",c:"call",r:"raise"}[k]);e.preventDefault();}
+  else if(tr.answered&&(k===" "||k==="enter"||k==="n")){deal();e.preventDefault();}
+});
+
+render();
+if(location.hash==="#trainer")show("train");
+if(location.hash==="#theory")show("theory");
+</script>
