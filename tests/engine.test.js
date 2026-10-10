@@ -1,0 +1,91 @@
+/* Run with: node tests/engine.test.js */
+const E = require("../js/engine.js");
+let pass = 0, fail = 0;
+function check(name, cond, info) {
+  if (cond) pass++; else { fail++; console.log("FAIL:", name, info !== undefined ? info : ""); }
+}
+const ev = s => E.evaluate(E.parseCards(s));
+const cat = s => E.CATEGORY[E.category(ev(s))];
+
+// Categories
+check("high card", cat("As Kd 9c 7h 3s") === "High card");
+check("pair", cat("As Ad 9c 7h 3s") === "Pair");
+check("two pair", cat("As Ad 9c 9h 3s") === "Two pair");
+check("trips", cat("As Ad Ac 7h 3s") === "Three of a kind");
+check("wheel straight", cat("As 2d 3c 4h 5s") === "Straight");
+check("broadway straight", cat("As Kd Qc Jh Ts") === "Straight");
+check("flush", cat("As Ks 9s 7s 3s") === "Flush");
+check("full house", cat("As Ad Ac 7h 7s") === "Full house");
+check("quads", cat("As Ad Ac Ah 7s") === "Four of a kind");
+check("straight flush", cat("9h Th Jh Qh Kh") === "Straight flush");
+check("steel wheel", cat("Ah 2h 3h 4h 5h") === "Straight flush");
+
+// Ordering
+check("wheel < six-high straight", ev("As 2d 3c 4h 5s") < ev("2d 3c 4h 5s 6h"));
+check("flush > straight", ev("As Ks 9s 7s 3s") > ev("As Kd Qc Jh Ts"));
+check("kicker matters", ev("As Ad Kc 7h 3s") > ev("Ah Ac Qc 7d 3h"));
+check("split board", ev("Ks Qd Jc Th 9s 2c 3d") === ev("Ks Qd Jc Th 9s 4c 5d"));
+check("two pair best kicker from third pair", ev("Ks Kd Qc Qh 2s 2c Ad") > ev("Ks Kd Qc Qh 2s 2c Jd"));
+check("two trips → full house uses higher trips", cat("Ks Kd Kc Qh Qs Qc 2d") === "Full house" && ev("Ks Kd Kc Qh Qs Qc 2d") > ev("Qh Qs Qc Ks Kd 2c 2d"));
+check("7-card flush picks best 5", ev("As Ks 9s 7s 3s 2s Qd") === ev("As Ks 9s 7s 3s"));
+check("straight flush beats quads", ev("5h 6h 7h 8h 9h") > ev("As Ad Ac Ah Ks"));
+check("ace-high straight over wheel in 7 cards", E.category(ev("As 2d 3c 4h 5s Kd Qd")) === 4);
+
+// Combos
+check("pair combos", E.combosOf("AA").length === 6);
+check("suited combos", E.combosOf("AKs").length === 4);
+check("offsuit combos", E.combosOf("AKo").length === 12);
+check("handClass", E.handClass(E.parseCard("Kh"), E.parseCard("As")) === "AKo" && E.handClass(E.parseCard("7d"), E.parseCard("8d")) === "87s");
+
+// Exact equity: 9 hearts left, 2h and 3h fill villain up → 7 clean outs = 7/44
+{
+  const r = E.equityHandVsHand(E.parseCards("Ah Kh"), E.parseCards("Qs Qd"), E.parseCards("Qh 7h 2c 3s"));
+  check("turn flush draw vs set = 7/44", Math.abs(r.equity - 7 / 44) < 1e-9, r.equity);
+}
+// River: exact result
+{
+  const r = E.equityHandVsHand(E.parseCards("Ah Kh"), E.parseCards("Qs Qd"), E.parseCards("Qh 7h 2c 3s 9h"));
+  check("river made flush wins", r.equity === 1, r.equity);
+}
+// Preflop Monte Carlo vs known values (±1.2%)
+const mc = (a, b, expected) => {
+  const r = E.equityHandVsHand(E.parseCards(a), E.parseCards(b), [], 60000);
+  check(`${a} vs ${b} ≈ ${expected}`, Math.abs(r.equity - expected) < 0.012, r.equity.toFixed(4));
+};
+mc("As Ad", "Ks Kd", 0.819);
+mc("Ah Kh", "Qs Qd", 0.462);
+mc("2s 2d", "Ah Kc", 0.524);
+mc("As Kc", "Ad Qh", 0.735);
+
+// Flop: equities sum to 1 and flop symmetry
+{
+  const h = E.parseCards("Jh Th"), v = E.parseCards("As Ac"), b = E.parseCards("9h 8c 2h");
+  const a = E.equityHandVsHand(h, v, b), c = E.equityHandVsHand(v, h, b);
+  check("flop symmetric", Math.abs(a.equity + c.equity - 1) < 1e-9);
+  check("big combo draw is a favourite vs AA", a.equity > 0.5, a.equity);
+}
+// Hand vs range: AA vs a range of only KK equals AA vs KK
+{
+  const r = E.equityHandVsRange(E.parseCards("As Ad"), { KK: 1 }, E.parseCards("2c 7d 9h Js"));
+  check("hand vs single-class range on turn", r.equity > 0.95 && r.equity < 1, r.equity);
+}
+// Classification
+{
+  const b = E.parseCards("Kd 7s 2c");
+  check("set is strong", E.classifyFlop(E.parseCards("7h 7c"), b) === 0);
+  check("top pair", E.classifyFlop(E.parseCards("Ks Qs"), b) === 1);
+  check("overpair", E.classifyFlop(E.parseCards("As Ah"), b) === 1);
+  check("weaker pair", E.classifyFlop(E.parseCards("8s 8h"), b) === 2);
+  check("nothing", E.classifyFlop(E.parseCards("Qh Jh"), b) === 4);
+  check("flush draw", E.classifyFlop(E.parseCards("Ah 5h"), E.parseCards("Kh 7h 2c")) === 3);
+  check("oesd", E.classifyFlop(E.parseCards("9s 8s"), E.parseCards("Td 7c 2h")) === 3);
+}
+// Texture
+{
+  const t = E.texture(E.parseCards("Kd 7s 2c"));
+  check("K72r rainbow dry", t.suitText === "Rainbow" && t.wetness === "Dry" && t.highText === "High", JSON.stringify(t));
+  const w = E.texture(E.parseCards("Jh Th 9c"));
+  check("JT9 two-tone wet", w.suitText === "Two-tone" && w.wetness === "Wet", JSON.stringify(w));
+}
+console.log(`${pass} passed, ${fail} failed`);
+process.exit(fail ? 1 : 0);
