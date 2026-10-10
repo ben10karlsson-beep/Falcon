@@ -297,3 +297,4 @@ button{font:inherit;color:inherit}
 .habits{margin:0;padding-left:18px;display:grid;gap:10px;color:#d6d4d6;max-width:66ch}
 .habits b{color:var(--text)}
 @media (max-width:480px){.mc{width:48px;height:68px}.slot{width:48px;height:68px}.mc b{font-size:24px}.qtable .mc{width:54px;height:76px}}
+.chips.tainted .mc{opacity:.55;outline:1px dashed var(--red);outline-offset:1px}
