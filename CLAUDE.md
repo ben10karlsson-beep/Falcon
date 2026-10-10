@@ -1,0 +1,55 @@
+# Falcon
+
+A poker study app for understanding the math and strategy of No-Limit Hold'em, pre and post flop. Built for the owner to learn with, and possibly shared with others later. The goal is understanding, not just memorizing: every tool should explain *why*, in plain language.
+
+## How to run
+
+- Open `index.html` in a browser. No build step, no dependencies, no framework. Keep it that way unless there is a strong reason.
+- All tests: `node tests/run-all.js` (must stay green). It runs `tests/engine.test.js` (evaluator, equity) and `tests/ranges.test.js` (range parser plus the range audit below).
+- Hooks run the tests automatically: a Claude Code PostToolUse hook (`.claude/settings.json` → `.claude/hooks/test-on-edit.js`) after edits to `js/engine.js`, `js/ranges.js` or `tests/`, and a git pre-commit hook in `.githooks/`. Enable the git hook once per clone: `git config core.hooksPath .githooks`.
+
+## Layout
+
+```
+index.html        page shell + markup for every view (tabs: Preflop ranges, Trainer, Postflop, Theory, Resources)
+css/falcon.css    all styles; colors are CSS variables on :root
+js/engine.js      card encoding, 5–7 card evaluator, equity (exact + Monte Carlo), flop classification, board texture. UMD: window.Engine in browser, module.exports in Node
+js/ranges.js      preflop range data (RFI, VS), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
+js/preflop.js     range grid view + trainer (incl. "My leaks" mode, stats in localStorage)
+js/postflop.js    equity calculator, board explorer, equity quiz (window.Postflop)
+js/theory.js      theory page calculators (pot odds, outs, matchups, hand vs range, seat bars)
+js/app.js         tab routing + keyboard shortcuts; loaded last
+tests/            engine + range tests; run-all.js runs both
+```
+
+Scripts are plain globals loaded in order: engine → ranges → preflop → theory → postflop → app.
+
+## Design language
+
+- Dark grays, red accent, white text. Simple and readable.
+- Tokens: `--bg #121214`, `--surface #1a1a1d`, `--surface-2 #232327`, `--line #323238`, `--text #f5f5f6`, `--red #e23b3f` (raise/accent), `--call #6e6f78`, `--fold #26262a`, `--good/--warn` for grading only.
+- Fonts: Barlow Condensed (display), IBM Plex Sans (body), JetBrains Mono (numbers/hands).
+- Must work at phone width (~390px) with no horizontal page scroll.
+- GTO Wizard is the visual reference for the range grid; Falcon differs by explaining reasoning.
+
+## Poker conventions and decisions
+
+- Format: 6-max cash, 100bb, opens 2.5bb (SB 3bb), 3-bets ~11bb OOP / 7.5bb IP.
+- Preflop ranges are hand-built approximations shaped like solver output, NOT exact solver data, and the UI says so. They were audited for: later seats ⊇ earlier seats, monotonic kicker/pair order, and sizes near published benchmarks (open ≈ UTG 17%, HJ 21%, CO 29%, BTN 45%, SB 41%; BB defends ~52% vs BTN). `tests/ranges.test.js` checks all of this automatically (one deliberate exception: A5 may be opened more than A6–A9, as solvers often do).
+- Range strings: `"55+, A2s+, KTs-K8s, AJo:0.5"` — `:x` is a frequency 0..1.
+- Trainer grading: action is "correct" if the chart takes it ≥25% of the time, "inaccurate" if >0%, else "mistake".
+- Outs shown to the user are clean outs only; cards that improve hero but still lose are shown separately as "tainted outs".
+- Board explorer tips are general solver tendencies, labelled as such — never present them as a solved strategy.
+
+## Writing style for UI copy
+
+Plain, direct sentences. Name things the way players do (3-bet, c-bet, outs). Explain the reason behind every recommendation. No hype.
+
+Every number in UI copy (equities, combo counts, pot odds, range sizes) must be computed with the engine or worked out step by step, never written from memory. Hardcoded figures in theory examples come from running `js/engine.js` with a high sample count, and should match what the in-page calculators show.
+
+## Ideas / roadmap
+
+- Board explorer: 3-bet pots, turn and river.
+- Real solver data import (e.g. TexasSolver output) to replace approximated ranges.
+- More formats: other stack depths, tournaments.
+- Postflop trainer (c-bet decisions by texture).

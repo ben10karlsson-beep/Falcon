@@ -1,0 +1,6 @@
+#!/bin/sh
+# Block the commit if any test fails. Enable once per clone: git config core.hooksPath .githooks
+node tests/run-all.js || {
+  echo "Tests failed; commit aborted. Fix them, or use git commit --no-verify to skip." >&2
+  exit 1
+}
