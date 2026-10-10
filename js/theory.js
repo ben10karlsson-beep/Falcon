@@ -39,12 +39,12 @@ function initTheory(){
   document.getElementById("seatbars").innerHTML=Object.keys(RFI).map(s=>{
     const m=parse(RFI[s].raise);let c=0;for(const h in m)c+=m[h]*combos(h);const p=c/1326;
     return`<div class="seatbar"><span>${s}</span><span class="t"><span style="width:${p*100/0.5}%"></span></span><span class="v">${pct(p)}</span></div>`;}).join("");
-  initRangeEquity();
+  initRangeEquity(initEV());
   document.querySelectorAll(".toc a").forEach(a=>a.onclick=e=>{e.preventDefault();document.querySelector(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});});
 }
 
 /* Hand vs range calculator: equity against each hand class, averaged by combos. */
-function initRangeEquity(){
+function initRangeEquity(onResult){
   const $=id=>document.getElementById(id);
   const hand=$("re-hand"),sel=$("re-range"),custom=$("re-custom"),more=$("re-more");
   const ranges=rangeOptions();
@@ -85,6 +85,7 @@ function initRangeEquity(){
     const res=Engine.equityByClass(cardsFor(hc),map,[],Math.max(400,Math.min(10000,Math.round(80000/Math.max(n,1)))));
     if(!res)return fail("Your cards block every combo in that range.");
     $("re-eq").textContent=pct(res.equity);
+    if(onResult)onResult(res.equity,`${hc} vs ${sel.value==="custom"?custom.value.trim():sel.options[sel.selectedIndex].text.replace(/ \(.*\)$/,"")}`);
     $("re-combos").textContent=fmtC(res.combos);
     $("re-blocked").textContent=fmtC(res.blocked);
     const share=f=>res.rows.filter(f).reduce((s,r)=>s+r.combos,0)/res.combos;
@@ -107,5 +108,30 @@ function initRangeEquity(){
   document.querySelectorAll("#re-presets .chip").forEach(c=>c.onclick=()=>{hand.value=c.dataset.h;render();});
   more.onclick=()=>{showAll=!showAll;render();};
   render();
+}
+/* EV of calling: win the pot as often as your equity, lose the call the rest of the time.
+   Returns a setter so the range calculator can offer its latest equity. */
+function initEV(){
+  const $=id=>document.getElementById(id);
+  const pot=$("ev-pot"),call=$("ev-call"),eq=$("ev-eq"),use=$("ev-use");
+  const bb=(x,d=1)=>{const r=Math.round(x*10**d)/10**d;return(r>0?"+":r<0?"−":"")+Math.abs(r).toLocaleString("en-US",{minimumFractionDigits:d,maximumFractionDigits:d})+"bb";};
+  let last=null;
+  function render(){
+    const P=+pot.value,C=+call.value,E=+eq.value/100;
+    const ok=pot.value!==""&&call.value!==""&&eq.value!==""&&P>=0&&C>0&&E>=0&&E<=1;
+    [pot,call,eq].forEach(i=>i.setAttribute("aria-invalid",!ok));
+    if(!ok){["ev-out","ev-be","ev-100"].forEach(id=>$(id).textContent="–");$("ev-why").textContent="Enter the pot and call in big blinds (the call must be more than 0) and your equity from 0 to 100%.";return;}
+    const ev=E*P-(1-E)*C,be=C/(P+C),win=E*P,lose=(1-E)*C;
+    $("ev-out").textContent=bb(ev);
+    $("ev-be").textContent=pct(be);
+    $("ev-100").textContent=bb(ev*100,0);
+    const verdict=Math.abs(ev)<0.05?"so calling and folding come out about even.":ev>0?`so calling wins ${bb(ev).slice(1)} more than folding on average. Call.`:`so calling loses ${bb(ev).slice(1)} compared with folding. Fold.`;
+    $("ev-why").textContent=`You win ${P}bb ${pct(E)} of the time (${bb(win)}) and lose ${C}bb ${pct(1-E)} of the time (${bb(-lose)}). You need ${pct(be)} and have ${pct(E)}, ${verdict}`;
+  }
+  [pot,call,eq].forEach(i=>i.oninput=render);
+  use.onclick=()=>{if(last){eq.value=(Math.round(last.eq*1000)/10).toFixed(1);render();}};
+  use.hidden=true;
+  render();
+  return(e,label)=>{last={eq:e,label};use.hidden=false;use.textContent=`Use ${pct(e)} from the range calculator (${label})`;};
 }
 initTheory();

@@ -96,6 +96,7 @@
     <a href="#combos">Combos and blockers</a>
     <a href="#matchups">Preflop matchups</a>
     <a href="#range-equity">Equity vs a range</a>
+    <a href="#ev">Expected value</a>
     <a href="#position">Position</a>
     <a href="#gto">What GTO means</a>
     <a href="#glossary">Glossary</a>
@@ -316,6 +317,63 @@
         <li><strong>Compare it to your pot odds.</strong> Range equity is the number you check against the equity you need to call. If it's lower, fold.</li>
         <li><strong>Before the river, equity isn't everything.</strong> If more betting is still to come, position and how well your hand plays after the flop decide how much of your equity you actually win.</li>
       </ul>
+    </section>
+
+    <section id="ev">
+      <h2>Expected value: is the call worth it?</h2>
+      <p>Equity tells you how often you win. <strong>Expected value</strong> (EV) turns that into what you care about: how many big blinds a decision wins or loses on average, if you made it many times.</p>
+      <p>When you call, two things can happen:</p>
+      <ul class="takeaways">
+        <li><strong>You win</strong> (as often as your equity): you gain everything already in the pot.</li>
+        <li><strong>You lose</strong> (the rest of the time): you lose the chips you called with.</li>
+      </ul>
+      <div class="formula">EV of calling = equity × pot − (1 − equity) × call</div>
+      <p><strong>Folding is always 0.</strong> The chips you put in earlier already belong to the pot, not to you, so folding doesn't lose them again. Only what happens from here on counts. That's why "I've already put in so much" is never a reason to call.</p>
+
+      <div class="example">
+        <span class="label">Example: the AQo all-in, in big blinds</span>
+        <p>From the range section: the pot is 112bb, you need 89bb to call, and you have 24.4% against a tight shoving range.</p>
+      </div>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Outcome</th><th>How often</th><th>Result</th><th>Counts for</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">You win</td><td>24.4%</td><td>+112bb</td><td>0.244 × 112 = +27.3bb</td></tr>
+            <tr><td class="hh">You lose</td><td>75.6%</td><td>−89bb</td><td>0.756 × 89 = −67.3bb</td></tr>
+            <tr><td class="hh">EV of calling</td><td></td><td></td><td><strong>−40.0bb</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Every time you make this call, you lose 40bb on average. Make it 100 times and that's about 4,000bb, or 40 full buy-ins. Folding costs nothing from here, so folding is better by 40bb.</p>
+      <p>Against the wider range (34.3%) the call still loses about 20bb. At exactly <strong>44.3%</strong> the two outcomes cancel out and EV is 0. That's the same number the pot odds formula gave you: <strong>pot odds are just the equity where calling breaks even.</strong></p>
+
+      <div class="calc" aria-label="EV calculator">
+        <div class="ev-inputs">
+          <div class="ctrl">
+            <label for="ev-pot">Pot before you call <b>bb</b></label>
+            <input type="number" id="ev-pot" class="tinput" value="112" min="0" step="0.5" inputmode="decimal">
+          </div>
+          <div class="ctrl">
+            <label for="ev-call">Amount to call <b>bb</b></label>
+            <input type="number" id="ev-call" class="tinput" value="89" min="0" step="0.5" inputmode="decimal">
+          </div>
+          <div class="ctrl">
+            <label for="ev-eq">Your equity <b>%</b></label>
+            <input type="number" id="ev-eq" class="tinput" value="24.4" min="0" max="100" step="0.1" inputmode="decimal">
+          </div>
+        </div>
+        <div class="presets">
+          <button class="chip" id="ev-use"></button>
+        </div>
+        <div class="outs">
+          <div><b id="ev-out"></b><span>EV of calling (folding is 0)</span></div>
+          <div><b id="ev-be"></b><span>equity you need to break even</span></div>
+          <div><b id="ev-100"></b><span>over 100 calls like this</span></div>
+        </div>
+        <p class="hint" id="ev-why"></p>
+      </div>
+
+      <p><strong>When it's exact and when it isn't.</strong> This math is exact when you're all in, because no more betting can happen. When chips are still behind, it's an estimate: being in position, or holding a hand that plays well, lets you win more than your raw equity, and the opposite lets you win less. Treat it as a starting point there, not the final answer.</p>
     </section>
 
     <section id="position">

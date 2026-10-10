@@ -322,3 +322,5 @@ ol.takeaways li::marker{font-family:var(--mono);color:var(--red)}
 .step{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;font-size:15px;line-height:1.6;color:#d6d4d6}
 .step>b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--red);color:var(--text);font-family:var(--mono);font-size:14px}
 .mtable.fit .hh{white-space:normal;min-width:72px}
+.ev-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:520px){.ev-inputs{grid-template-columns:minmax(0,1fr)}}
