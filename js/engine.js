@@ -226,6 +226,38 @@
     return result(win, tie, total);
   }
 
+  /* ---------- Equity: hand vs range, broken down by hand class ----------
+     Runs the same number of runouts against every class, then weights each class
+     by its live combos. The total is the combo-weighted average of the rows. */
+  function equityByClass(h, rangeMap, board, perClass) {
+    board = board || [];
+    const dead = [...h, ...board], d = new Set(dead);
+    const need = 5 - board.length, n = perClass || 1000;
+    const deck = remainingDeck(dead);
+    const rows = [];
+    let blocked = 0;
+    for (const hc in rangeMap) {
+      const w = rangeMap[hc];
+      if (w <= 0) continue;
+      const all = combosOf(hc), live = all.filter(c => !d.has(c[0]) && !d.has(c[1]));
+      blocked += (all.length - live.length) * w;
+      if (!live.length) continue;
+      let win = 0, tie = 0;
+      for (let i = 0; i < n; i++) {
+        const c = live[i % live.length], used = new Set(c), run = [];
+        sampleInto(deck, need, run, used);
+        const b = board.concat(run);
+        const a = evaluate(h.concat(b)), x = evaluate(c.concat(b));
+        if (a > x) win++; else if (a === x) tie++;
+      }
+      rows.push({ hc, combos: live.length * w, equity: (win + tie / 2) / n });
+    }
+    if (!rows.length) return null;
+    const combos = rows.reduce((s, r) => s + r.combos, 0);
+    const equity = rows.reduce((s, r) => s + r.combos * r.equity, 0) / combos;
+    return { rows, equity, combos, blocked };
+  }
+
   /* ---------- Next-card breakdown (vs a known hand) ---------- */
   function nextCardEquities(h, v, board) {
     const deck = remainingDeck([...h, ...v, ...board]);
@@ -305,7 +337,7 @@
     RANKS, SUITS, SUIT_SYMBOL, CATEGORY, BUCKETS,
     card, rankOf, suitOf, cardName, parseCard, parseCards,
     evaluate, category, combosOf, handClass, rangeCombos, remainingDeck,
-    equityHandVsHand, equityHandVsRange, equityRangeVsRange, nextCardEquities,
+    equityHandVsHand, equityHandVsRange, equityRangeVsRange, equityByClass, nextCardEquities,
     drawInfo, classifyFlop, rangeProfile, texture
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

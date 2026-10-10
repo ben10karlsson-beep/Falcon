@@ -38,23 +38,9 @@
     return d;
   }
 
-  /* ---------- Range options built from the preflop charts ---------- */
-  const ALL_HANDS = [];
-  for (let i = 0; i < 13; i++) for (let j = 0; j < 13; j++) ALL_HANDS.push(handAt(i, j));
-  function rangeOptions() {
-    const opts = [{ key: "any", label: "Any two cards", map: Object.fromEntries(ALL_HANDS.map(h => [h, 1])) }];
-    for (const seat of Object.keys(RFI)) opts.push({ key: "rfi:" + seat, label: `${seat} opening range`, map: parse(RFI[seat].raise) });
-    VS.forEach((v, i) => {
-      const rng = getRange({ mode: "vs", vs: i }), call = {}, raise = {};
-      ALL_HANDS.forEach(h => { const f = freqs(rng, h); if (f.call > 0) call[h] = f.call; if (f.raise > 0) raise[h] = f.raise; });
-      opts.push({ key: "call:" + v.id, label: `${v.hero} calls vs ${v.vil} open`, map: call });
-      opts.push({ key: "3bet:" + v.id, label: `${v.hero} 3-bets vs ${v.vil} open`, map: raise });
-    });
-    return opts;
-  }
+  /* ---------- Range options built from the preflop charts (ranges.js) ---------- */
   const RANGES = rangeOptions();
   const rangeByKey = k => RANGES.find(r => r.key === k);
-  const rangeSize = m => { let c = 0; for (const h in m) c += m[h] * (h.length === 2 ? 6 : h[2] === "s" ? 4 : 12); return c / 1326; };
 
   function handDescription(hole, board) {
     if (board.length < 3) return null;

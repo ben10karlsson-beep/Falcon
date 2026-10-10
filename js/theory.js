@@ -39,6 +39,73 @@ function initTheory(){
   document.getElementById("seatbars").innerHTML=Object.keys(RFI).map(s=>{
     const m=parse(RFI[s].raise);let c=0;for(const h in m)c+=m[h]*combos(h);const p=c/1326;
     return`<div class="seatbar"><span>${s}</span><span class="t"><span style="width:${p*100/0.5}%"></span></span><span class="v">${pct(p)}</span></div>`;}).join("");
+  initRangeEquity();
   document.querySelectorAll(".toc a").forEach(a=>a.onclick=e=>{e.preventDefault();document.querySelector(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});});
+}
+
+/* Hand vs range calculator: equity against each hand class, averaged by combos. */
+function initRangeEquity(){
+  const $=id=>document.getElementById(id);
+  const hand=$("re-hand"),sel=$("re-range"),custom=$("re-custom"),more=$("re-more");
+  const ranges=rangeOptions();
+  sel.innerHTML=ranges.map(r=>`<option value="${r.key}">${r.label} (${pct(rangeSize(r.map))})</option>`).join("")+`<option value="custom">Custom range…</option>`;
+  sel.value="custom";custom.hidden=false;
+  const presets=["AA","AKo","AQo","AJo","TT","76s","22"];
+  $("re-presets").innerHTML=presets.map(h=>`<button class="chip" data-h="${h}">${h}</button>`).join("");
+  let showAll=false,timer=0;
+
+  /* "aj o" / "JAo" / "tt" → "AJo" / "TT"; null if it is not a hand class */
+  function readHand(str){
+    const s=str.replace(/\s/g,""),m=s.match(/^([2-9TJQKA])([2-9TJQKA])([so]?)$/i);
+    if(!m)return null;
+    let a=m[1].toUpperCase(),b=m[2].toUpperCase();const t=m[3].toLowerCase();
+    if(a===b)return t?null:a+b;
+    if(!t)return null;
+    if(ri(a)>ri(b))[a,b]=[b,a];
+    return a+b+t;
+  }
+  /* Pick suits: suited hands in spades, everything else spade + heart */
+  const cardsFor=hc=>Engine.parseCards(hc[0]+"s"+hc[1]+(hc[2]==="s"?"s":"h"));
+  function readRange(){
+    if(sel.value!=="custom")return ranges.find(r=>r.key===sel.value).map;
+    let m;
+    try{m=parse(custom.value.split(",").filter(t=>t.trim()).join(","));}catch(e){return null;}
+    return Object.keys(m).every(h=>ALL_HANDS.includes(h)&&m[h]>=0&&m[h]<=1)?m:null;
+  }
+  function render(){
+    const hc=readHand(hand.value),map=readRange();
+    hand.setAttribute("aria-invalid",!hc);custom.setAttribute("aria-invalid",!map);
+    document.querySelectorAll("#re-presets .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.h===hc));
+    $("re-hand-v").textContent=hc?cardsFor(hc).map(c=>Engine.RANKS[Engine.rankOf(c)]+Engine.SUIT_SYMBOL[Engine.suitOf(c)]).join(" "):"";
+    $("re-range-v").textContent=map?pct(rangeSize(map))+" of hands":"";
+    const fail=msg=>{["re-eq","re-combos","re-blocked"].forEach(id=>$(id).textContent="–");$("re-split").innerHTML="";$("re-split-t").textContent=msg;$("re-rows").innerHTML="";more.hidden=true;};
+    if(!hc)return fail("Enter your hand as two ranks plus s or o, like AJo or 76s. Pairs need no letter: TT.");
+    if(!map)return fail("That range didn't parse. Use the chart format, e.g. QQ+, AK, AJs:0.5.");
+    const n=Object.keys(map).filter(h=>map[h]>0).length;
+    const res=Engine.equityByClass(cardsFor(hc),map,[],Math.max(400,Math.min(10000,Math.round(80000/Math.max(n,1)))));
+    if(!res)return fail("Your cards block every combo in that range.");
+    $("re-eq").textContent=pct(res.equity);
+    $("re-combos").textContent=fmtC(res.combos);
+    $("re-blocked").textContent=fmtC(res.blocked);
+    const share=f=>res.rows.filter(f).reduce((s,r)=>s+r.combos,0)/res.combos;
+    const ahead=share(r=>r.equity>0.6),behind=share(r=>r.equity<0.4),flip=1-ahead-behind;
+    const seg=(w,bg,t)=>w>0?`<span style="width:${w*100}%;background:${bg}" title="${t}">${w>=0.12?pct(w):""}</span>`:"";
+    $("re-split").innerHTML=seg(ahead,"var(--red)","Ahead")+seg(flip,"var(--call)","Close")+seg(behind,"var(--line)","Behind");
+    $("re-split-t").textContent=`You are well ahead (over 60%) of ${pct(ahead)} of their combos, close to a flip (40–60%) with ${pct(flip)}, and well behind (under 40%) ${pct(behind)}. Your ${pct(res.equity)} is the average of all of them.`;
+    const rows=res.rows.slice().sort((a,b)=>b.combos-a.combos||a.equity-b.equity);
+    const shown=showAll?rows:rows.slice(0,8);
+    $("re-rows").innerHTML=shown.map(r=>{const e=Math.round(r.equity*100);
+      return`<tr><td class="hh">${r.hc}</td><td>${fmtC(r.combos)}</td><td><div class="re-eq"><span>${e}%</span><i><b style="width:${e}%"></b></i></div></td><td>${pct(r.combos/res.combos)}</td></tr>`;}).join("");
+    more.hidden=rows.length<=8;
+    more.textContent=showAll?"Show the 8 most common hands":`Show all ${rows.length} hands`;
+  }
+  const fmtC=x=>Number.isInteger(x)?String(x):x.toFixed(1);
+  /* Monte Carlo takes a moment on wide ranges, so wait until typing pauses */
+  const schedule=()=>{clearTimeout(timer);timer=setTimeout(render,150);};
+  hand.oninput=schedule;custom.oninput=schedule;
+  sel.onchange=()=>{custom.hidden=sel.value!=="custom";render();};
+  document.querySelectorAll("#re-presets .chip").forEach(c=>c.onclick=()=>{hand.value=c.dataset.h;render();});
+  more.onclick=()=>{showAll=!showAll;render();};
+  render();
 }
 initTheory();

@@ -75,3 +75,19 @@ function bg(f){
   const a=f.raise*100,b=a+f.call*100;
   return`linear-gradient(to right,var(--red) 0 ${a}%,var(--call) ${a}% ${b}%,var(--fold) ${b}% 100%)`;
 }
+
+/* Every grid square, and the range presets used by the equity calculators. */
+const ALL_HANDS=[];
+for(let i=0;i<13;i++)for(let j=0;j<13;j++)ALL_HANDS.push(handAt(i,j));
+function rangeOptions(){
+  const opts=[{key:"any",label:"Any two cards",map:Object.fromEntries(ALL_HANDS.map(h=>[h,1]))}];
+  for(const seat of Object.keys(RFI))opts.push({key:"rfi:"+seat,label:`${seat} opening range`,map:parse(RFI[seat].raise)});
+  VS.forEach((v,i)=>{
+    const rng=getRange({mode:"vs",vs:i}),call={},raise={};
+    ALL_HANDS.forEach(h=>{const f=freqs(rng,h);if(f.call>0)call[h]=f.call;if(f.raise>0)raise[h]=f.raise;});
+    opts.push({key:"call:"+v.id,label:`${v.hero} calls vs ${v.vil} open`,map:call});
+    opts.push({key:"3bet:"+v.id,label:`${v.hero} 3-bets vs ${v.vil} open`,map:raise});
+  });
+  return opts;
+}
+const rangeSize=m=>{let c=0;for(const h in m)c+=m[h]*combos(h);return c/1326;};

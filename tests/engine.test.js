@@ -87,5 +87,21 @@ mc("As Kc", "Ad Qh", 0.735);
   const w = E.texture(E.parseCards("Jh Th 9c"));
   check("JT9 two-tone wet", w.suitText === "Two-tone" && w.wetness === "Wet", JSON.stringify(w));
 }
+// Equity by class (hand vs range, weighted average of rows)
+{
+  const aq = E.parseCards("As Qh");
+  const q = E.equityByClass(aq, { QQ: 1 });
+  check("AQo blocks half of QQ", q.combos === 3 && q.blocked === 3, JSON.stringify(q));
+  const r = E.equityByClass(E.parseCards("As Ah"), { KK: 1 }, [], 4000);
+  check("AA vs KK row ~82%", Math.abs(r.rows[0].equity - 0.82) < 0.02, r.rows[0].equity);
+  const m = { QQ: 1, KK: 1, AA: 1, AKs: 1, AKo: 1, JJ: 0.5 };
+  const byClass = E.equityByClass(aq, m, [], 3000), direct = E.equityHandVsRange(aq, m, [], 60000);
+  check("weighted rows match hand vs range", Math.abs(byClass.equity - direct.equity) < 0.02, byClass.equity + " vs " + direct.equity);
+  check("frequency halves combos", byClass.rows.find(x => x.hc === "JJ").combos === 3);
+  check("empty range → null", E.equityByClass(aq, {}) === null);
+  check("fully blocked range → null", E.equityByClass(E.parseCards("As Ah"), { AA: 0 }) === null && E.equityByClass(E.parseCards("Ks Kh"), { KK: 1 }) !== null);
+  const flop = E.equityByClass(aq, { KK: 1 }, E.parseCards("Qd 7c 2s"), 2000);
+  check("works with a board (top pair vs overpair)", flop.equity > 0.12 && flop.equity < 0.3, flop.equity);
+}
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

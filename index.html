@@ -95,6 +95,7 @@
     <a href="#outs">Counting outs</a>
     <a href="#combos">Combos and blockers</a>
     <a href="#matchups">Preflop matchups</a>
+    <a href="#range-equity">Equity vs a range</a>
     <a href="#position">Position</a>
     <a href="#gto">What GTO means</a>
     <a href="#glossary">Glossary</a>
@@ -150,10 +151,35 @@
 
     <section id="combos">
       <h2>Combinations and blockers</h2>
-      <p>There are <strong>1,326</strong> possible two-card hands, grouped into the 169 squares of the grid. Each square holds a different number of combinations:</p>
-      <div class="formula">pair = 6 combos · suited = 4 combos · offsuit = 12 combos</div>
-      <p>So AKo is three times as common as AKs, and any unpaired hand like AK (16 combos) is more likely than any specific pair (6 combos). That is why the offsuit corner of the grid has a big effect on how wide a range really is.</p>
-      <p>Cards in your hand also <strong>block</strong> combos for your opponent. If you hold an ace, there are fewer aces left for them.</p>
+      <p>A <strong>combo</strong> is one exact pair of cards, suits included. A♠K♥ and A♦K♣ are both "AK", but they are two different combos. Combos matter because they tell you how often a hand gets dealt.</p>
+      <p>Each square in the grid holds a fixed number of combos, depending on its type:</p>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Type</th><th>Every combo</th><th>Count</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">Pair: AA</td><td>A♠A♥ · A♠A♦ · A♠A♣ · A♥A♦ · A♥A♣ · A♦A♣</td><td><strong>6</strong></td></tr>
+            <tr><td class="hh">Suited: AKs</td><td>A♠K♠ · A♥K♥ · A♦K♦ · A♣K♣</td><td><strong>4</strong></td></tr>
+            <tr><td class="hh">Offsuit: AKo</td><td>4 aces × 4 kings = 16 ways, minus the 4 suited ones</td><td><strong>12</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>All 169 squares add up to <strong>1,326</strong> combos, which is every possible starting hand. Two things follow:</p>
+      <ul class="takeaways">
+        <li><strong>Offsuit hands are common.</strong> AKo gets dealt three times as often as AKs. Adding a few offsuit squares to a range widens it far more than adding the same number of suited squares.</li>
+        <li><strong>Unpaired hands get dealt more than pairs.</strong> AK (16 combos) gets dealt almost three times as often as AA (6 combos). When someone could have either, they have AK more often.</li>
+      </ul>
+      <h3>Blockers: your cards change the count</h3>
+      <p>There are only four of each rank in the deck. Every card you hold is a card your opponent can't have, so it <strong>blocks</strong> some of their combos. You can count what's left with two rules:</p>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Hand</th><th>Rule</th><th>You hold</th><th>Combos left</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">Pair</td><td>4 cards left → 6 · 3 left → 3 · 2 left → 1</td><td>one ace</td><td>AA: <strong>3</strong></td></tr>
+            <tr><td class="hh">Unpaired</td><td>cards left of the first rank × cards left of the second</td><td>one ace</td><td>AK: 3 × 4 = <strong>12</strong></td></tr>
+            <tr><td class="hh">Unpaired</td><td>same rule</td><td>an ace and a king</td><td>AK: 3 × 3 = <strong>9</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
       <div class="example">
         <span class="label">Example: why A5s is a 3-bet bluff</span>
         <p>Holding the A♠ drops your opponent's AA combos from 6 to 3 and their AK combos from 16 to 12. The hands most likely to 4-bet you become much rarer, and A5s can still make the nut flush or a wheel straight when called.</p>
@@ -170,6 +196,126 @@
         </table>
       </div>
       <p>Two lessons stand out. Domination is brutal: sharing a card with a better kicker leaves you around 26%. And a pair against two overcards is roughly a coin flip, which is why small pairs and big suited cards both have value.</p>
+    </section>
+
+    <section id="range-equity">
+      <h2>Equity against a range</h2>
+      <p>At the table you never see the other player's cards. So instead of asking "what's my equity against their hand?", you ask "what's my equity against <strong>every hand they could have</strong>?" That list of hands is their <strong>range</strong>, and it comes from what you know: their seat, their actions, and how they play.</p>
+      <p>You work it out in four steps:</p>
+      <ol class="takeaways">
+        <li><strong>Put them on a range.</strong> Which hands would this player take this action with?</li>
+        <li><strong>Count the combos</strong> of each hand, minus the ones your cards block.</li>
+        <li><strong>Find your equity</strong> against each hand. The matchup patterns above get you close.</li>
+        <li><strong>Average them, weighted by how often they have each hand.</strong> If half their combos are AK, then half the time you're up against AK, so AK makes up half the answer.</li>
+      </ol>
+      <div class="formula">your equity = add up (how often they have the hand × your equity against it)</div>
+      <p>"How often" is that hand's combos divided by the total combos in their range. A hand they play only some of the time counts for part of its combos: AJo played half the time is 6 combos instead of 12.</p>
+
+      <div class="example">
+        <span class="label">Worked example: A♠Q♥ against a tight 3-bet</span>
+        <p>A tight player 3-bets and you put them on QQ+ and AK. Your ace and queen block some of those combos, so count those first. Then weight each hand by how often they have it:</p>
+      </div>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Their hand</th><th>Combos left</th><th>How often</th><th>Your equity</th><th>Adds</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">AA</td><td>3 <span class="sub">you hold an ace</span></td><td>3 ÷ 24 = 12.5%</td><td>7.3%</td><td>0.9%</td></tr>
+            <tr><td class="hh">KK</td><td>6</td><td>6 ÷ 24 = 25%</td><td>28.3%</td><td>7.1%</td></tr>
+            <tr><td class="hh">QQ</td><td>3 <span class="sub">you hold a queen</span></td><td>3 ÷ 24 = 12.5%</td><td>30.4%</td><td>3.8%</td></tr>
+            <tr><td class="hh">AK</td><td>12 <span class="sub">you hold an ace</span></td><td>12 ÷ 24 = 50%</td><td>25.3%</td><td>12.6%</td></tr>
+            <tr><td class="hh">Total</td><td>24</td><td>100%</td><td></td><td><strong>24.4%</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Your equity is about <strong>24%</strong>. The biggest part of that comes from AK, not AA. AK is half their range and it dominates you, while AA is only one combo in eight because your ace blocks it.</p>
+      <p>Now say this player 3-bets wider and also has JJ, TT, AQs and AJs. That adds 17 combos, and you do much better against them: about 43% against JJ and TT and 70% against AJs. Your equity climbs to <strong>34.3%</strong>. Your hand is the same; only their range changed. (AQs adds only 2 combos, because your A♠ and Q♥ block the other two.)</p>
+
+      <div class="example">
+        <span class="label">Using it: do you call the all-in?</span>
+        <p>The button opens, you 3-bet A♠Q♥ to 11bb from the small blind, and the button moves all in for 100bb. The pot is 112bb (your 11, the big blind's 1, their 100) and you need 89bb more to call. By the pot odds formula you need 89 ÷ 201 = <strong>44.3%</strong> equity.</p>
+        <p>A tight player shoves about QQ+ and AK here, which gives you 24%. Even the wider range only gives you 34%. Both are well short of 44%, so this is a fold, even though AQo is a strong hand. All-in spots are where this math is most exact: no more betting is left, so your equity is exactly the share of the pot you win on average.</p>
+      </div>
+
+      <h3>At the table, without a calculator</h3>
+      <p>Mid-hand you don't need the exact number. You only need to know one thing: <strong>is my equity above or below what my pot odds ask for?</strong> A rough estimate answers that, and you can make one in four steps.</p>
+
+      <div class="steps">
+        <div class="step"><b>1</b><div><strong>Sort their range into three groups.</strong> Use the cheat sheet below. Each group gets one rough equity, so you don't have to remember exact matchups.</div></div>
+        <div class="step"><b>2</b><div><strong>Count the combos in each group.</strong> Use 6 / 4 / 12, and take off what your cards block.</div></div>
+        <div class="step"><b>3</b><div><strong>Multiply</strong> each group's combos by its rough equity.</div></div>
+        <div class="step"><b>4</b><div><strong>Add the results and divide by the total combos.</strong> That's your estimate. Compare it to your pot odds.</div></div>
+      </div>
+
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Group</th><th>When</th><th>Use</th><th>Real example</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">They crush you</td><td>They have your high card with a better kicker, or a pair above your cards</td><td><strong>25%</strong></td><td>your AQ vs AK: 25%<br>your AQ vs KK: 28%</td></tr>
+            <tr><td class="hh">Close</td><td>Their pair against your two higher cards, or nearly the same hand</td><td><strong>45%</strong></td><td>your AQ vs JJ: 43%</td></tr>
+            <tr><td class="hh">You crush them</td><td>You have their high card with a better kicker, or a pair above theirs</td><td><strong>70%</strong></td><td>your AQ vs AJs: 70%</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="example">
+        <span class="label">Example: the all-in from above, done in your head</span>
+        <p>You hold A♠Q♥ and their range is QQ+, AK, JJ, TT, AQs, AJs. You need <strong>44%</strong> to call.</p>
+      </div>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Group</th><th>Their hands</th><th>Combos</th><th>× equity</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">They crush you</td><td>AA 3 · KK 6 · QQ 3 · AK 12</td><td>24</td><td>24 × 25 = 600</td></tr>
+            <tr><td class="hh">Close</td><td>JJ 6 · TT 6 · AQs 2</td><td>14</td><td>14 × 45 = 630</td></tr>
+            <tr><td class="hh">You crush them</td><td>AJs 3</td><td>3</td><td>3 × 70 = 210</td></tr>
+            <tr><td class="hh">Total</td><td></td><td>41</td><td>1,440</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="formula">1,440 ÷ 41 ≈ 35%  →  below the 44% you need  →  fold</div>
+      <p>The exact answer is 34.3%, so the estimate is off by less than one point. Round freely: the groups and the 25 / 45 / 70 numbers are approximate anyway, and the decision comes out the same.</p>
+      <p><strong>When it's close, be careful.</strong> If your estimate lands within about 5% of what you need, the shortcut isn't precise enough to decide for you. Go with what you know about the player, and check the spot later with the calculator below.</p>
+
+      <div class="calc" aria-label="Hand vs range calculator">
+        <div class="ctrl">
+          <label for="re-hand">Your hand <b id="re-hand-v"></b></label>
+          <input type="text" id="re-hand" class="tinput" value="AQo" maxlength="3" autocomplete="off" spellcheck="false" aria-describedby="re-hint">
+        </div>
+        <div class="presets" id="re-presets"></div>
+        <div class="ctrl">
+          <label for="re-range">Their range <b id="re-range-v"></b></label>
+          <select id="re-range" class="select"></select>
+          <input type="text" id="re-custom" class="tinput" value="QQ+, AK" autocomplete="off" spellcheck="false" aria-label="Custom range" hidden>
+        </div>
+        <p class="hint" id="re-hint">Type your hand, like AJo, TT or 76s. Pick their range from the charts, or choose Custom and type one, e.g. <code>QQ+, AK, AJs:0.5</code> (":0.5" means half the time). Suits are picked for you; before the flop they barely matter. Results can move a few tenths between runs because the calculator deals random boards.</p>
+        <div class="outs">
+          <div><b id="re-eq"></b><span>your equity vs the range</span></div>
+          <div><b id="re-combos"></b><span>combos in their range</span></div>
+          <div><b id="re-blocked"></b><span>combos your cards block</span></div>
+        </div>
+        <div>
+          <div class="eq re-split" id="re-split"></div>
+          <p class="hint" id="re-split-t"></p>
+        </div>
+        <div class="mtable re-table">
+          <table>
+            <thead><tr><th>Their hand</th><th>Combos</th><th>Your equity</th><th>How often</th></tr></thead>
+            <tbody id="re-rows"></tbody>
+          </table>
+        </div>
+        <button class="linkbtn" id="re-more" hidden></button>
+      </div>
+
+      <h3>When both hands are unknown</h3>
+      <p>The same idea works when neither hand is known, for example when you study how two whole ranges do against each other. You average over both sides: every hand in one range against every hand in the other. Before the flop, the button's opening range has about <strong>54%</strong> equity against the hands the big blind calls with. That's close to even because the big blind folds its worst hands and keeps the ones that play well. The <strong>board explorer</strong> on the Postflop tab shows how that changes on each flop.</p>
+
+      <h3>What to take from this</h3>
+      <ul class="takeaways">
+        <li><strong>Count combos, don't just list hands.</strong> The hands that make up most of their range decide your equity. One scary hand with few combos matters less than it feels.</li>
+        <li><strong>Every action narrows the range.</strong> An open, a 3-bet and a 4-bet each remove weaker hands, so the same hand is worth less as the betting goes up. AJo has 60% against a button open but about 51% against an UTG open. Try both in the calculator.</li>
+        <li><strong>Compare it to your pot odds.</strong> Range equity is the number you check against the equity you need to call. If it's lower, fold.</li>
+        <li><strong>Before the river, equity isn't everything.</strong> If more betting is still to come, position and how well your hand plays after the flop decide how much of your equity you actually win.</li>
+      </ul>
     </section>
 
     <section id="position">
@@ -193,6 +339,7 @@
         <dt>3-bet</dt><dd>A re-raise of an open raise. A raise of that is a 4-bet.</dd>
         <dt>IP / OOP</dt><dd>In position (acting last after the flop) or out of position (acting first).</dd>
         <dt>Range</dt><dd>All the hands a player could have in a spot, rather than one specific hand.</dd>
+        <dt>Range equity</dt><dd>Your equity against every hand an opponent could have, weighted by how many combos of each there are.</dd>
         <dt>Combo</dt><dd>One specific two-card holding, such as A♠K♥.</dd>
         <dt>Equity</dt><dd>Your share of the pot based on how often you would win if all cards were dealt.</dd>
         <dt>EV</dt><dd>Expected value. The average amount an action wins or loses over the long run.</dd>
