@@ -56,7 +56,7 @@ const VS=[
    note:"Facing the tightest opener with players still behind you. Stay tight: anyone left to act can squeeze."}
 ];
 const SEATS=["UTG","HJ","CO","BTN","SB","BB"];
-const COLORS={raise:"var(--red)",call:"var(--call)",fold:"var(--fold)"};
+const COLORS={raise:"var(--raise)",call:"var(--call)",fold:"var(--fold)"};
 
 const combos=h=>h.length===2?6:h[2]==="s"?4:12;
 function handAt(i,j){return i===j?R[i]+R[j]:i<j?R[i]+R[j]+"s":R[j]+R[i]+"o";}
@@ -73,7 +73,7 @@ const pct=x=>(Math.round(x*1000)/10).toFixed(1).replace(".0","")+"%";
 function bg(f){
   if(f.fold>=0.999)return"var(--fold)";
   const a=f.raise*100,b=a+f.call*100;
-  return`linear-gradient(to right,var(--red) 0 ${a}%,var(--call) ${a}% ${b}%,var(--fold) ${b}% 100%)`;
+  return`linear-gradient(to right,var(--raise) 0 ${a}%,var(--call) ${a}% ${b}%,var(--fold) ${b}% 100%)`;
 }
 
 /* Every grid square, and the range presets used by the equity calculators. */

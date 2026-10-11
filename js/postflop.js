@@ -169,7 +169,7 @@
     $("pc-result").innerHTML = html;
   }
 
-  const BUCKET_COLORS = ["var(--red)", "#f08a8c", "#c9c7ca", "#7d7e87", "#34343a"];
+  const BUCKET_COLORS = ["var(--red)", "var(--red-soft)", "#cbc3b9", "#857c72", "#3a3430"];
   function profileBars(rows) {
     return `<div class="profile">${rows.map(r => `
         <div class="prof-row"><span class="pn">${r.name}</span><span class="pbar">${r.prof.buckets.map((x, i) => `<span style="width:${x * 100}%;background:${BUCKET_COLORS[i]}" title="${E.BUCKETS[i]}: ${fmt(x)}"></span>`).join("")}</span></div>`).join("")}

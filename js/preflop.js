@@ -84,7 +84,7 @@ function renderPanel(rng){
   document.getElementById("panel").innerHTML=`
     <div class="hand"><span class="big">${h}</span><span class="meta">${type}<br>${c} combos</span></div>
     <div>
-      <div class="verdict" style="color:${v.main==="raise"&&!v.mixed?"var(--red)":"var(--text)"}">${v.text}</div>
+      <div class="verdict" style="color:${v.main==="raise"&&!v.mixed?"var(--raise)":"var(--text)"}">${v.text}</div>
       ${v.mixed?`<p style="font-size:13px;color:var(--muted);margin-top:4px">A mixed strategy means the options are worth about the same. Mixing keeps you from being predictable.</p>`:""}
     </div>
     ${freqBars(rng,f,v.keys)}

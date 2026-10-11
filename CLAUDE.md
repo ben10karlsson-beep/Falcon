@@ -26,9 +26,13 @@ Scripts are plain globals loaded in order: engine → ranges → preflop → the
 
 ## Design language
 
-- Dark grays, red accent, white text. Simple and readable.
-- Tokens: `--bg #121214`, `--surface #1a1a1d`, `--surface-2 #232327`, `--line #323238`, `--text #f5f5f6`, `--red #e23b3f` (raise/accent), `--call #6e6f78`, `--fold #26262a`, `--good/--warn` for grading only.
-- Fonts: Barlow Condensed (display), IBM Plex Sans (body), JetBrains Mono (numbers/hands).
+- "Warm charcoal": minimal and homey, not sharp. Warm brown-tinted darks, warm white text, soft rounded shapes.
+- Tokens: `--bg #1d1914`, `--surface #27211b`, `--surface-2 #322a22`, `--line #3f352b`, `--text #f4eadb`, `--text-2 #ddd0bd` (body copy), `--muted #ae9f8c`, `--red #de6752` (UI accent, brick), `--good/--warn` for grading only. Radii: `--r-sm 8px`, `--r 14px`, `--r-lg 20px`, pills 999px.
+- The range grid colours are a player convention and stay exact: `--raise #e23b3f`, `--call #6e6f78`, `--fold #26262a`. Use `--raise` for anything meaning "raise" (grid, raise button, raise verdict); use `--red` for accents.
+- Panels are tonal (a shade lighter than what they sit on), not outlined. Borders only where they mean something: inputs, tables, the grading outline on feedback, the dashed "Practice this" box.
+- Labels are sentence case, no letter-spacing, no ALL-CAPS.
+- Fonts: Bricolage Grotesque (display), Figtree (body, and numbers/hands via tabular figures; `--mono` points at Figtree).
+- Text colours must keep ≥ 4.5:1 contrast on `--bg` and `--surface`; `--dim` is for non-essential hints only.
 - Must work at phone width (~390px) with no horizontal page scroll.
 - GTO Wizard is the visual reference for the range grid; Falcon differs by explaining reasoning.
 
