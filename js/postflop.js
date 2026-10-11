@@ -360,7 +360,7 @@
       grade = right ? "good" : "bad";
       if (right) qz.good++;
       head = right ? "Correct" : "Mistake";
-      body = `<p>You need <strong>${fmt(need)}</strong> equity to call ${c.bet} into a final pot of ${c.pot + 2 * c.bet}. You have <strong>${fmt(eq)}</strong>.</p>
+      body = `<p>With their bet the pot is ${c.pot + c.bet}, so you need ${c.bet} ÷ (${c.pot + c.bet} + ${c.bet}) = <strong>${fmt(need)}</strong> equity to call. You have <strong>${fmt(eq)}</strong>.</p>
         <p>Calling is worth <strong>${ev >= 0 ? "+" : ""}${ev.toFixed(1)} chips</strong> on average compared to folding, so the right play is to <strong>${ev >= 0 ? "call" : "fold"}</strong>.</p>`;
     }
     const color = { good: "var(--good)", ok: "var(--warn)", bad: "var(--red)" }[grade];
@@ -495,7 +495,7 @@
       grade = close ? "ok" : ans === best ? "good" : "bad";
       if (grade !== "bad") rq.good++;
       head = close ? "Close either way" : grade === "good" ? "Correct" : "Mistake";
-      body = `<p>You have <strong>${youText}</strong>. Calling ${c.bet}bb makes the final pot ${c.pot + 2 * c.bet}bb, so you need ${c.bet} ÷ (${c.pot} + 2 × ${c.bet}) = <strong>${fmt(c.need)}</strong> equity. Against ${c.vilSeat}'s whole range you have <strong>${fmt(eq)}</strong>.</p>
+      body = `<p>You have <strong>${youText}</strong>. With their bet the pot is ${c.pot + c.bet}bb, so you need ${c.bet} ÷ (${c.pot + c.bet} + ${c.bet}) = <strong>${fmt(c.need)}</strong> equity to call. Against ${c.vilSeat}'s whole range you have <strong>${fmt(eq)}</strong>.</p>
         <p>Calling is worth <strong>${ev >= 0 ? "+" : "−"}${Math.abs(ev).toFixed(2)}bb</strong> on average compared with folding, so the better play is to <strong>${best}</strong>.${close ? " The gap is under 2 points, so both answers count. In a real game, what you know about this player decides it." : ""}</p>`;
     }
     const color = { good: "var(--good)", ok: "var(--warn)", bad: "var(--red)" }[grade];
@@ -520,6 +520,16 @@
     $("rq-err").textContent = rq.mode === "eq" ? (rq.err / rq.n).toFixed(1) : "–";
   }
 
+  /* Switching mode starts a fresh session score */
+  function setQuizMode(m) {
+    qz.mode = m; qz.n = 0; qz.err = 0; qz.good = 0;
+    $("qz-n").textContent = "0"; $("qz-acc").textContent = "–"; $("qz-err").textContent = "–";
+  }
+  function setRangeMode(m) {
+    rq.mode = m; rq.n = 0; rq.err = 0; rq.good = 0;
+    $("rq-n").textContent = "0"; $("rq-acc").textContent = "–"; $("rq-err").textContent = "–";
+  }
+
   /* ---------- Sub-tabs ---------- */
   let sub = "calc";
   function setSub(s) {
@@ -536,18 +546,16 @@
   window.Postflop = {
     init() {
       document.querySelectorAll("[data-sub]").forEach(b => b.onclick = () => setSub(b.dataset.sub));
-      document.querySelectorAll("[data-qm]").forEach(b => b.onclick = () => {
-        qz.mode = b.dataset.qm; qz.n = 0; qz.err = 0; qz.good = 0;
-        $("qz-n").textContent = "0"; $("qz-acc").textContent = "–"; $("qz-err").textContent = "–";
-        dealQuiz();
-      });
-      document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => {
-        rq.mode = b.dataset.rm; rq.n = 0; rq.err = 0; rq.good = 0;
-        $("rq-n").textContent = "0"; $("rq-acc").textContent = "–"; $("rq-err").textContent = "–";
-        dealRange();
-      });
+      document.querySelectorAll("[data-qm]").forEach(b => b.onclick = () => { setQuizMode(b.dataset.qm); dealQuiz(); });
+      document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { setRangeMode(b.dataset.rm); dealRange(); });
       initCalc();
       setSub("calc");
+    },
+    /* Open a sub-tab, optionally in a given quiz / trainer mode (used by the theory "Practice this" buttons) */
+    open(s, mode) {
+      if (mode && s === "quiz" && mode !== qz.mode) { setQuizMode(mode); qz.cur = null; }
+      if (mode && s === "range" && mode !== rq.mode) { setRangeMode(mode); rq.cur = null; }
+      setSub(s);
     },
     key(e) {
       const k = e.key.toLowerCase();

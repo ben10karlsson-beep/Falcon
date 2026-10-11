@@ -1,4 +1,4 @@
-/* Falcon theory page calculators. */
+/* Falcon theory page: chapter routing and calculators. */
 function initTheory(){
   const bp=document.getElementById("betpct");
   const presetsB=[[33,"⅓ pot"],[50,"½ pot"],[75,"¾ pot"],[100,"Pot"],[150,"1.5× pot"]];
@@ -7,8 +7,9 @@ function initTheory(){
     const b=+bp.value/100,P=1;
     document.getElementById("betpct-v").textContent=`${bp.value}% of pot`;
     document.getElementById("o-call").textContent=pct(b/(P+2*b));
-    document.getElementById("o-bluff").textContent=pct(b/(P+b));
-    document.getElementById("o-mdf").textContent=pct(P/(P+b));
+    // You risk the call (= bet) to win the pot including the bet
+    document.getElementById("o-risk").textContent=`${Math.round(b*100)} / ${Math.round((P+b)*100)}`;
+    document.getElementById("o-ratio").textContent=`${+((P+b)/b).toFixed(1)} : 1`;
     const T=P+2*b;
     document.getElementById("potbar").innerHTML=`<span style="width:${P/T*100}%;background:var(--surface-2)">Pot 100</span><span style="width:${b/T*100}%;background:var(--red)">Bet ${Math.round(b*100)}</span><span style="width:${b/T*100}%;background:var(--call)">Call ${Math.round(b*100)}</span>`;
     document.querySelectorAll("#bet-presets .chip").forEach(c=>c.setAttribute("aria-pressed",c.dataset.v===bp.value));
@@ -41,8 +42,39 @@ function initTheory(){
     return`<div class="seatbar"><span>${s}</span><span class="t"><span style="width:${p*100/0.5}%"></span></span><span class="v">${pct(p)}</span></div>`;}).join("");
   initRangeEquity(initEV());
   initComboDrill();
+  initChapters();
   document.querySelectorAll(".toc a").forEach(a=>a.onclick=e=>{e.preventDefault();document.querySelector(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});});
 }
+
+/* One chapter on screen at a time. The path map, "Builds on" links and Back/Next all go through show(). */
+const CHAPTERS=["equity","outs","price","combos","range","together","strategy","glossary"];
+let chapter="equity";
+function showChapter(id,scroll){
+  if(!CHAPTERS.includes(id))id="equity";
+  chapter=id;
+  document.querySelectorAll("#view-theory .chapter").forEach(s=>s.hidden=s.dataset.ch!==id);
+  document.querySelectorAll(".path [data-ch]").forEach(b=>{if(b.dataset.ch===id)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current");});
+  document.getElementById("th-intro").hidden=id!=="equity";
+  if(document.getElementById("view-theory").hidden)return;
+  history.replaceState(null,"","#theory/"+id);
+  if(scroll!==false)window.scrollTo({top:0});
+}
+function initChapters(){
+  const title=id=>{const b=document.querySelector(`.path [data-ch="${id}"]`);return b.textContent.replace(/^\d+/,"").trim();};
+  document.querySelectorAll("#view-theory .chapter").forEach(sec=>{
+    const i=CHAPTERS.indexOf(sec.dataset.ch),prev=CHAPTERS[i-1],next=CHAPTERS[i+1];
+    sec.querySelector(".pager").innerHTML=
+      (prev?`<button class="btn" data-ch="${prev}">← ${title(prev)}</button>`:"<span></span>")+
+      (next?`<button class="btn primary" data-ch="${next}">Next: ${title(next)} →</button>`:"");
+  });
+  document.getElementById("view-theory").addEventListener("click",e=>{
+    const t=e.target.closest("[data-ch]");
+    if(!t||t.tagName==="SECTION")return;
+    e.preventDefault();showChapter(t.dataset.ch);
+  });
+  showChapter("equity",false);
+}
+window.Theory={show:showChapter,current:()=>chapter};
 
 /* Hand vs range calculator: equity against each hand class, averaged by combos. */
 function initRangeEquity(onResult){
@@ -211,6 +243,6 @@ function initEV(){
   use.onclick=()=>{if(last){eq.value=(Math.round(last.eq*1000)/10).toFixed(1);render();}};
   use.hidden=true;
   render();
-  return(e,label)=>{last={eq:e,label};use.hidden=false;use.textContent=`Use ${pct(e)} from the range calculator (${label})`;};
+  return(e,label)=>{last={eq:e,label};use.hidden=false;use.textContent=`Use ${pct(e)} from the chapter 5 range calculator (${label})`;};
 }
 initTheory();

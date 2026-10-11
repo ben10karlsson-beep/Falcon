@@ -17,8 +17,8 @@ js/engine.js      card encoding, 5–7 card evaluator, equity (exact + Monte Car
 js/ranges.js      preflop range data (RFI, VS), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
 js/preflop.js     range grid view + trainer (incl. "My leaks" mode, stats in localStorage)
 js/postflop.js    equity calculator, board explorer, equity quiz, range trainer (window.Postflop)
-js/theory.js      theory page calculators (pot odds, outs, matchups, hand vs range, EV, seat bars)
-js/app.js         tab routing + keyboard shortcuts; loaded last
+js/theory.js      theory chapter routing (window.Theory) + calculators (pot odds, outs, matchups, combo drill, hand vs range, EV, seat bars)
+js/app.js         tab routing (address hash: #trainer, #postflop, #theory/<chapter>), data-go practice buttons, keyboard shortcuts; loaded last
 tests/            engine + range tests; run-all.js runs both
 ```
 
@@ -40,6 +40,13 @@ Scripts are plain globals loaded in order: engine → ranges → preflop → the
 - Trainer grading: action is "correct" if the chart takes it ≥25% of the time, "inaccurate" if >0%, else "mistake".
 - Outs shown to the user are clean outs only; cards that improve hero but still lose are shown separately as "tainted outs".
 - Board explorer tips are general solver tendencies, labelled as such — never present them as a solved strategy.
+
+## Theory page structure
+
+The Theory tab is a learning path of chapters, one on screen at a time: 1 Equity → 2 Outs → 3 Pot odds and EV (against one hand), then 4 Combos and blockers → 5 Equity vs a range → 6 Calling vs a range (the same ideas against a range), then 7 Ranges and strategy, plus a Glossary. Each chapter is a `<section class="chapter" data-ch="...">` with a "Builds on" line, a Recap, a "Practice this" block (`data-go="view:sub:mode"` buttons into the trainers) and a pager filled by theory.js.
+
+- A chapter may only rely on ideas from earlier chapters. Put new theory content in the first chapter where its prerequisites are covered, and link back with `data-ch` links instead of "above/below".
+- One pot odds notation everywhere: "the pot" includes the bet you face, and equity needed = call ÷ (pot + call). The bet ÷ (pot before the bet + 2 × bet) form is only shown as a shortcut.
 
 ## Writing style for UI copy
 

@@ -17,10 +17,23 @@ function show(v) {
   }
   if (v === "train" && !tr.cur) { deal(); renderLeaks(); }
   if (v === "postflop" && !postflopReady) { postflopReady = true; Postflop.init(); }
+  // Keep the address in sync so a reload lands on the same view (and chapter)
+  const hash = { ranges: "", train: "#trainer", theory: "#theory/" + Theory.current() }[v] ?? "#" + v;
+  history.replaceState(null, "", hash || location.pathname + location.search);
 }
 for (const [k, [, tid]] of Object.entries(VIEWS)) {
   document.getElementById(tid).onclick = () => { show(k); window.scrollTo({ top: 0 }); };
 }
+
+/* "Practice this" buttons: data-go="view[:postflop sub-tab[:mode]]", e.g. "postflop:quiz:cf" */
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-go]");
+  if (!b) return;
+  const [v, sub, mode] = b.dataset.go.split(":");
+  show(v);
+  if (sub) Postflop.open(sub, mode);
+  window.scrollTo({ top: 0 });
+});
 
 document.addEventListener("keydown", e => {
   if (e.metaKey || e.ctrlKey || e.altKey) return;
@@ -35,5 +48,12 @@ document.addEventListener("keydown", e => {
 });
 
 render();
-const START = { "#trainer": "train", "#postflop": "postflop", "#theory": "theory", "#resources": "resources" }[location.hash];
-if (START) show(START);
+/* Open the view (and theory chapter) named in the address, e.g. #theory/combos */
+function route() {
+  const [hashView, chapter] = location.hash.split("/");
+  const v = { "#trainer": "train", "#postflop": "postflop", "#theory": "theory", "#resources": "resources" }[hashView];
+  if (v === "theory" && chapter) Theory.show(chapter, false);
+  if (v) show(v);
+}
+route();
+window.addEventListener("hashchange", route);
