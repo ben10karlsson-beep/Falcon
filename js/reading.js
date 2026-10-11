@@ -1,7 +1,8 @@
 /* Falcon range reading: paint the range a player has in a spot, then compare it with the chart in combos.
-   Depends on ranges.js (RFI, VS, parse, getRange, freqs, rangeOverlap, handGroup) and preflop.js (openInChart). */
+   After checking, "Play a flop" shows what the misread costs: your equity against your painted range vs the chart range.
+   Depends on engine.js, ranges.js (RFI, VS, parse, getRange, freqs, rangeOverlap, handGroup) and preflop.js (openInChart). */
 (function(){
-  const $=id=>document.getElementById(id);
+  const $=id=>document.getElementById(id),E=window.Engine;
 
   /* Every spot with a real range to read: 5 opens, 5 calls, 5 3-bets (tiny ranges are skipped) */
   const SPOTS=[];
@@ -16,6 +17,21 @@
       prompt:`<b>${v.vil}</b> opens to 2.5bb and <b>${v.hero}</b> 3-bets. Paint ${v.hero}'s 3-betting range.`});
   });
   const sizeOf=m=>Object.keys(m).reduce((t,h)=>t+m[h]*combos(h),0);
+
+  /* For the flop step: who you are and which range your hand comes from.
+     Against a caller or 3-bettor you are the opener. Against an open you are the caller from the chart that defends
+     against that seat; HJ and SB opens have no defending chart, so you hold a hand from the BB's defence vs the BTN. */
+  const callMap=i=>SPOTS.find(x=>x.kind==="call"&&x.spot.vs===i).chart;
+  function heroFor(sp){
+    if(sp.kind==="rfi"){
+      const i=VS.findIndex(v=>v.vil===sp.who),j=i>=0?i:VS.findIndex(v=>v.id==="BB vs BTN");
+      return{map:callMap(j),text:`${sp.who} opens and you call in the ${VS[j].hero}.`};
+    }
+    const v=VS[sp.spot.vs];
+    return{map:parse(RFI[v.vil].raise),text:sp.kind==="call"
+      ?`You open from ${v.vil} and ${v.hero} calls.`
+      :`You open from ${v.vil}, ${v.hero} 3-bets and you call.`};
+  }
   const READABLE=SPOTS.filter(s=>sizeOf(s.chart)>=20);
 
   const rd={pool:"all",cur:null,guess:{},checked:false,view:"diff",showSize:false,res:null,n:0,sum:0,good:0};
@@ -26,7 +42,7 @@
     const pool=READABLE.filter(s=>rd.pool==="all"||s.kind===rd.pool);
     let next;do{next=pool[(Math.random()*pool.length)|0];}while(pool.length>1&&next===rd.cur);
     rd.cur=next;rd.guess={};rd.checked=false;rd.res=null;rd.view="diff";
-    $("rd-q").innerHTML=rd.cur.prompt;
+    $("rd-q").innerHTML=rd.cur.prompt;$("rd-flop").innerHTML="";
     $("rd-fb").innerHTML="";$("rd-view").hidden=true;$("rd-tools").hidden=false;
     $("rd-add").value="";$("rd-add").removeAttribute("aria-invalid");
     renderGrid();renderSize();
@@ -156,14 +172,84 @@
         ${offsuit}
         <div class="rd-legend"><span><i class="sw" style="background:${rd.cur.color}"></i>In both</span><span><i class="sw rd-miss-sw" style="background:color-mix(in srgb,${rd.cur.color} 35%,var(--fold))"></i>Missed</span><span><i class="sw rd-extra-sw"></i>Added</span></div>
         <div class="btns"><button class="btn primary" id="rd-next">Next spot <span style="opacity:.6;font-weight:500">(Enter)</span></button>
+        <button class="btn" id="rd-flop-btn">Play a flop against it</button>
         <button class="btn" id="rd-see">See in chart</button></div>
       </div>`;
     $("rd-next").onclick=deal;
+    $("rd-flop-btn").onclick=playFlop;
     $("rd-see").onclick=()=>openInChart(rd.cur.spot,ms.length?ms[0].hands[0][0]:"AA");
     $("rd-tools").hidden=true;$("rd-view").hidden=false;setView("diff");renderSize();
     $("rd-next").focus({preventScroll:true});
     $("rd-n").textContent=rd.n;$("rd-avg").textContent=pct(rd.sum/rd.n);$("rd-good").textContent=rd.good;
   }
+  /* ---------- Flop step: what the misread costs ---------- */
+  const fmt=x=>(Math.round(x*1000)/10).toFixed(1)+"%";
+  const cardHTML=c=>{const r=E.RANKS[E.rankOf(c)],su=E.suitOf(c),red=su===1||su===2;
+    return`<span class="mc ${red?"red":""}" aria-label="${r==="T"?"10":r}${E.SUIT_SYMBOL[su]}"><b>${r==="T"?"10":r}</b><i>${E.SUIT_SYMBOL[su]}</i></span>`;};
+  let flopJob=0;
+  function playFlop(){
+    const sp=rd.cur,hero=heroFor(sp),job=++flopJob;
+    // Deal your hand from your range, then a flop
+    const pool=E.rangeCombos(hero.map,[]);
+    let r=Math.random()*pool.reduce((t,x)=>t+x.w,0),pick=pool[0];
+    for(const x of pool){r-=x.w;if(r<=0){pick=x;break;}}
+    const h=pick.c.slice(),deck=E.remainingDeck(h);
+    for(let i=deck.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[deck[i],deck[j]]=[deck[j],deck[i]];}
+    const board=deck.slice(0,3);
+    $("rd-flop").innerHTML=`<div class="fb rd-flopbox"><p class="hint">Working out every turn and river…</p></div>`;
+    $("rd-flop").scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth",block:"nearest"});
+    setTimeout(()=>{
+      if(job!==flopJob)return;
+      const mine=E.equityByCombo(h,rd.guess,board),real=E.equityByCombo(h,sp.chart,board);
+      renderFlop(sp,hero,h,board,mine,real);
+    },30);
+  }
+  /* Equity against the part of the range you got wrong: chart hands you left out, and hands you added */
+  function partEquity(res,weight){
+    let w=0,e=0;
+    for(const row of res.rows){const x=weight(row.hc)*row.w;if(x>0){w+=x;e+=x*row.equity;}}
+    return w?{combos:w,equity:e/w}:null;
+  }
+  function renderFlop(sp,hero,h,board,mine,real){
+    const head=`<div class="qhands"><div><div class="label">Your hand</div><div class="cardrow">${h.map(cardHTML).join("")}</div></div>
+      <div><div class="label">Flop</div><div class="cardrow">${board.map(cardHTML).join("")}</div></div></div>
+      <p>${hero.text} Your equity against ${sp.who}'s range on this flop, worked out over every turn and river:</p>`;
+    if(!mine||!real){$("rd-flop").innerHTML=`<div class="fb rd-flopbox">${head}<p>Your cards and the flop block every combo you painted, so there's nothing to compare. Deal another flop.</p>
+      <div class="btns"><button class="btn" id="rd-flop-again">Deal another flop</button></div></div>`;$("rd-flop-again").onclick=playFlop;return;}
+    const gap=(mine.equity-real.equity)*100,abs=Math.abs(gap);
+    const verdict=abs<2?"Your read barely changes the answer here: within 2 points of the real equity."
+      :`Your read makes this hand look <strong>${abs.toFixed(1)} points ${gap>0?"better":"worse"}</strong> than it is against the real range.`;
+    // Which mistakes moved it: equity against the hands you missed and the hands you added
+    const missed=partEquity(real,hc=>Math.max((sp.chart[hc]||0)-(rd.guess[hc]||0),0)/(sp.chart[hc]||1));
+    const added=partEquity(mine,hc=>Math.max((rd.guess[hc]||0)-(sp.chart[hc]||0),0)/(rd.guess[hc]||1));
+    const why=[];
+    if(missed&&missed.combos>=1)why.push(`Against the ${fmtC(+missed.combos.toFixed(1))} combos you left out, you have <strong>${fmt(missed.equity)}</strong>. ${missed.equity<real.equity?"They're stronger than average here, so leaving them out flatters your hand.":"They're weaker than average here, so leaving them out makes your hand look worse."}`);
+    if(added&&added.combos>=1)why.push(`Against the ${fmtC(+added.combos.toFixed(1))} combos you added, you have <strong>${fmt(added.equity)}</strong>. ${added.equity>real.equity?"They're weaker than the real range, so adding them flatters your hand.":"They're stronger than the real range, so adding them makes your hand look worse."}`);
+    // How each range hit the flop
+    const rows=E.BUCKETS.map((b,i)=>{
+      const a=mine.groups[i].combos/mine.combos,c=real.groups[i].combos/real.combos;
+      return a||c?`<tr><td class="grp">${b}</td><td>${fmt(a)}</td><td>${fmt(c)}</td></tr>`:"";
+    }).join("");
+    $("rd-flop").innerHTML=`
+      <div class="fb rd-flopbox">
+        ${head}
+        <div class="outs">
+          <div><b>${fmt(mine.equity)}</b><span>against your painted range</span></div>
+          <div><b>${fmt(real.equity)}</b><span>against the chart range</span></div>
+          <div><b>${gap>=0?"+":"−"}${abs.toFixed(1)}</b><span>points your read is off</span></div>
+        </div>
+        <p>${verdict}</p>
+        ${why.length?`<ul class="takeaways rd-list">${why.map(x=>`<li>${x}</li>`).join("")}</ul>`:""}
+        <div class="mtable fit"><table>
+          <thead><tr><th>How the range hit the flop</th><th>Your range</th><th>Chart</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table></div>
+        <p class="hint">Equity is exact for this hand and flop, before any betting. The chart is Falcon's approximation of a solver range.</p>
+        <div class="btns"><button class="btn" id="rd-flop-again">Deal another flop</button></div>
+      </div>`;
+    $("rd-flop-again").onclick=playFlop;
+  }
+
   function setView(v){
     rd.view=v;
     document.querySelectorAll("[data-rv]").forEach(b=>b.setAttribute("aria-pressed",b.dataset.rv===v));

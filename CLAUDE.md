@@ -16,7 +16,7 @@ css/falcon.css    all styles; colors are CSS variables on :root
 js/engine.js      card encoding, 5–7 card evaluator, equity (exact + Monte Carlo), flop classification, board texture. UMD: window.Engine in browser, module.exports in Node
 js/ranges.js      preflop range data (RFI, VS), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
 js/preflop.js     range grid view + preflop hands trainer (incl. "My leaks" mode, stats in localStorage)
-js/reading.js     Read ranges trainer: paint a range on the grid, graded against the chart in combos (window.Reading)
+js/reading.js     Read ranges trainer: paint a range on the grid, graded against the chart in combos, plus the flop step (equity vs your range vs the chart range) (window.Reading)
 js/postflop.js    equity calculator + board explorer (Postflop tab); Hand vs hand quiz + range trainer (Trainer tab) (window.Postflop)
 js/theory.js      theory chapter routing (window.Theory) + calculators (pot odds, outs, matchups, combo drill, hand vs range, EV, seat bars)
 js/app.js         tab routing + Trainer modes (address hash: #trainer[/read|quiz|range], #postflop, #theory/<chapter>), data-go practice buttons, keyboard shortcuts; loaded last
@@ -68,4 +68,4 @@ Every number in UI copy (equities, combo counts, pot odds, range sizes) must be 
 - Real solver data import (e.g. TexasSolver output) to replace approximated ranges.
 - More formats: other stack depths, tournaments.
 - Postflop trainer (c-bet decisions by texture).
-- Range trainer, next steps (live: guess flop equity vs the chart range; call-or-fold vs a flop bet; Read ranges, paint a range and compare it in combos): after a Read ranges spot, deal a flop and compare your equity against your painted range vs the real one, to show what a misread costs; add flop betting so ranges narrow (c-bet / call), which would also make call-or-fold more realistic.
+- Range trainer, next steps (live: guess flop equity vs the chart range; call-or-fold vs a flop bet; Read ranges, paint a range and compare it in combos, then play a flop to see your equity vs your painted range against the chart range): add flop betting so ranges narrow (c-bet / call), which would also make call-or-fold more realistic.
