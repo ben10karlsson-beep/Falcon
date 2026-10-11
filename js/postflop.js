@@ -386,13 +386,16 @@
   }
 
   /* ================= 4. RANGE TRAINER ================= */
-  /* A real spot from the charts: you hold a hand from your range, the opponent holds their whole range. */
-  const rq = { cur: null, answered: false, n: 0, err: 0, good: 0 };
+  /* A real spot from the charts: you hold a hand from your range, the opponent holds their whole range.
+     "eq": guess your equity. "cf": you called preflop, the opener bets the flop, call or fold. */
+  const rq = { mode: "eq", cur: null, answered: false, n: 0, err: 0, good: 0 };
+  const CBET_SIZES = [0.5, 0.75, 1, 1.5];
   function dealRange() {
-    let cur, tries = 0;
+    const cf = rq.mode === "cf";
+    let cur, best = null, tries = 0;
     do {
       tries++;
-      const m = MATCHES[(Math.random() * MATCHES.length) | 0], heroOpens = Math.random() < 0.5;
+      const m = MATCHES[(Math.random() * MATCHES.length) | 0], heroOpens = cf ? false : Math.random() < 0.5;
       const openKey = "rfi:" + m.rfi, callKey = "call:" + m.vs;
       const heroMap = rangeByKey(heroOpens ? openKey : callKey).map;
       const vilKey = heroOpens ? callKey : openKey;
@@ -404,44 +407,53 @@
         heroSeat: heroOpens ? m.opener : m.caller, vilSeat: heroOpens ? m.caller : m.opener };
       cur.res = E.equityByCombo(hero, rangeByKey(vilKey).map, board);
       const e = cur.res.equity;
-      if (e > 0.12 && e < 0.9 && (e < 0.75 || Math.random() < 0.5)) break;
-    } while (tries < 20);
-    rq.cur = cur; rq.answered = false; renderRange();
+      if (!cf) { if (e > 0.12 && e < 0.9 && (e < 0.75 || Math.random() < 0.5)) break; continue; }
+      // Both opens are 2.5bb; the small blind's 0.5bb is always dead, and the big blind's 1bb too unless it called
+      cur.pot = m.caller === "BB" ? 5.5 : 6.5;
+      const sized = CBET_SIZES.map(s => { const bet = Math.round(cur.pot * s * 2) / 2; return { bet, need: bet / (cur.pot + 2 * bet) }; });
+      // Prefer bet sizes that put the decision close enough to need some thought
+      const near = sized.filter(x => Math.abs(e - x.need) <= 0.12);
+      if (near.length) { Object.assign(cur, near[(Math.random() * near.length) | 0]); best = null; break; }
+      const closest = sized.reduce((a, x) => Math.abs(e - x.need) < Math.abs(e - a.need) ? x : a);
+      const gap = Math.abs(e - closest.need);
+      if (!best || gap < best.gap) best = { cur: Object.assign(cur, closest), gap };
+    } while (tries < (cf ? 6 : 20));
+    rq.cur = best ? best.cur : cur; rq.answered = false; renderRange();
   }
   function renderRange() {
     const c = rq.cur;
-    const action = `${c.m.opener} opens to 2.5bb and ${c.m.caller} calls.`;
+    document.querySelectorAll("[data-rm]").forEach(b => b.setAttribute("aria-pressed", b.dataset.rm === rq.mode));
+    $("rq-tol").hidden = rq.mode !== "eq";
     const vilDesc = c.heroOpens ? `${c.vilSeat}'s calling range` : `${c.vilSeat}'s opening range`;
     $("rq-table").innerHTML = `
       <div class="qhands">
         <div><div class="label">You · ${c.heroSeat}</div><div class="cardrow">${c.hero.map(x => cardHTML(x)).join("")}</div></div>
         <div><div class="label">Opponent · ${c.vilSeat}</div><div class="cardrow"><span class="mc back" aria-label="unknown card"></span><span class="mc back" aria-label="unknown card"></span></div></div>
       </div>
-      <div><div class="label">Flop</div><div class="cardrow">${c.board.map(x => cardHTML(x)).join("")}</div></div>`;
-    $("rq-ask").innerHTML = `
-      <p class="sit">${action} You don't know their cards, so you play against <b>${vilDesc}</b>. Before any flop betting, what is your equity against it?</p>
-      <div class="calc" style="width:100%">
-        <div class="ctrl"><label for="rq-guess">Your guess <b id="rq-gv">50%</b></label>
-        <input type="range" id="rq-guess" min="0" max="100" step="1" value="50"></div>
-        <button class="btn primary" id="rq-lock">Lock in guess</button>
-      </div>`;
-    const g = $("rq-guess");
-    g.oninput = () => { $("rq-gv").textContent = g.value + "%"; };
-    $("rq-lock").onclick = () => answerRange(+g.value / 100);
+      <div><div class="label">Flop${rq.mode === "cf" ? ` · pot ${c.pot}bb` : ""}</div><div class="cardrow">${c.board.map(x => cardHTML(x)).join("")}</div></div>`;
+    if (rq.mode === "eq") {
+      $("rq-ask").innerHTML = `
+        <p class="sit">${c.m.opener} opens to 2.5bb and ${c.m.caller} calls. You don't know their cards, so you play against <b>${vilDesc}</b>. Before any flop betting, what is your equity against it?</p>
+        <div class="calc" style="width:100%">
+          <div class="ctrl"><label for="rq-guess">Your guess <b id="rq-gv">50%</b></label>
+          <input type="range" id="rq-guess" min="0" max="100" step="1" value="50"></div>
+          <button class="btn primary" id="rq-lock">Lock in guess</button>
+        </div>`;
+      const g = $("rq-guess");
+      g.oninput = () => { $("rq-gv").textContent = g.value + "%"; };
+      $("rq-lock").onclick = () => answerRange(+g.value / 100);
+    } else {
+      $("rq-ask").innerHTML = `
+        <p class="sit">${c.m.opener} opens to 2.5bb and you call. The pot is <b>${c.pot}bb</b>, and ${c.m.opener} bets <b>${c.bet}bb</b> on the flop.
+        Assume they bet this with <b>${vilDesc}</b> and nobody bets again after you call. Call or fold?</p>
+        <div class="acts"><button class="act fold" id="rq-fold">Fold<kbd>F</kbd></button><button class="act call" id="rq-call">Call ${c.bet}bb<kbd>C</kbd></button></div>`;
+      $("rq-fold").onclick = () => answerRange("fold");
+      $("rq-call").onclick = () => answerRange("call");
+    }
     $("rq-fb").innerHTML = "";
   }
-  function answerRange(ans) {
-    if (rq.answered) return;
-    rq.answered = true;
-    const c = rq.cur, res = c.res, eq = res.equity;
-    const err = Math.abs(ans - eq) * 100;
-    rq.n++; rq.err += err;
-    const grade = err <= 5 ? "good" : err <= 12 ? "ok" : "bad";
-    if (grade === "good") rq.good++;
-    const head = grade === "good" ? "Spot on" : grade === "ok" ? "Close" : "Off";
-    const you = handDescription(c.hero, c.board);
-    const youText = you.made + (you.draws.length ? " with " + you.draws.join(" and ") : "");
-    // Per group: share of their range, your equity, and the most common hands in it
+  /* Their range split by how it hit the flop: share, your equity against each group, and what each adds */
+  function rangeBreakdownHTML(res) {
     const rowsHTML = res.groups.filter(g => g.combos > 0).map(g => {
       const byHc = {};
       res.rows.filter(r => r.bucket === g.bucket).forEach(r => { byHc[r.hc] = (byHc[r.hc] || 0) + r.w; });
@@ -452,22 +464,50 @@
     }).join("");
     const bar = res.groups.filter(g => g.combos > 0).map(g => `<span style="width:${g.combos / res.combos * 100}%;background:${BUCKET_COLORS[g.bucket]}" title="${E.BUCKETS[g.bucket]}"></span>`).join("");
     const ahead = res.rows.filter(r => r.equity > 0.5).reduce((t, r) => t + r.w, 0) / res.combos;
-    const color = { good: "var(--good)", ok: "var(--warn)", bad: "var(--red)" }[grade];
-    $("rq-fb").innerHTML = `
-      <div class="fb ${grade}">
-        <div class="head"><span class="dot" style="background:${color}"></span>${head}</div>
-        <p>You guessed ${Math.round(ans * 100)}%. Your real equity against ${c.vilSeat}'s range is <strong>${fmt(eq)}</strong>, so you were ${err.toFixed(1)} points away. You have: <strong>${youText}</strong>.</p>
+    return `
         <div><div class="label" style="margin-bottom:6px">How their range hit this flop (${+res.combos.toFixed(1)} combos after your blockers)</div>
           <span class="pbar">${bar}</span></div>
         <div class="mtable fit"><table>
           <thead><tr><th>They have</th><th>Share</th><th>Your equity</th><th>Adds</th></tr></thead>
-          <tbody>${rowsHTML}<tr><td class="grp">Total</td><td>100%</td><td></td><td><strong>${fmt(eq)}</strong></td></tr></tbody>
+          <tbody>${rowsHTML}<tr><td class="grp">Total</td><td>100%</td><td></td><td><strong>${fmt(res.equity)}</strong></td></tr></tbody>
         </table></div>
-        <p>Each group's share × your equity against it gives the "Adds" column, and the column sums to your total. You are the favourite against <strong>${fmt(ahead)}</strong> of their combos and the underdog against the rest.</p>
+        <p>Each group's share × your equity against it gives the "Adds" column, and the column sums to your total. You are the favourite against <strong>${fmt(ahead)}</strong> of their combos and the underdog against the rest.</p>`;
+  }
+  function answerRange(ans) {
+    if (rq.answered) return;
+    rq.answered = true;
+    const c = rq.cur, eq = c.res.equity;
+    const you = handDescription(c.hero, c.board);
+    const youText = you.made + (you.draws.length ? " with " + you.draws.join(" and ") : "");
+    let grade, head, body;
+    rq.n++;
+    if (rq.mode === "eq") {
+      const err = Math.abs(ans - eq) * 100;
+      rq.err += err;
+      grade = err <= 5 ? "good" : err <= 12 ? "ok" : "bad";
+      if (grade === "good") rq.good++;
+      head = grade === "good" ? "Spot on" : grade === "ok" ? "Close" : "Off";
+      body = `<p>You guessed ${Math.round(ans * 100)}%. Your real equity against ${c.vilSeat}'s range is <strong>${fmt(eq)}</strong>, so you were ${err.toFixed(1)} points away. You have: <strong>${youText}</strong>.</p>`;
+    } else {
+      const ev = eq * (c.pot + 2 * c.bet) - c.bet, best = ev >= 0 ? "call" : "fold";
+      // Within 2 points of the price, the assumptions matter more than the math, so both answers count
+      const close = Math.abs(eq - c.need) < 0.02;
+      grade = close ? "ok" : ans === best ? "good" : "bad";
+      if (grade !== "bad") rq.good++;
+      head = close ? "Close either way" : grade === "good" ? "Correct" : "Mistake";
+      body = `<p>You have <strong>${youText}</strong>. Calling ${c.bet}bb makes the final pot ${c.pot + 2 * c.bet}bb, so you need ${c.bet} ÷ (${c.pot} + 2 × ${c.bet}) = <strong>${fmt(c.need)}</strong> equity. Against ${c.vilSeat}'s whole range you have <strong>${fmt(eq)}</strong>.</p>
+        <p>Calling is worth <strong>${ev >= 0 ? "+" : "−"}${Math.abs(ev).toFixed(2)}bb</strong> on average compared with folding, so the better play is to <strong>${best}</strong>.${close ? " The gap is under 2 points, so both answers count. In a real game, what you know about this player decides it." : ""}</p>`;
+    }
+    const color = { good: "var(--good)", ok: "var(--warn)", bad: "var(--red)" }[grade];
+    $("rq-fb").innerHTML = `
+      <div class="fb ${grade}">
+        <div class="head"><span class="dot" style="background:${color}"></span>${head}</div>
+        ${body}${rangeBreakdownHTML(c.res)}
         <div class="btns"><button class="btn primary" id="rq-next">Next spot <span style="opacity:.6;font-weight:500">(Enter)</span></button>
         <button class="btn" id="rq-open">Open in calculator</button></div>
       </div>`;
-    $("rq-lock").disabled = true;
+    if ($("rq-lock")) $("rq-lock").disabled = true;
+    document.querySelectorAll("#rq-ask .act").forEach(b => b.disabled = true);
     $("rq-next").onclick = dealRange;
     $("rq-open").onclick = () => {
       calc.hero = c.hero.slice(); calc.mode = "range"; calc.rangeKey = c.vilKey; $("pc-range").value = c.vilKey;
@@ -477,7 +517,7 @@
     $("rq-next").focus({ preventScroll: true });
     $("rq-n").textContent = rq.n;
     $("rq-acc").textContent = Math.round(rq.good / rq.n * 100) + "%";
-    $("rq-err").textContent = (rq.err / rq.n).toFixed(1);
+    $("rq-err").textContent = rq.mode === "eq" ? (rq.err / rq.n).toFixed(1) : "–";
   }
 
   /* ---------- Sub-tabs ---------- */
@@ -501,6 +541,11 @@
         $("qz-n").textContent = "0"; $("qz-acc").textContent = "–"; $("qz-err").textContent = "–";
         dealQuiz();
       });
+      document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => {
+        rq.mode = b.dataset.rm; rq.n = 0; rq.err = 0; rq.good = 0;
+        $("rq-n").textContent = "0"; $("rq-acc").textContent = "–"; $("rq-err").textContent = "–";
+        dealRange();
+      });
       initCalc();
       setSub("calc");
     },
@@ -508,7 +553,8 @@
       const k = e.key.toLowerCase();
       if (sub === "range") {
         if (rq.answered && (k === "enter" || k === " " || k === "n")) { dealRange(); return true; }
-        if (!rq.answered && k === "enter") { answerRange(+$("rq-guess").value / 100); return true; }
+        if (!rq.answered && rq.mode === "cf" && (k === "f" || k === "c")) { answerRange(k === "c" ? "call" : "fold"); return true; }
+        if (!rq.answered && rq.mode === "eq" && k === "enter") { answerRange(+$("rq-guess").value / 100); return true; }
         return false;
       }
       if (sub !== "quiz") return false;

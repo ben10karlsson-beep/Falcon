@@ -40,6 +40,7 @@ function initTheory(){
     const m=parse(RFI[s].raise);let c=0;for(const h in m)c+=m[h]*combos(h);const p=c/1326;
     return`<div class="seatbar"><span>${s}</span><span class="t"><span style="width:${p*100/0.5}%"></span></span><span class="v">${pct(p)}</span></div>`;}).join("");
   initRangeEquity(initEV());
+  initComboDrill();
   document.querySelectorAll(".toc a").forEach(a=>a.onclick=e=>{e.preventDefault();document.querySelector(a.getAttribute("href")).scrollIntoView({behavior:matchMedia("(prefers-reduced-motion: reduce)").matches?"auto":"smooth"});});
 }
 
@@ -108,6 +109,84 @@ function initRangeEquity(onResult){
   document.querySelectorAll("#re-presets .chip").forEach(c=>c.onclick=()=>{hand.value=c.dataset.h;render();});
   more.onclick=()=>{showAll=!showAll;render();};
   render();
+}
+/* Combo counting practice: deal your hand (and sometimes a flop), ask how many combos of a hand are left,
+   and show the count worked out rank by rank. */
+function initComboDrill(){
+  const $=id=>document.getElementById(id),E=Engine;
+  const RN=r=>E.RANKS[r]==="T"?"10":E.RANKS[r];
+  const NAMES=["twos","threes","fours","fives","sixes","sevens","eights","nines","tens","jacks","queens","kings","aces"];
+  const cname=c=>RN(E.rankOf(c))+E.SUIT_SYMBOL[E.suitOf(c)];
+  const cardHTML=c=>{const red=E.suitOf(c)===1||E.suitOf(c)===2;return`<span class="mc sm ${red?"red":""}" aria-label="${cname(c)}"><b>${RN(E.rankOf(c))}</b><i>${E.SUIT_SYMBOL[E.suitOf(c)]}</i></span>`;};
+  const input=$("cd-in");
+  let q=null,n=0,right=0;
+  const rand=a=>a[(Math.random()*a.length)|0];
+  function deal(){
+    const deck=E.remainingDeck([]);
+    for(let i=deck.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[deck[i],deck[j]]=[deck[j],deck[i]];}
+    const hero=deck.slice(0,2),board=Math.random()<0.6?deck.slice(2,5):[],seen=hero.concat(board);
+    const seenRanks=[...new Set(seen.map(E.rankOf))];
+    // Mostly ask about ranks you can see, since that's where blockers change the count
+    const pickRank=not=>{const pool=seenRanks.filter(r=>r!==not);return pool.length&&Math.random()<0.75?rand(pool):rand([...Array(13).keys()].filter(r=>r!==not));};
+    const kind=rand(["pair","pair","both","both","both","suited","offsuit","offsuit"]);
+    const a=pickRank(-1);let hi=a,lo=a;
+    if(kind!=="pair"){const b=pickRank(a);hi=Math.max(a,b);lo=Math.min(a,b);}
+    q={hero,board,seen,kind,hi,lo,answered:false};
+    const H=E.RANKS[hi],L=E.RANKS[lo];
+    q.hc=kind==="pair"?H+L:H+L+(kind==="suited"?"s":kind==="offsuit"?"o":"");
+    const live=hc=>E.combosOf(hc).filter(([x,y])=>!seen.includes(x)&&!seen.includes(y)).length;
+    q.answer=kind==="both"?live(H+L+"s")+live(H+L+"o"):live(q.hc);
+    render();
+  }
+  function render(){
+    $("cd-cards").innerHTML=`<div><div class="label">Your hand</div><div class="cardrow">${q.hero.map(cardHTML).join("")}</div></div>`+
+      (q.board.length?`<div><div class="label">Flop</div><div class="cardrow">${q.board.map(cardHTML).join("")}</div></div>`:"");
+    const what=q.kind==="pair"?q.hc:q.kind==="both"?`${q.hc} (suited and offsuit)`:q.kind==="suited"?`${q.hc} (suited only)`:`${q.hc} (offsuit only)`;
+    $("cd-q").innerHTML=`How many combos of <b>${what}</b> can your opponent have?`;
+    input.value="";input.disabled=false;$("cd-check").disabled=false;$("cd-fb").innerHTML="";
+  }
+  /* "2 kings left: you can see the K♣ (yours) and the K♦ (board)" */
+  function leftLine(r){
+    const s=q.seen.filter(c=>E.rankOf(c)===r),left=4-s.length;
+    const where=s.map(c=>`the ${cname(c)} (${q.hero.includes(c)?"yours":"board"})`);
+    return{left,text:`<strong>${left} ${left===1?NAMES[r].replace(/s$/,"").replace(/xe$/,"x"):NAMES[r]}</strong> left${s.length?`: you can see ${where.join(" and ")}`:""}`};
+  }
+  function suitedLine(){
+    let k=0;
+    const parts=[0,1,2,3].map(s=>{
+      const x=E.card(q.hi,s),y=E.card(q.lo,s),gone=[x,y].filter(c=>q.seen.includes(c));
+      if(!gone.length)k++;
+      return`${E.SUIT_SYMBOL[s]} ${gone.length?`✗ (${gone.map(cname).join(" and ")} ${gone.length>1?"are":"is"} gone)`:"✓"}`;
+    });
+    return{k,text:`Suited: one per suit where both cards are still live. ${parts.join(" · ")} → <strong>${k}</strong>`};
+  }
+  function explain(){
+    const steps=[];
+    if(q.kind==="pair"){
+      const l=leftLine(q.hi),p=l.left*(l.left-1)/2;
+      steps.push(l.text+".",`Pairs from ${l.left} cards: ${l.left} × ${Math.max(l.left-1,0)} ÷ 2 = <strong>${p}</strong>. (4 left → 6, 3 → 3, 2 → 1.)`);
+    }else{
+      const a=leftLine(q.hi),b=leftLine(q.lo),all=a.left*b.left;
+      steps.push(a.text+".",b.text+".",`All ${E.RANKS[q.hi]+E.RANKS[q.lo]} combos: ${a.left} × ${b.left} = <strong>${all}</strong>.`);
+      if(q.kind!=="both"){const s=suitedLine();steps.push(s.text+".");if(q.kind==="offsuit")steps.push(`Offsuit: all minus suited, ${all} − ${s.k} = <strong>${all-s.k}</strong>.`);}
+    }
+    return`<ol class="takeaways">${steps.map(s=>`<li>${s}</li>`).join("")}</ol>`;
+  }
+  function check(){
+    if(q.answered){deal();input.focus();return;}
+    if(input.value===""){input.focus();return;}
+    q.answered=true;n++;
+    const ok=+input.value===q.answer;if(ok)right++;
+    $("cd-fb").innerHTML=`<div class="fb ${ok?"good":"bad"}"><div class="head"><span class="dot" style="background:var(${ok?"--good":"--red"})"></span>${ok?"Right":"Not quite"}</div>
+      <p>${ok?"":`You said ${+input.value}. `}They can have <strong>${q.answer}</strong> combo${q.answer===1?"":"s"} of ${q.hc}.</p>${explain()}</div>`;
+    input.disabled=true;$("cd-check").disabled=true;
+    $("cd-score").textContent=`${right} of ${n} right this session. Press Enter or New hand for the next one.`;
+    $("cd-next").focus({preventScroll:true});
+  }
+  $("cd-check").onclick=check;
+  $("cd-next").onclick=()=>{deal();input.focus({preventScroll:true});};
+  input.onkeydown=e=>{if(e.key==="Enter"){e.preventDefault();check();}};
+  deal();
 }
 /* EV of calling: win the pot as often as your equity, lose the call the rest of the time.
    Returns a setter so the range calculator can offer its latest equity. */

@@ -53,4 +53,4 @@ Every number in UI copy (equities, combo counts, pot odds, range sizes) must be 
 - Real solver data import (e.g. TexasSolver output) to replace approximated ranges.
 - More formats: other stack depths, tournaments.
 - Postflop trainer (c-bet decisions by texture).
-- Range trainer, next steps (v1 is live: guess flop equity vs the chart range, answer grouped by how the range hit): let the user build their own guess of the opponent's range first and compare it to the chart; add flop betting so ranges narrow (c-bet / call); add a call-or-fold mode vs a bet.
+- Range trainer, next steps (live: guess flop equity vs the chart range, answer grouped by how the range hit; call-or-fold vs a flop bet, assuming the opener bets their whole range and no later betting): let the user build their own guess of the opponent's range first and compare it to the chart; add flop betting so ranges narrow (c-bet / call), which would also make call-or-fold more realistic.

@@ -242,7 +242,7 @@
 
       <div class="steps">
         <div class="step"><b>1</b><div><strong>Sort their range into three groups.</strong> Use the cheat sheet below. Each group gets one rough equity, so you don't have to remember exact matchups.</div></div>
-        <div class="step"><b>2</b><div><strong>Count the combos in each group.</strong> Use 6 / 4 / 12, and take off what your cards block.</div></div>
+        <div class="step"><b>2</b><div><strong>Count the combos in each group.</strong> Use 6 / 4 / 12, and take off what your cards block. <a href="#count-fast">Counting combos fast</a> below shows how to do this in a few seconds.</div></div>
         <div class="step"><b>3</b><div><strong>Multiply</strong> each group's combos by its rough equity.</div></div>
         <div class="step"><b>4</b><div><strong>Add the results and divide by the total combos.</strong> That's your estimate. Compare it to your pot odds.</div></div>
       </div>
@@ -276,6 +276,108 @@
       <div class="formula">1,440 ÷ 41 ≈ 35%  →  below the 44% you need  →  fold</div>
       <p>The exact answer is 34.3%, so the estimate is off by less than one point. Round freely: the groups and the 25 / 45 / 70 numbers are approximate anyway, and the decision comes out the same.</p>
       <p><strong>When it's close, be careful.</strong> If your estimate lands within about 5% of what you need, the shortcut isn't precise enough to decide for you. Go with what you know about the player, and check the spot later with the calculator below.</p>
+
+      <h3 id="count-fast">Counting combos fast</h3>
+      <p>Counting combos is the step that feels slow at the table, but it doesn't have to be. You never count combos one at a time. You learn three numbers, count ranges in chunks, and then adjust for the cards you can see. With some practice each step takes a few seconds.</p>
+
+      <p><strong>1. Learn three numbers, and why they're true.</strong> If you know where a number comes from, you can rebuild it when blockers change it.</p>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Hand</th><th>Combos</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">Pair: QQ</td><td><strong>6</strong></td><td>4 queens, and every two of them make a pair: 4 × 3 ÷ 2 = 6</td></tr>
+            <tr><td class="hh">Suited: AKs</td><td><strong>4</strong></td><td>One for each suit</td></tr>
+            <tr><td class="hh">Offsuit: AKo</td><td><strong>12</strong></td><td>4 aces × 4 kings = 16 ways, minus the 4 suited ones</td></tr>
+            <tr><td class="hh">Both: AK</td><td><strong>16</strong></td><td>4 × 4. A hand written without s or o means both, so all 16</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <p><strong>2. Count in chunks, not hand by hand.</strong> Ranges are written in runs like "TT+" or "ATs+". Count the squares in the run, then multiply by 6, 4, 12 or 16.</p>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Range</th><th>Squares</th><th>Combos</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">QQ+</td><td>QQ, KK, AA</td><td>3 × 6 = <strong>18</strong></td></tr>
+            <tr><td class="hh">TT+</td><td>5 pairs</td><td>5 × 6 = <strong>30</strong></td></tr>
+            <tr><td class="hh">22+</td><td>every pair, 13 of them</td><td>13 × 6 = <strong>78</strong></td></tr>
+            <tr><td class="hh">ATs+</td><td>AKs, AQs, AJs, ATs</td><td>4 × 4 = <strong>16</strong></td></tr>
+            <tr><td class="hh">A2s+</td><td>every suited ace, 12 of them</td><td>12 × 4 = <strong>48</strong></td></tr>
+            <tr><td class="hh">AJo+</td><td>AKo, AQo, AJo</td><td>3 × 12 = <strong>36</strong></td></tr>
+            <tr><td class="hh">AQ+</td><td>AK and AQ, suited and offsuit</td><td>2 × 16 = <strong>32</strong></td></tr>
+            <tr><td class="hh">JTs–54s</td><td>JTs, T9s, 98s, 87s, 76s, 65s, 54s</td><td>7 × 4 = <strong>28</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Then add the chunks. "QQ+, AK" is 18 + 16 = <strong>34</strong> combos. "TT+, AQ+, AJs, KQs" is 30 + 32 + 4 + 4 = <strong>70</strong>.</p>
+      <p>For a wide range, work from its size instead: every 1% of hands is about 13 combos, because there are 1,326 in total. Falcon's UTG open is 17% of hands, about 230 combos. The button open is 45%, about 600. You rarely need the total, but it tells you how much one hand matters: AA is 6 of UTG's 230 combos, under 3% of the range.</p>
+
+      <p><strong>3. Adjust for the cards you can see.</strong> Every card you can see is one they can't hold: your two cards, and after the flop the board cards too. For each rank in the hand, count how many are left, then:</p>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Hand</th><th>Rule</th><th>Common results</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">Pair</td><td>Pairs you can make from the cards left</td><td>4 left → 6 · 3 left → 3 · 2 left → 1 · 1 left → 0</td></tr>
+            <tr><td class="hh">Unpaired, both</td><td>Cards left of one rank × cards left of the other</td><td>4 × 4 = 16 · 3 × 4 = 12 · 3 × 3 = 9 · 2 × 4 = 8</td></tr>
+            <tr><td class="hh">Suited</td><td>Start at 4 and take one off for each suit where either card is gone</td><td>You hold A♠: AKs → 3</td></tr>
+            <tr><td class="hh">Offsuit</td><td>Unpaired total minus the suited ones</td><td>You hold A♠: AKo → 12 − 3 = 9</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>The short version to remember: <strong>the first card you see of a rank cuts its pair in half (6 → 3) and takes a quarter off each unpaired hand with that rank (16 → 12).</strong></p>
+
+      <p><strong>4. After the flop, a few counts come up again and again.</strong> On a flop like K♦ 7♠ 2♣, with none of those ranks in your hand:</p>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>They have</th><th>Example</th><th>Combos</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">A set</td><td>77: three sevens are left</td><td><strong>3</strong></td></tr>
+            <tr><td class="hh">Two pair with both board ranks</td><td>K7: 3 kings × 3 sevens</td><td><strong>9</strong> <span class="sub">only 2 if suited: ♥ and ♣ (the board has the K♦ and 7♠)</span></td></tr>
+            <tr><td class="hh">Top pair, one kicker</td><td>AK: 3 kings × 4 aces</td><td><strong>12</strong></td></tr>
+            <tr><td class="hh">An overpair</td><td>AA: no aces on the board</td><td><strong>6</strong></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>So a set is 3 combos, but one top-pair hand is 12. That's why most ranges hold far more top pairs than sets, even though it feels like your opponent always has the set.</p>
+      <p>Flush draws are easy to count too. On a two-tone flop like K♥ 7♥ 2♣, each suited hand with neither card on the board has exactly one flush-draw combo, the hearts one. So the number of flush-draw combos in their range equals the number of suited hands in it.</p>
+
+      <div class="example">
+        <span class="label">Worked example: who's ahead on K♦ 7♠ 2♣?</span>
+        <p>You hold A♥ K♣. You put your opponent on AA, KK, QQ, JJ, 77, 22, KQ and KJ. Count what's left of each, taking off your cards and the board:</p>
+      </div>
+      <div class="mtable fit">
+        <table>
+          <thead><tr><th>Their hand</th><th>Cards left</th><th>Combos</th><th>Ahead</th></tr></thead>
+          <tbody>
+            <tr><td class="hh">AA</td><td>3 aces (you hold the A♥)</td><td>3</td><td>They are</td></tr>
+            <tr><td class="hh">KK</td><td>2 kings (your K♣, the board K♦)</td><td>1</td><td>They are</td></tr>
+            <tr><td class="hh">77</td><td>3 sevens</td><td>3</td><td>They are</td></tr>
+            <tr><td class="hh">22</td><td>3 twos</td><td>3</td><td>They are</td></tr>
+            <tr><td class="hh">QQ</td><td>4 queens</td><td>6</td><td>You are</td></tr>
+            <tr><td class="hh">JJ</td><td>4 jacks</td><td>6</td><td>You are</td></tr>
+            <tr><td class="hh">KQ</td><td>2 kings × 4 queens</td><td>8</td><td>You are</td></tr>
+            <tr><td class="hh">KJ</td><td>2 kings × 4 jacks</td><td>8</td><td>You are</td></tr>
+            <tr><td class="hh">Total</td><td></td><td>38</td><td>They lead with 10, you with 28</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>For a rough equity, give yourself about 5% against the hands that beat you (you need running cards) and about 90% against the hands you beat (they have few outs):</p>
+      <div class="formula">(10 × 5 + 28 × 90) ÷ 38 = 2,570 ÷ 38 ≈ 68%</div>
+      <p>The exact answer is <strong>66.3%</strong>. Against the hands that beat you, your real equity runs from 0.3% to 8.6%, and against the ones you beat it's 85% to 91%, so the rough numbers were close.</p>
+      <p>Notice how much your K♣ did. It cut their KK from 3 combos to 1, and KQ and KJ from 12 combos to 8 each. A card of the board's top rank in your hand makes their sets <em>and</em> their top pairs rarer.</p>
+
+      <div class="calc cd" id="cd" aria-label="Combo counting practice">
+        <div class="label">Practice: how many combos?</div>
+        <div class="qhands" id="cd-cards"></div>
+        <p class="sit" id="cd-q"></p>
+        <div class="cd-row">
+          <input type="number" id="cd-in" class="tinput" min="0" max="16" inputmode="numeric" aria-label="Number of combos">
+          <button class="btn primary" id="cd-check">Check</button>
+          <button class="btn" id="cd-next">New hand</button>
+        </div>
+        <div id="cd-fb"></div>
+        <p class="hint" id="cd-score">Count what's left of each rank, then use the rules above. Press Enter to check, Enter again for the next hand.</p>
+      </div>
 
       <div class="calc" aria-label="Hand vs range calculator">
         <div class="ctrl">
@@ -516,6 +618,10 @@
   <!-- Range trainer -->
   <section class="pf-grid" id="pf-range" hidden>
     <div style="display:grid;gap:16px;align-content:start;min-width:0">
+      <div class="seg" role="group" aria-label="Trainer type">
+        <button data-rm="eq" aria-pressed="true">Estimate equity</button>
+        <button data-rm="cf" aria-pressed="false">Call or fold vs a bet</button>
+      </div>
       <div class="felt" style="justify-items:stretch;text-align:left">
         <div id="rq-table" class="qtable"></div>
         <div id="rq-ask" style="display:grid;gap:12px;justify-items:start"></div>
@@ -527,9 +633,9 @@
         <div class="label" style="margin-bottom:8px">This session</div>
         <div class="scores">
           <div class="score"><b id="rq-n">0</b><span>spots played</span></div>
-          <div class="score"><b id="rq-acc">–</b><span>spot on</span></div>
+          <div class="score"><b id="rq-acc">–</b><span>spot on / correct</span></div>
           <div class="score"><b id="rq-err">–</b><span>average error (points)</span></div>
-          <div class="score"><b>±5</b><span>counts as spot on</span></div>
+          <div class="score" id="rq-tol"><b>±5</b><span>counts as spot on</span></div>
         </div>
       </div>
       <div class="infobox">
@@ -541,8 +647,9 @@
           <li>Weight each guess by group size and add them up.</li>
         </ol>
         <p>The answer shows the same groups, so you can see which step you got wrong.</p>
+        <p>Facing a bet, compare your estimate with the price: bet ÷ (pot + 2 × bet). A half-pot bet asks for 25%, a pot-size bet for 33%.</p>
       </div>
-      <div class="note">Spots are single-raised pots from Falcon's preflop charts. Your hand is dealt from your own range, and the opponent's range is their full chart range before any flop betting. The opener's range also includes hands that would have 4-bet, which overstates it slightly. Keys: <b>Enter</b> lock in / next.</div>
+      <div class="note">Spots are single-raised pots from Falcon's preflop charts. Your hand is dealt from your own range, and the opponent's range is their full chart range before any flop betting. The opener's range also includes hands that would have 4-bet, which overstates it slightly. In call or fold, they bet their whole range and nobody bets after your call. Real players bet a narrower range and keep betting on later streets, and out of position you win less of your equity, so treat close calls as close. Keys: <b>Enter</b> lock in / next, <b>F</b>/<b>C</b> in call or fold.</div>
     </aside>
   </section>
 </main>
