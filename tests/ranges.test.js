@@ -4,8 +4,8 @@ const fs = require("fs"), path = require("path"), vm = require("vm");
 const ctx = {};
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, "../js/ranges.js"), "utf8") +
-  ";Object.assign(this,{R,RFI,VS,parse,getRange,freqs,ALL_HANDS,rangeSize});", ctx);
-const { R, RFI, VS, parse, getRange, freqs, ALL_HANDS, rangeSize } = ctx;
+  ";Object.assign(this,{R,RFI,VS,parse,getRange,freqs,ALL_HANDS,rangeSize,rangeOverlap,handGroup});", ctx);
+const { R, RFI, VS, parse, getRange, freqs, ALL_HANDS, rangeSize, rangeOverlap, handGroup } = ctx;
 
 let pass = 0, fail = 0;
 function check(name, cond, info) {
@@ -67,6 +67,21 @@ for (const seat of Object.keys(RFI)) {
   }
   for (let a = 1; a < 13; a++) if (f(seat, R[a] + R[a]) > f(seat, R[a - 1] + R[a - 1])) bad.push(`${R[a]}${R[a]}>${R[a - 1]}${R[a - 1]}`);
   check(`${seat} kickers and pairs in order`, bad.length === 0, bad.join(" "));
+}
+
+// Range reading: overlap score in combos, half credit on mixed hands
+{
+  const utg = parse(RFI.UTG.raise);
+  check("identical range scores 1", rangeOverlap(utg, utg).score === 1);
+  check("empty guess scores 0", rangeOverlap({}, utg).score === 0);
+  const half = Object.fromEntries(ALL_HANDS.map(h => [h, 0.5])), all = Object.fromEntries(ALL_HANDS.map(h => [h, 1]));
+  check("painting every half-played hand scores 0.5", Math.abs(rangeOverlap(all, half).score - 0.5) < 1e-9);
+  const o = rangeOverlap(parse("QQ+"), parse("TT+"));
+  check("QQ+ vs TT+ is 18 of 30 combos", o.hit === 18 && o.missed === 12 && o.extra === 0 && Math.abs(o.score - 0.6) < 1e-9, o);
+  check("extra combos count against you", rangeOverlap(parse("TT+, AKo"), parse("TT+")).score === 30 / 42);
+  const groups = { "77": "Pairs", "A5s": "Suited aces", "KJs": "Suited broadways", "76s": "Suited connectors and gappers",
+    "K6s": "Other suited", "Q9s": "Other suited", "J9s": "Suited connectors and gappers", "A9o": "Offsuit aces", "KQo": "Offsuit broadways", "T8o": "Other offsuit" };
+  for (const h in groups) check("handGroup " + h, handGroup(h) === groups[h], handGroup(h));
 }
 
 console.log(`${pass} passed, ${fail} failed`);

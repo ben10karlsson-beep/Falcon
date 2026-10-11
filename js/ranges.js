@@ -91,3 +91,24 @@ function rangeOptions(){
   return opts;
 }
 const rangeSize=m=>{let c=0;for(const h in m)c+=m[h]*combos(h);return c/1326;};
+
+/* Range reading: how close a painted range is to a chart, in combos.
+   guess and chart map hand → frequency (a painted hand is 1). A hand the chart plays half the time
+   gives half credit whether it is painted or not. */
+function rangeOverlap(guess,chart){
+  let hit=0,missed=0,extra=0;
+  for(const h of ALL_HANDS){
+    const g=guess[h]||0,f=chart[h]||0,c=combos(h);
+    hit+=c*Math.min(f,g);missed+=c*Math.max(f-g,0);extra+=c*Math.max(g-f,0);
+  }
+  const all=hit+missed+extra;
+  return{score:all?hit/all:1,hit,missed,extra};
+}
+/* Groups players think in, used to describe range-reading mistakes */
+const HAND_GROUPS=["Pairs","Suited aces","Suited broadways","Suited connectors and gappers","Other suited","Offsuit aces","Offsuit broadways","Other offsuit"];
+function handGroup(h){
+  if(h.length===2)return"Pairs";
+  const a=ri(h[0]),b=ri(h[1]),broad=a<=4&&b<=4;
+  if(h[2]==="s")return h[0]==="A"?"Suited aces":broad?"Suited broadways":b-a<=2?"Suited connectors and gappers":"Other suited";
+  return h[0]==="A"?"Offsuit aces":broad?"Offsuit broadways":"Other offsuit";
+}

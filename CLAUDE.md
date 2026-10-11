@@ -15,14 +15,17 @@ index.html        page shell + markup for every view (tabs: Preflop ranges, Trai
 css/falcon.css    all styles; colors are CSS variables on :root
 js/engine.js      card encoding, 5–7 card evaluator, equity (exact + Monte Carlo), flop classification, board texture. UMD: window.Engine in browser, module.exports in Node
 js/ranges.js      preflop range data (RFI, VS), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
-js/preflop.js     range grid view + trainer (incl. "My leaks" mode, stats in localStorage)
-js/postflop.js    equity calculator, board explorer, equity quiz, range trainer (window.Postflop)
+js/preflop.js     range grid view + preflop hands trainer (incl. "My leaks" mode, stats in localStorage)
+js/reading.js     Read ranges trainer: paint a range on the grid, graded against the chart in combos (window.Reading)
+js/postflop.js    equity calculator + board explorer (Postflop tab); Hand vs hand quiz + range trainer (Trainer tab) (window.Postflop)
 js/theory.js      theory chapter routing (window.Theory) + calculators (pot odds, outs, matchups, combo drill, hand vs range, EV, seat bars)
-js/app.js         tab routing (address hash: #trainer, #postflop, #theory/<chapter>), data-go practice buttons, keyboard shortcuts; loaded last
+js/app.js         tab routing + Trainer modes (address hash: #trainer[/read|quiz|range], #postflop, #theory/<chapter>), data-go practice buttons, keyboard shortcuts; loaded last
 tests/            engine + range tests; run-all.js runs both
 ```
 
-Scripts are plain globals loaded in order: engine → ranges → preflop → theory → postflop → app.
+Scripts are plain globals loaded in order: engine → ranges → preflop → reading → theory → postflop → app.
+
+Tabs: **Trainer** holds every graded trainer (Preflop hands, Read ranges, Hand vs hand, Range trainer); **Postflop** holds the tools (equity calculator, board explorer). Theory "Practice this" buttons use `data-go="train:<mode>[:<sub>]"` or `"postflop:<calc|board>"`.
 
 ## Design language
 
@@ -41,6 +44,7 @@ Scripts are plain globals loaded in order: engine → ranges → preflop → the
 - Format: 6-max cash, 100bb, opens 2.5bb (SB 3bb), 3-bets ~11bb OOP / 7.5bb IP.
 - Preflop ranges are hand-built approximations shaped like solver output, NOT exact solver data, and the UI says so. They were audited for: later seats ⊇ earlier seats, monotonic kicker/pair order, and sizes near published benchmarks (open ≈ UTG 17%, HJ 21%, CO 29%, BTN 45%, SB 41%; BB defends ~52% vs BTN). `tests/ranges.test.js` checks all of this automatically (one deliberate exception: A5 may be opened more than A6–A9, as solvers often do).
 - Range strings: `"55+, A2s+, KTs-K8s, AJo:0.5"` — `:x` is a frequency 0..1.
+- Read ranges grading: overlap = combos in both ÷ combos in either (`rangeOverlap` in ranges.js); a hand the chart plays at frequency f counts f in and 1−f out, so mixed hands give partial credit. 85%+ is "spot on".
 - Trainer grading: action is "correct" if the chart takes it ≥25% of the time, "inaccurate" if >0%, else "mistake".
 - Outs shown to the user are clean outs only; cards that improve hero but still lose are shown separately as "tainted outs".
 - Board explorer tips are general solver tendencies, labelled as such — never present them as a solved strategy.
@@ -64,4 +68,4 @@ Every number in UI copy (equities, combo counts, pot odds, range sizes) must be 
 - Real solver data import (e.g. TexasSolver output) to replace approximated ranges.
 - More formats: other stack depths, tournaments.
 - Postflop trainer (c-bet decisions by texture).
-- Range trainer, next steps (live: guess flop equity vs the chart range, answer grouped by how the range hit; call-or-fold vs a flop bet, assuming the opener bets their whole range and no later betting): let the user build their own guess of the opponent's range first and compare it to the chart; add flop betting so ranges narrow (c-bet / call), which would also make call-or-fold more realistic.
+- Range trainer, next steps (live: guess flop equity vs the chart range; call-or-fold vs a flop bet; Read ranges, paint a range and compare it in combos): after a Read ranges spot, deal a flop and compare your equity against your painted range vs the real one, to show what a misread costs; add flop betting so ranges narrow (c-bet / call), which would also make call-or-fold more realistic.

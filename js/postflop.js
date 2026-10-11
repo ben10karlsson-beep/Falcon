@@ -1,4 +1,4 @@
-/* Falcon postflop: equity calculator, board explorer, equity quiz.
+/* Falcon postflop: equity calculator and board explorer (Postflop tab), plus the Hand vs hand quiz and range trainer (Trainer tab).
    Depends on Engine (engine.js) and range data/helpers (ranges.js). */
 (function () {
   "use strict";
@@ -277,7 +277,7 @@
     }, 10);
   }
 
-  /* ================= 3. EQUITY QUIZ ================= */
+  /* ================= 3. HAND VS HAND (equity quiz, lives in the Trainer tab) ================= */
   const qz = { mode: "eq", cur: null, answered: false, n: 0, err: 0, good: 0 };
   function dealQuiz() {
     let tries = 0, cur;
@@ -375,6 +375,7 @@
     document.querySelectorAll("#qz-ask .act").forEach(b => b.disabled = true);
     $("qz-next").onclick = dealQuiz;
     $("qz-open").onclick = () => {
+      show("postflop");
       calc.hero = c.hero.slice(); calc.vil = c.vil.slice(); calc.mode = "hand";
       calc.board = [...c.board, null, null].slice(0, 5); calc.active = nextEmpty("b0");
       setSub("calc"); renderCalcInputs(); computeCalc(); window.scrollTo({ top: 0 });
@@ -385,7 +386,7 @@
     $("qz-err").textContent = qz.mode === "eq" && qz.n ? (qz.err / Math.max(1, qz.n)).toFixed(1) : "–";
   }
 
-  /* ================= 4. RANGE TRAINER ================= */
+  /* ================= 4. RANGE TRAINER (lives in the Trainer tab) ================= */
   /* A real spot from the charts: you hold a hand from your range, the opponent holds their whole range.
      "eq": guess your equity. "cf": you called preflop, the opener bets the flop, call or fold. */
   const rq = { mode: "eq", cur: null, answered: false, n: 0, err: 0, good: 0 };
@@ -510,6 +511,7 @@
     document.querySelectorAll("#rq-ask .act").forEach(b => b.disabled = true);
     $("rq-next").onclick = dealRange;
     $("rq-open").onclick = () => {
+      show("postflop");
       calc.hero = c.hero.slice(); calc.mode = "range"; calc.rangeKey = c.vilKey; $("pc-range").value = c.vilKey;
       calc.board = [...c.board, null, null]; calc.active = "b3";
       setSub("calc"); renderCalcInputs(); computeCalc(); window.scrollTo({ top: 0 });
@@ -531,41 +533,45 @@
   }
 
   /* ---------- Sub-tabs ---------- */
-  let sub = "calc";
+  let sub = "calc", trainersReady = false;
   function setSub(s) {
     sub = s;
-    ["calc", "board", "quiz", "range"].forEach(k => {
+    ["calc", "board"].forEach(k => {
       $("pf-" + k).hidden = k !== s;
       document.querySelector(`[data-sub="${k}"]`).setAttribute("aria-pressed", k === s);
     });
     if (s === "board" && !$("bx-result").innerHTML) { renderBx(); computeBx(); }
-    if (s === "quiz" && !qz.cur) dealQuiz();
-    if (s === "range" && !rq.cur) dealRange();
   }
 
   window.Postflop = {
     init() {
       document.querySelectorAll("[data-sub]").forEach(b => b.onclick = () => setSub(b.dataset.sub));
-      document.querySelectorAll("[data-qm]").forEach(b => b.onclick = () => { setQuizMode(b.dataset.qm); dealQuiz(); });
-      document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { setRangeMode(b.dataset.rm); dealRange(); });
       initCalc();
       setSub("calc");
     },
-    /* Open a sub-tab, optionally in a given quiz / trainer mode (used by the theory "Practice this" buttons) */
-    open(s, mode) {
-      if (mode && s === "quiz" && mode !== qz.mode) { setQuizMode(mode); qz.cur = null; }
-      if (mode && s === "range" && mode !== rq.mode) { setRangeMode(mode); rq.cur = null; }
-      setSub(s);
+    /* Postflop tab: open a tool ("calc" or "board") */
+    open(s) { setSub(s); },
+    /* Trainer tab: Hand vs hand ("quiz") and the Range trainer ("range"), optionally in a given mode */
+    initTrainers() {
+      if (trainersReady) return;
+      trainersReady = true;
+      document.querySelectorAll("[data-qm]").forEach(b => b.onclick = () => { setQuizMode(b.dataset.qm); dealQuiz(); });
+      document.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { setRangeMode(b.dataset.rm); dealRange(); });
     },
-    key(e) {
+    openTrainer(kind, mode) {
+      this.initTrainers();
+      if (kind === "quiz") { if (mode && mode !== qz.mode) { setQuizMode(mode); qz.cur = null; } if (!qz.cur) dealQuiz(); }
+      if (kind === "range") { if (mode && mode !== rq.mode) { setRangeMode(mode); rq.cur = null; } if (!rq.cur) dealRange(); }
+    },
+    key(e, kind) {
       const k = e.key.toLowerCase();
-      if (sub === "range") {
+      if (kind === "range") {
         if (rq.answered && (k === "enter" || k === " " || k === "n")) { dealRange(); return true; }
         if (!rq.answered && rq.mode === "cf" && (k === "f" || k === "c")) { answerRange(k === "c" ? "call" : "fold"); return true; }
         if (!rq.answered && rq.mode === "eq" && k === "enter") { answerRange(+$("rq-guess").value / 100); return true; }
         return false;
       }
-      if (sub !== "quiz") return false;
+      if (kind !== "quiz") return false;
       if (qz.answered && (k === "enter" || k === " " || k === "n")) { dealQuiz(); return true; }
       if (!qz.answered && qz.mode === "cf" && (k === "f" || k === "c")) { answerQuiz(k === "c" ? "call" : "fold"); return true; }
       if (!qz.answered && qz.mode === "eq" && k === "enter") { answerQuiz(+$("qz-guess").value / 100); return true; }
