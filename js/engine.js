@@ -258,6 +258,31 @@
     return { rows, equity, combos, blocked };
   }
 
+  /* ---------- Equity vs every combo of a range on a flop or turn, grouped by how the combo hit ---------- */
+  /* Exact (all runouts). Returns { rows: [{c, hc, w, bucket, equity}], groups: [{bucket, combos, equity}], equity, combos } */
+  function equityByCombo(h, rangeMap, board) {
+    const live = rangeCombos(rangeMap, [...h, ...board]);
+    if (!live.length || board.length < 3) return null;
+    const need = 5 - board.length, rows = [];
+    for (const { c, w } of live) {
+      const deck = remainingDeck([...h, ...board, ...c]);
+      let win = 0, tie = 0, total = 0;
+      forEachCombo(deck, need, run => {
+        const b = board.concat(run);
+        const a = evaluate(h.concat(b)), x = evaluate(c.concat(b));
+        if (a > x) win++; else if (a === x) tie++;
+        total++;
+      });
+      rows.push({ c, hc: handClass(c[0], c[1]), w, bucket: classifyFlop(c, board), equity: (win + tie / 2) / total });
+    }
+    const groups = BUCKETS.map((_, bucket) => {
+      const rs = rows.filter(r => r.bucket === bucket), combos = rs.reduce((s, r) => s + r.w, 0);
+      return { bucket, combos, equity: combos ? rs.reduce((s, r) => s + r.w * r.equity, 0) / combos : null };
+    });
+    const combos = rows.reduce((s, r) => s + r.w, 0);
+    return { rows, groups, equity: rows.reduce((s, r) => s + r.w * r.equity, 0) / combos, combos };
+  }
+
   /* ---------- Next-card breakdown (vs a known hand) ---------- */
   function nextCardEquities(h, v, board) {
     const deck = remainingDeck([...h, ...v, ...board]);
@@ -337,7 +362,7 @@
     RANKS, SUITS, SUIT_SYMBOL, CATEGORY, BUCKETS,
     card, rankOf, suitOf, cardName, parseCard, parseCards,
     evaluate, category, combosOf, handClass, rangeCombos, remainingDeck,
-    equityHandVsHand, equityHandVsRange, equityRangeVsRange, equityByClass, nextCardEquities,
+    equityHandVsHand, equityHandVsRange, equityRangeVsRange, equityByClass, equityByCombo, nextCardEquities,
     drawInfo, classifyFlop, rangeProfile, texture
   };
   if (typeof module !== "undefined" && module.exports) module.exports = api;

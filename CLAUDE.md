@@ -16,7 +16,7 @@ css/falcon.css    all styles; colors are CSS variables on :root
 js/engine.js      card encoding, 5–7 card evaluator, equity (exact + Monte Carlo), flop classification, board texture. UMD: window.Engine in browser, module.exports in Node
 js/ranges.js      preflop range data (RFI, VS), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
 js/preflop.js     range grid view + trainer (incl. "My leaks" mode, stats in localStorage)
-js/postflop.js    equity calculator, board explorer, equity quiz (window.Postflop)
+js/postflop.js    equity calculator, board explorer, equity quiz, range trainer (window.Postflop)
 js/theory.js      theory page calculators (pot odds, outs, matchups, hand vs range, EV, seat bars)
 js/app.js         tab routing + keyboard shortcuts; loaded last
 tests/            engine + range tests; run-all.js runs both
@@ -53,4 +53,4 @@ Every number in UI copy (equities, combo counts, pot odds, range sizes) must be 
 - Real solver data import (e.g. TexasSolver output) to replace approximated ranges.
 - More formats: other stack depths, tournaments.
 - Postflop trainer (c-bet decisions by texture).
-- Postflop range equity trainer: estimate your equity against a *range* instead of known cards. Optionally the user first builds their own estimate of the opponent's range for the action, then compares it to the chart range and sees how much the difference changes the equity.
+- Range trainer, next steps (v1 is live: guess flop equity vs the chart range, answer grouped by how the range hit): let the user build their own guess of the opponent's range first and compare it to the chart; add flop betting so ranges narrow (c-bet / call); add a call-or-fold mode vs a bet.

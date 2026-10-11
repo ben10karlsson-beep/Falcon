@@ -417,6 +417,7 @@
       <button data-sub="calc" aria-pressed="true">Equity calculator</button>
       <button data-sub="board" aria-pressed="false">Board explorer</button>
       <button data-sub="quiz" aria-pressed="false">Equity quiz</button>
+      <button data-sub="range" aria-pressed="false">Range trainer</button>
     </div>
   </div>
 
@@ -509,6 +510,39 @@
         <p>Count your outs, then use the rule of 4 on the flop or the rule of 2 on the turn. Subtract outs that also improve your opponent, like a flush card that pairs the board when they have a set.</p>
       </div>
       <div class="note">You see your opponent's hand here to train the math. In a real game you weigh their whole range, which the calculator's range mode does. Keys: <b>Enter</b> lock in / next, <b>F</b>/<b>C</b> in call-or-fold.</div>
+    </aside>
+  </section>
+
+  <!-- Range trainer -->
+  <section class="pf-grid" id="pf-range" hidden>
+    <div style="display:grid;gap:16px;align-content:start;min-width:0">
+      <div class="felt" style="justify-items:stretch;text-align:left">
+        <div id="rq-table" class="qtable"></div>
+        <div id="rq-ask" style="display:grid;gap:12px;justify-items:start"></div>
+        <div id="rq-fb"></div>
+      </div>
+    </div>
+    <aside class="panel">
+      <div>
+        <div class="label" style="margin-bottom:8px">This session</div>
+        <div class="scores">
+          <div class="score"><b id="rq-n">0</b><span>spots played</span></div>
+          <div class="score"><b id="rq-acc">–</b><span>spot on</span></div>
+          <div class="score"><b id="rq-err">–</b><span>average error (points)</span></div>
+          <div class="score"><b>±5</b><span>counts as spot on</span></div>
+        </div>
+      </div>
+      <div class="infobox">
+        <div class="label">How to estimate against a range</div>
+        <ol class="tips">
+          <li>Picture the hands they can have after this action.</li>
+          <li>Sort them into a few groups by how they hit the flop: strong hands, top pair, weaker pairs, draws, nothing.</li>
+          <li>Guess how big each group is and your equity against it.</li>
+          <li>Weight each guess by group size and add them up.</li>
+        </ol>
+        <p>The answer shows the same groups, so you can see which step you got wrong.</p>
+      </div>
+      <div class="note">Spots are single-raised pots from Falcon's preflop charts. Your hand is dealt from your own range, and the opponent's range is their full chart range before any flop betting. The opener's range also includes hands that would have 4-bet, which overstates it slightly. Keys: <b>Enter</b> lock in / next.</div>
     </aside>
   </section>
 </main>

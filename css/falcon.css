@@ -324,3 +324,7 @@ ol.takeaways li::marker{font-family:var(--mono);color:var(--red)}
 .mtable.fit .hh{white-space:normal;min-width:72px}
 .ev-inputs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 @media (max-width:520px){.ev-inputs{grid-template-columns:minmax(0,1fr)}}
+.mc.back{background:repeating-linear-gradient(45deg,var(--red) 0 6px,#b02e31 6px 12px);border:3px solid var(--card)}
+#rq-ask .sit{margin:0;text-align:left}
+.mtable .grp{font-weight:600;color:var(--text)}
+.mtable .grp .sub{font-family:var(--mono);font-weight:400}

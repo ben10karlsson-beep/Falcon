@@ -103,5 +103,25 @@ mc("As Kc", "Ad Qh", 0.735);
   const flop = E.equityByClass(aq, { KK: 1 }, E.parseCards("Qd 7c 2s"), 2000);
   check("works with a board (top pair vs overpair)", flop.equity > 0.12 && flop.equity < 0.3, flop.equity);
 }
+
+// equityByCombo: exact equity vs each combo of a range on a flop/turn, grouped by bucket
+{
+  const aq = E.parseCards("Ah Qd"), qflop = E.parseCards("Qs 7c 2h");
+  const one = E.equityByCombo(aq, { KK: 1 }, qflop);
+  const exact = E.equityHandVsHand(aq, E.parseCards("Ks Kc"), qflop);
+  check("one combo matches exact hand vs hand", Math.abs(one.rows.find(r => r.c.includes(E.parseCard("Ks")) && r.c.includes(E.parseCard("Kc"))).equity - exact.equity) < 1e-9);
+  check("KK is 6 live combos, all overpairs", one.combos === 6 && one.groups[1].combos === 6);
+  const m = { QQ: 1, AKs: 1, "87s": 0.5, "65o": 1 };
+  const g = E.equityByCombo(aq, m, qflop);
+  check("blockers and frequency: QQ 1, AKs 3, 87s 3×0.5 (board 7c blocks one), 65o 12", g.combos === 1 + 3 + 1.5 + 12, g.combos);
+  check("set goes in the strong group", g.groups[0].combos === 1 && g.groups[0].equity < 0.1, JSON.stringify(g.groups[0]));
+  check("group sizes add up", Math.abs(g.groups.reduce((s, x) => s + x.combos, 0) - g.combos) < 1e-9);
+  const avg = g.groups.reduce((s, x) => s + (x.combos ? x.combos * x.equity : 0), 0) / g.combos;
+  check("weighted groups equal the total", Math.abs(avg - g.equity) < 1e-9);
+  const mc = E.equityHandVsRange(aq, m, qflop, 80000);
+  check("total matches Monte Carlo hand vs range", Math.abs(g.equity - mc.equity) < 0.015, g.equity + " vs " + mc.equity);
+  check("turn works", E.equityByCombo(aq, m, qflop.concat([E.parseCard("3d")])).equity > 0.5);
+  check("preflop or empty range → null", E.equityByCombo(aq, m, []) === null && E.equityByCombo(aq, {}, qflop) === null);
+}
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

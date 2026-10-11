@@ -385,16 +385,112 @@
     $("qz-err").textContent = qz.mode === "eq" && qz.n ? (qz.err / Math.max(1, qz.n)).toFixed(1) : "–";
   }
 
+  /* ================= 4. RANGE TRAINER ================= */
+  /* A real spot from the charts: you hold a hand from your range, the opponent holds their whole range. */
+  const rq = { cur: null, answered: false, n: 0, err: 0, good: 0 };
+  function dealRange() {
+    let cur, tries = 0;
+    do {
+      tries++;
+      const m = MATCHES[(Math.random() * MATCHES.length) | 0], heroOpens = Math.random() < 0.5;
+      const openKey = "rfi:" + m.rfi, callKey = "call:" + m.vs;
+      const heroMap = rangeByKey(heroOpens ? openKey : callKey).map;
+      const vilKey = heroOpens ? callKey : openKey;
+      const pool = E.rangeCombos(heroMap, []);
+      let r = Math.random() * pool.reduce((s, x) => s + x.w, 0), pick = pool[0];
+      for (const x of pool) { r -= x.w; if (r <= 0) { pick = x; break; } }
+      const hero = pick.c.slice(), d = shuffledDeck(hero), board = d.slice(0, 3);
+      cur = { m, heroOpens, hero, board, vilKey,
+        heroSeat: heroOpens ? m.opener : m.caller, vilSeat: heroOpens ? m.caller : m.opener };
+      cur.res = E.equityByCombo(hero, rangeByKey(vilKey).map, board);
+      const e = cur.res.equity;
+      if (e > 0.12 && e < 0.9 && (e < 0.75 || Math.random() < 0.5)) break;
+    } while (tries < 20);
+    rq.cur = cur; rq.answered = false; renderRange();
+  }
+  function renderRange() {
+    const c = rq.cur;
+    const action = `${c.m.opener} opens to 2.5bb and ${c.m.caller} calls.`;
+    const vilDesc = c.heroOpens ? `${c.vilSeat}'s calling range` : `${c.vilSeat}'s opening range`;
+    $("rq-table").innerHTML = `
+      <div class="qhands">
+        <div><div class="label">You · ${c.heroSeat}</div><div class="cardrow">${c.hero.map(x => cardHTML(x)).join("")}</div></div>
+        <div><div class="label">Opponent · ${c.vilSeat}</div><div class="cardrow"><span class="mc back" aria-label="unknown card"></span><span class="mc back" aria-label="unknown card"></span></div></div>
+      </div>
+      <div><div class="label">Flop</div><div class="cardrow">${c.board.map(x => cardHTML(x)).join("")}</div></div>`;
+    $("rq-ask").innerHTML = `
+      <p class="sit">${action} You don't know their cards, so you play against <b>${vilDesc}</b>. Before any flop betting, what is your equity against it?</p>
+      <div class="calc" style="width:100%">
+        <div class="ctrl"><label for="rq-guess">Your guess <b id="rq-gv">50%</b></label>
+        <input type="range" id="rq-guess" min="0" max="100" step="1" value="50"></div>
+        <button class="btn primary" id="rq-lock">Lock in guess</button>
+      </div>`;
+    const g = $("rq-guess");
+    g.oninput = () => { $("rq-gv").textContent = g.value + "%"; };
+    $("rq-lock").onclick = () => answerRange(+g.value / 100);
+    $("rq-fb").innerHTML = "";
+  }
+  function answerRange(ans) {
+    if (rq.answered) return;
+    rq.answered = true;
+    const c = rq.cur, res = c.res, eq = res.equity;
+    const err = Math.abs(ans - eq) * 100;
+    rq.n++; rq.err += err;
+    const grade = err <= 5 ? "good" : err <= 12 ? "ok" : "bad";
+    if (grade === "good") rq.good++;
+    const head = grade === "good" ? "Spot on" : grade === "ok" ? "Close" : "Off";
+    const you = handDescription(c.hero, c.board);
+    const youText = you.made + (you.draws.length ? " with " + you.draws.join(" and ") : "");
+    // Per group: share of their range, your equity, and the most common hands in it
+    const rowsHTML = res.groups.filter(g => g.combos > 0).map(g => {
+      const byHc = {};
+      res.rows.filter(r => r.bucket === g.bucket).forEach(r => { byHc[r.hc] = (byHc[r.hc] || 0) + r.w; });
+      const top = Object.entries(byHc).sort((a, b) => b[1] - a[1]).slice(0, 4).map(x => x[0]).join(", ");
+      const share = g.combos / res.combos;
+      return `<tr><td class="grp"><i class="sw" style="background:${BUCKET_COLORS[g.bucket]}"></i>${E.BUCKETS[g.bucket]}<span class="sub">${top}</span></td>
+        <td>${fmt(share)}<span class="sub">${+g.combos.toFixed(1)} combos</span></td><td>${fmt(g.equity)}</td><td>${fmt(share * g.equity)}</td></tr>`;
+    }).join("");
+    const bar = res.groups.filter(g => g.combos > 0).map(g => `<span style="width:${g.combos / res.combos * 100}%;background:${BUCKET_COLORS[g.bucket]}" title="${E.BUCKETS[g.bucket]}"></span>`).join("");
+    const ahead = res.rows.filter(r => r.equity > 0.5).reduce((t, r) => t + r.w, 0) / res.combos;
+    const color = { good: "var(--good)", ok: "var(--warn)", bad: "var(--red)" }[grade];
+    $("rq-fb").innerHTML = `
+      <div class="fb ${grade}">
+        <div class="head"><span class="dot" style="background:${color}"></span>${head}</div>
+        <p>You guessed ${Math.round(ans * 100)}%. Your real equity against ${c.vilSeat}'s range is <strong>${fmt(eq)}</strong>, so you were ${err.toFixed(1)} points away. You have: <strong>${youText}</strong>.</p>
+        <div><div class="label" style="margin-bottom:6px">How their range hit this flop (${+res.combos.toFixed(1)} combos after your blockers)</div>
+          <span class="pbar">${bar}</span></div>
+        <div class="mtable fit"><table>
+          <thead><tr><th>They have</th><th>Share</th><th>Your equity</th><th>Adds</th></tr></thead>
+          <tbody>${rowsHTML}<tr><td class="grp">Total</td><td>100%</td><td></td><td><strong>${fmt(eq)}</strong></td></tr></tbody>
+        </table></div>
+        <p>Each group's share × your equity against it gives the "Adds" column, and the column sums to your total. You are the favourite against <strong>${fmt(ahead)}</strong> of their combos and the underdog against the rest.</p>
+        <div class="btns"><button class="btn primary" id="rq-next">Next spot <span style="opacity:.6;font-weight:500">(Enter)</span></button>
+        <button class="btn" id="rq-open">Open in calculator</button></div>
+      </div>`;
+    $("rq-lock").disabled = true;
+    $("rq-next").onclick = dealRange;
+    $("rq-open").onclick = () => {
+      calc.hero = c.hero.slice(); calc.mode = "range"; calc.rangeKey = c.vilKey; $("pc-range").value = c.vilKey;
+      calc.board = [...c.board, null, null]; calc.active = "b3";
+      setSub("calc"); renderCalcInputs(); computeCalc(); window.scrollTo({ top: 0 });
+    };
+    $("rq-next").focus({ preventScroll: true });
+    $("rq-n").textContent = rq.n;
+    $("rq-acc").textContent = Math.round(rq.good / rq.n * 100) + "%";
+    $("rq-err").textContent = (rq.err / rq.n).toFixed(1);
+  }
+
   /* ---------- Sub-tabs ---------- */
   let sub = "calc";
   function setSub(s) {
     sub = s;
-    ["calc", "board", "quiz"].forEach(k => {
+    ["calc", "board", "quiz", "range"].forEach(k => {
       $("pf-" + k).hidden = k !== s;
       document.querySelector(`[data-sub="${k}"]`).setAttribute("aria-pressed", k === s);
     });
     if (s === "board" && !$("bx-result").innerHTML) { renderBx(); computeBx(); }
     if (s === "quiz" && !qz.cur) dealQuiz();
+    if (s === "range" && !rq.cur) dealRange();
   }
 
   window.Postflop = {
@@ -409,8 +505,13 @@
       setSub("calc");
     },
     key(e) {
-      if (sub !== "quiz") return false;
       const k = e.key.toLowerCase();
+      if (sub === "range") {
+        if (rq.answered && (k === "enter" || k === " " || k === "n")) { dealRange(); return true; }
+        if (!rq.answered && k === "enter") { answerRange(+$("rq-guess").value / 100); return true; }
+        return false;
+      }
+      if (sub !== "quiz") return false;
       if (qz.answered && (k === "enter" || k === " " || k === "n")) { dealQuiz(); return true; }
       if (!qz.answered && qz.mode === "cf" && (k === "f" || k === "c")) { answerQuiz(k === "c" ? "call" : "fold"); return true; }
       if (!qz.answered && qz.mode === "eq" && k === "enter") { answerQuiz(+$("qz-guess").value / 100); return true; }
