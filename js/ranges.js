@@ -55,6 +55,34 @@ const VS=[
    call:"77-JJ, 66:0.5, ATs-AQs, KQs, KJs, KTs:0.5, QJs, QTs:0.5, JTs, T9s:0.5, 98s:0.25, AQo:0.5",
    note:"Facing the tightest opener with players still behind you. Stay tight: anyone left to act can squeeze."}
 ];
+/* Facing a 3-bet: the opener's 4-bet / call / fold. Frequencies are "given you opened this hand",
+   so only hands in the opener's RFI range appear. vs names the VS chart the 3-bet comes from. */
+const V3=[
+  {id:"BTN vs BB 3-bet",hero:"BTN",vil:"BB",vs:"BB vs BTN",
+   raise:"QQ+, AKs, AKo, JJ:0.3, AQs:0.3, A5s:0.5, A4s:0.5, A3s:0.25, K8s:0.25",
+   call:"55-TT, 22-44:0.5, JJ:0.7, AQs:0.7, AJs-A6s, A5s:0.5, A4s:0.5, A3s:0.5, A2s:0.5, KTs+, K9s, K8s:0.5, QTs+, Q9s, JTs, J9s, T9s, T8s, 98s, 97s:0.5, 87s, 86s:0.5, 76s, 65s, 54s, K7s:0.5, Q8s:0.5, J8s:0.5, T7s:0.5, AQo, AJo, ATo, KQo, KJo, QJo:0.5",
+   note:"You have position for the rest of the hand, so you can call with a wide range of hands that play well after the flop. 4-bet your best hands plus a few suited wheel aces, which block AA and AK."},
+  {id:"UTG vs BB 3-bet",hero:"UTG",vil:"BB",vs:"BB vs UTG",
+   raise:"KK+, QQ:0.5, AKs, AKo:0.6, A5s:0.4",
+   call:"66-JJ, 22-55:0.5, QQ:0.5, AKo:0.4, AQs, AJs, ATs, A9s:0.5, A5s:0.6, A4s:0.5, KQs, KJs, KTs:0.5, QJs, QTs:0.5, JTs, T9s, 98s:0.5, AQo, KQo:0.5",
+   note:"Your opening range is already strong and the big blind 3-bets tight against it, so you continue with most of it. Calls keep the BB's bluffs in; 4-bets are mostly AA and KK."},
+  {id:"BTN vs SB 3-bet",hero:"BTN",vil:"SB",vs:"SB vs BTN",
+   raise:"QQ+, AKs, AKo, JJ:0.4, AQs:0.4, A5s:0.5, A4s:0.5, A3s:0.25, K9s:0.25",
+   call:"55-TT, 22-44:0.5, JJ:0.6, AQs:0.6, AJs-A6s, A5s:0.5, A4s:0.5, A3s:0.6, A2s:0.6, KTs+, K9s:0.75, K8s:0.5, QTs+, Q9s, JTs, J9s, T9s, T8s, 98s, 97s, 87s, 86s:0.5, 76s, 65s, 54s, K7s:0.5, Q8s:0.5, J8s:0.5, T7s:0.5, 96s:0.5, 75s:0.5, 64s:0.5, AQo, AJo, ATo, KQo, KJo, QJo:0.75, KTo:0.5",
+   note:"The small blind 3-bets wide because it plays raise-or-fold, so you defend a bit more than against the big blind. Position makes calling attractive with suited and connected hands."},
+  {id:"CO vs BTN 3-bet",hero:"CO",vil:"BTN",vs:"BTN vs CO",
+   raise:"QQ+, AKs, AKo, JJ:0.3, AQs:0.3, A5s:0.5, A4s:0.5, A3s:0.25",
+   call:"77-TT, 55-66:0.5, JJ:0.7, AQs:0.7, AJs, ATs, A9s:0.5, A5s:0.5, A4s:0.5, KQs, KJs, KTs, QJs, QTs, JTs, T9s, 98s, 87s:0.5, 76s:0.5, 65s:0.5, A8s:0.5, K9s:0.5, Q9s:0.5, J9s:0.5, T8s:0.5, AQo, AJo:0.5, ATo:0.25, KQo:0.5, KJo:0.25",
+   note:"You will be out of position for the whole hand, so offsuit hands lose value fast. Defend mostly with pairs, suited hands and strong aces, and 4-bet more often than you would in position."},
+  {id:"UTG vs CO 3-bet",hero:"UTG",vil:"CO",vs:"CO vs UTG",
+   raise:"KK+, QQ:0.5, AKs, AKo:0.6, A5s:0.4",
+   call:"77-JJ, 66:0.5, 55:0.5, QQ:0.5, AKo:0.4, AQs, AJs, ATs, A9s:0.5, A5s:0.6, KQs, KJs, KTs:0.5, QJs, QTs:0.5, JTs, T9s, 98s:0.5, AQo, KQo:0.5",
+   note:"The cutoff's 3-bet is tight against an UTG open, but it's small and the cutoff has position. Continue with most strong hands; pairs and suited broadways call, and AA and KK lead the 4-bets."}
+];
+/* 3-bet sizes from CLAUDE.md: about 11bb out of position, 7.5bb in position. 4-bets: about 25bb vs 11bb, 20bb vs 7.5bb. */
+const threeBetSize=seat=>seat==="SB"||seat==="BB"?11:7.5;
+const fourBetSize=vil=>threeBetSize(vil)===11?25:20;
+
 const SEATS=["UTG","HJ","CO","BTN","SB","BB"];
 const COLORS={raise:"var(--raise)",call:"var(--call)",fold:"var(--fold)"};
 
@@ -65,6 +93,7 @@ function posOf(h){const a=ri(h[0]),b=ri(h[1]);return h.length===2?[a,a]:h[2]==="
 /* A "spot" is {mode:'rfi',seat} or {mode:'vs',vs:index} */
 function getRange(spot){
   if(spot.mode==="rfi"){const s=RFI[spot.seat];return{raise:parse(s.raise),call:{},note:s.note,labels:{raise:"Raise",call:"Call",fold:"Fold"},vs:false,hero:spot.seat};}
+  if(spot.mode==="v3"){const s=V3[spot.v3];return{raise:parse(s.raise),call:parse(s.call),note:s.note,labels:{raise:"4-bet",call:"Call",fold:"Fold"},vs:true,v3:true,s,hero:s.hero,vil:s.vil,open:parse(RFI[s.hero].raise)};}
   const s=VS[spot.vs];return{raise:parse(s.raise),call:parse(s.call),note:s.note,labels:{raise:"3-bet",call:"Call",fold:"Fold"},vs:true,s,hero:s.hero,vil:s.vil};
 }
 function freqs(rng,h){const r=rng.raise[h]||0;const c=Math.min(rng.call[h]||0,1-r);return{raise:r,call:c,fold:Math.max(0,1-r-c)};}
@@ -87,6 +116,12 @@ function rangeOptions(){
     ALL_HANDS.forEach(h=>{const f=freqs(rng,h);if(f.call>0)call[h]=f.call;if(f.raise>0)raise[h]=f.raise;});
     opts.push({key:"call:"+v.id,label:`${v.hero} calls vs ${v.vil} open`,map:call});
     opts.push({key:"3bet:"+v.id,label:`${v.hero} 3-bets vs ${v.vil} open`,map:raise});
+  });
+  // The range an opener reaches a 3-bet pot with: opened (at its open frequency) and then called the 3-bet
+  V3.forEach(v=>{
+    const open=parse(RFI[v.hero].raise),call=parse(v.call),map={};
+    for(const h in call)if(open[h])map[h]=open[h]*call[h];
+    opts.push({key:"call3:"+v.id,label:`${v.hero} calls a ${v.vil} 3-bet`,map});
   });
   return opts;
 }

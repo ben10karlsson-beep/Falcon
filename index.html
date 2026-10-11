@@ -27,6 +27,7 @@
         <div class="seg" role="group" aria-label="Situation">
           <button id="m-rfi" aria-pressed="true">First in (open)</button>
           <button id="m-vs" aria-pressed="false">Facing a raise</button>
+          <button id="m-v3" aria-pressed="false">Facing a 3-bet</button>
         </div>
         <span class="label" style="margin-left:auto">6-max · 100bb · cash</span>
       </div>
@@ -63,6 +64,7 @@
         <button data-pool="all" aria-pressed="true">All spots</button>
         <button data-pool="rfi" aria-pressed="false">Opening</button>
         <button data-pool="vs" aria-pressed="false">Facing a raise</button>
+        <button data-pool="v3" aria-pressed="false">Facing a 3-bet</button>
         <button data-pool="leaks" aria-pressed="false">My leaks</button>
       </div>
       <button class="chip" id="skip-easy" aria-pressed="true" title="Re-deals most hands that are obvious folds, so you practice the decisions that matter">Skip easy folds</button>
@@ -866,10 +868,10 @@
   <!-- Board explorer -->
   <section class="pf-grid" id="pf-board" hidden>
     <div class="pf-inputs">
-      <p class="lede">See how two preflop ranges connect with a flop: who has more equity, who has more strong hands, and what that usually means for betting.</p>
+      <p class="lede">See how two preflop ranges connect with a flop, in single-raised and 3-bet pots: who has more equity, who has more strong hands, and what that usually means for betting.</p>
       <div class="slotgroup">
-        <div class="label">Situation (single-raised pot)</div>
-        <div class="row" id="bx-match"></div>
+        <div class="label">Situation</div>
+        <div class="bx-match" id="bx-match"></div>
       </div>
       <div class="slotgroup">
         <div class="label">Flop</div>

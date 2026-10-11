@@ -211,10 +211,25 @@
     ["A-high dry", "As 8d 3c"], ["K-high dry", "Kd 7s 2c"], ["Broadway wet", "Jh Th 9c"],
     ["Low connected", "6h 5h 4c"], ["Paired", "Ts Td 4c"], ["Monotone", "Qs 8s 4s"]
   ];
+  /* Board explorer spots: the preflop aggressor's range against the caller's.
+     Single-raised pots use the charts above; 3-bet pots use the 3-bet charts and the opener's facing-a-3-bet calls.
+     Pot = both players' bets plus any blind that folded; 100bb stacks. */
+  const BX = [
+    ...MATCHES.map(m => {
+      const pot = 5 + (m.caller === "BB" ? 0.5 : 1.5);
+      return { group: "Single-raised pot", label: m.label, agg: m.opener, caller: m.caller, aggRole: "opener", callRole: "caller",
+        aggKey: "rfi:" + m.rfi, callKey: "call:" + m.vs, pot, behind: 97.5 };
+    }),
+    ...V3.map(v => {
+      const b3 = threeBetSize(v.vil), dead = (v.vil === "BB" ? 0 : 1) + (v.vil === "SB" ? 0 : 0.5);
+      return { group: "3-bet pot", label: `${v.vil} 3-bets ${v.hero}, ${v.hero} calls`, agg: v.vil, caller: v.hero, aggRole: "3-bettor", callRole: "opener",
+        aggKey: "3bet:" + v.vs, callKey: "call3:" + v.id, pot: 2 * b3 + dead, behind: 100 - b3 };
+    })
+  ];
   const bx = { match: 0, flop: E.parseCards("Kd 7s 2c"), active: null, job: 0 };
 
   function renderBx() {
-    $("bx-match").innerHTML = MATCHES.map((m, i) => `<button class="chip" aria-pressed="${i === bx.match}" data-m="${i}">${m.label}</button>`).join("");
+    $("bx-match").innerHTML = ["Single-raised pot", "3-bet pot"].map(g => `<div class="bx-group"><span class="hint">${g}</span><div class="row">${BX.map((m, i) => m.group === g ? `<button class="chip" aria-pressed="${i === bx.match}" data-m="${i}">${m.label}</button>` : "").join("")}</div></div>`).join("");
     $("bx-match").querySelectorAll("[data-m]").forEach(b => b.onclick = () => { bx.match = +b.dataset.m; renderBx(); computeBx(); });
     $("bx-presets").innerHTML = PRESETS.map(([l, cs]) => `<button class="chip" data-p="${cs}">${l}</button>`).join("") + `<button class="chip" id="bx-rand">Random flop</button>`;
     $("bx-presets").querySelectorAll("[data-p]").forEach(b => b.onclick = () => { bx.flop = E.parseCards(b.dataset.p); bx.active = null; renderBx(); computeBx(); });
@@ -235,11 +250,8 @@
   function computeBx() {
     const out = $("bx-result");
     if (bx.flop.length < 3 || bx.flop.some(c => c === null || c === undefined)) { out.innerHTML = `<div class="empty">Pick three flop cards, or choose a preset above.</div>`; return; }
-    const m = MATCHES[bx.match];
-    const vsIdx = VS.findIndex(v => v.id === m.vs);
-    const openMap = parse(RFI[m.rfi].raise);
-    const rng = getRange({ mode: "vs", vs: vsIdx }), callMap = {};
-    ALL_HANDS.forEach(h => { const f = freqs(rng, h); if (f.call > 0) callMap[h] = f.call; });
+    const m = BX[bx.match];
+    const openMap = rangeByKey(m.aggKey).map, callMap = rangeByKey(m.callKey).map;
     const job = ++bx.job;
     out.classList.add("busy");
     setTimeout(() => {
@@ -251,28 +263,30 @@
       out.classList.remove("busy");
       const eA = eq.equity, strongA = pa.buckets[0], strongB = pb.buckets[0];
       const nut = strongA - strongB;
-      const rangeAdv = eA >= 0.56 ? `${m.opener} has a clear range advantage` : eA >= 0.52 ? `${m.opener} has a small range advantage` : eA > 0.48 ? "Neither player has a real range advantage" : `${m.caller} has the range advantage`;
-      const nutAdv = nut >= 0.03 ? `${m.opener} has more strong hands` : nut <= -0.03 ? `${m.caller} has more strong hands` : "Both ranges have a similar share of strong hands";
+      const rangeAdv = eA >= 0.56 ? `${m.agg} has a clear range advantage` : eA >= 0.52 ? `${m.agg} has a small range advantage` : eA > 0.48 ? "Neither player has a real range advantage" : `${m.caller} has the range advantage`;
+      const nutAdv = nut >= 0.03 ? `${m.agg} has more strong hands` : nut <= -0.03 ? `${m.caller} has more strong hands` : "Both ranges have a similar share of strong hands";
       const tips = [];
       if (t.paired) tips.push("Paired boards are hard to connect with, so the preflop raiser can usually bet small and often.");
       if (t.maxSuit === 3) tips.push("Monotone boards shrink everyone's edge. Bets tend to be smaller and less frequent, and holding the ace of the suit matters a lot.");
-      if (eA >= 0.52 && nut > -0.02 && t.wetness === "Dry" && !t.paired) tips.push(`This is a good board for ${m.opener} to continuation-bet very often with a small size, around a third of the pot.`);
-      if (nut >= 0.03 && t.wetness !== "Dry") tips.push(`With more strong hands on a board where the next cards change a lot, ${m.opener} can use bigger bets (two-thirds pot or more) with a more selective range.`);
-      if (eA < 0.52 || nut <= -0.03) tips.push(`${m.caller} connects well here. Expect ${m.opener} to check much more often and ${m.caller} to fight back with check-raises.`);
-      if (!tips.length) tips.push(`A mixed board. ${m.opener} usually bets part of the range and checks the rest, often with a medium size.`);
+      if (eA >= 0.52 && nut > -0.02 && t.wetness === "Dry" && !t.paired) tips.push(`This is a good board for ${m.agg} to continuation-bet very often with a small size, around a third of the pot.`);
+      if (nut >= 0.03 && t.wetness !== "Dry") tips.push(`With more strong hands on a board where the next cards change a lot, ${m.agg} can use bigger bets (two-thirds pot or more) with a more selective range.`);
+      if (eA < 0.52 || nut <= -0.03) tips.push(`${m.caller} connects well here. Expect ${m.agg} to check much more often and ${m.caller} to fight back with check-raises.`);
+      if (m.group === "3-bet pot") tips.push(`In 3-bet pots the stacks are short compared with the pot (SPR ${(m.behind / m.pot).toFixed(1)}), so top pair is often good enough to get all in, and bets tend to be smaller, around a third of the pot.`);
+      if (!tips.length) tips.push(`A mixed board. ${m.agg} usually bets part of the range and checks the rest, often with a medium size.`);
       out.innerHTML = `
+        <p class="hint bx-pot">${m.group}: pot ${m.pot}bb, ${m.behind}bb behind, SPR ${(m.behind / m.pot).toFixed(1)}</p>
         <div class="tags">${[t.highText + " card", t.suitText, t.conn, t.wetness].map(x => `<span class="tag2">${x}</span>`).join("")}</div>
         <div>
           <div class="label" style="margin-bottom:6px">Range equity</div>
-          <div class="split tall"><span style="width:${eA * 100}%;background:var(--red)">${m.opener} ${fmt(eA)}</span><span style="width:${(1 - eA) * 100}%;background:var(--call);justify-content:flex-end">${fmt(1 - eA)} ${m.caller}</span></div>
+          <div class="split tall"><span style="width:${eA * 100}%;background:var(--red)">${m.agg} ${fmt(eA)}</span><span style="width:${(1 - eA) * 100}%;background:var(--call);justify-content:flex-end">${fmt(1 - eA)} ${m.caller}</span></div>
         </div>
         <div><div class="label" style="margin-bottom:6px">How each range hits this flop</div>
-        ${profileBars([{ name: `${m.opener} (opener)`, prof: pa }, { name: `${m.caller} (caller)`, prof: pb }])}</div>
+        ${profileBars([{ name: `${m.agg} (${m.aggRole})`, prof: pa }, { name: `${m.caller} (${m.callRole})`, prof: pb }])}</div>
         <div class="infobox">
           <div class="label">What this means</div>
           <p><strong>${rangeAdv}</strong> (${fmt(eA)} equity). <strong>${nutAdv}</strong>: ${fmt(strongA)} vs ${fmt(strongB)} two pair or better.</p>
           <ul class="tips">${tips.map(x => `<li>${x}</li>`).join("")}</ul>
-          <p class="note" style="border:0;padding:0">The numbers are calculated from Falcon's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. The opener's range includes hands that would have 4-bet, which slightly overstates it.</p>
+          <p class="note" style="border:0;padding:0">The numbers are calculated from Falcon's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. ${m.group === "3-bet pot" ? "In 3-bet pots the opener's range is the facing-a-3-bet calling chart, and the 3-bettor's range includes hands that would 5-bet." : "The opener's range includes hands that would have 4-bet, which slightly overstates it."}</p>
         </div>`;
     }, 10);
   }

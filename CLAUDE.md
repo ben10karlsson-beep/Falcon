@@ -14,7 +14,7 @@ A poker study app for understanding the math and strategy of No-Limit Hold'em, p
 index.html        page shell + markup for every view (tabs: Preflop ranges, Trainer, Postflop, Theory, Resources)
 css/falcon.css    all styles; colors are CSS variables on :root
 js/engine.js      card encoding, 5–7 card evaluator, equity (exact + Monte Carlo), flop classification, board texture. UMD: window.Engine in browser, module.exports in Node
-js/ranges.js      preflop range data (RFI, VS), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
+js/ranges.js      preflop range data (RFI, VS, V3 = facing a 3-bet), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
 js/preflop.js     range grid view + preflop hands trainer (incl. "My leaks" mode, stats in localStorage)
 js/reading.js     Read ranges trainer: paint a range on the grid, graded against the chart in combos, plus the flop step (equity vs your range vs the chart range) (window.Reading)
 js/postflop.js    equity calculator + board explorer (Postflop tab); Hand vs hand quiz + range trainer (Trainer tab) (window.Postflop)
@@ -41,7 +41,8 @@ Tabs: **Trainer** holds every graded trainer (Preflop hands, Read ranges, Hand v
 
 ## Poker conventions and decisions
 
-- Format: 6-max cash, 100bb, opens 2.5bb (SB 3bb), 3-bets ~11bb OOP / 7.5bb IP.
+- Format: 6-max cash, 100bb, opens 2.5bb (SB 3bb), 3-bets ~11bb OOP / 7.5bb IP, 4-bets ~25bb vs 11bb / ~20bb vs 7.5bb (`threeBetSize`, `fourBetSize` in ranges.js).
+- Facing-a-3-bet charts (V3): frequencies are conditional on having opened the hand, so only hands in the opener’s RFI range appear; call + 4-bet ≤ 100%. Audited in tests: the opener continues 40–65% of its opening range and 4-bets 5–15%, AA/KK always continue, bigger pairs never continue less. The range an opener brings to a 3-bet pot is open frequency × call frequency (`call3:` options in rangeOptions).
 - Preflop ranges are hand-built approximations shaped like solver output, NOT exact solver data, and the UI says so. They were audited for: later seats ⊇ earlier seats, monotonic kicker/pair order, and sizes near published benchmarks (open ≈ UTG 17%, HJ 21%, CO 29%, BTN 45%, SB 41%; BB defends ~52% vs BTN). `tests/ranges.test.js` checks all of this automatically (one deliberate exception: A5 may be opened more than A6–A9, as solvers often do).
 - Range strings: `"55+, A2s+, KTs-K8s, AJo:0.5"` — `:x` is a frequency 0..1.
 - Read ranges grading: overlap = combos in both ÷ combos in either (`rangeOverlap` in ranges.js); a hand the chart plays at frequency f counts f in and 1−f out, so mixed hands give partial credit. 85%+ is "spot on".
@@ -64,7 +65,8 @@ Every number in UI copy (equities, combo counts, pot odds, range sizes) must be 
 
 ## Ideas / roadmap
 
-- Board explorer: 3-bet pots, turn and river.
+- Board explorer: turn and river (3-bet pots are live, with pot size and SPR).
+- Read ranges: add facing-a-3-bet spots (the opener’s calling range).
 - Real solver data import (e.g. TexasSolver output) to replace approximated ranges.
 - More formats: other stack depths, tournaments.
 - Postflop trainer (c-bet decisions by texture).

@@ -4,8 +4,8 @@ const fs = require("fs"), path = require("path"), vm = require("vm");
 const ctx = {};
 vm.createContext(ctx);
 vm.runInContext(fs.readFileSync(path.join(__dirname, "../js/ranges.js"), "utf8") +
-  ";Object.assign(this,{R,RFI,VS,parse,getRange,freqs,ALL_HANDS,rangeSize,rangeOverlap,handGroup});", ctx);
-const { R, RFI, VS, parse, getRange, freqs, ALL_HANDS, rangeSize, rangeOverlap, handGroup } = ctx;
+  ";Object.assign(this,{R,RFI,VS,V3,parse,getRange,freqs,ALL_HANDS,rangeSize,rangeOverlap,handGroup,combos,rangeOptions});", ctx);
+const { R, RFI, VS, V3, parse, getRange, freqs, ALL_HANDS, rangeSize, rangeOverlap, handGroup, combos, rangeOptions } = ctx;
 
 let pass = 0, fail = 0;
 function check(name, cond, info) {
@@ -68,6 +68,29 @@ for (const seat of Object.keys(RFI)) {
   for (let a = 1; a < 13; a++) if (f(seat, R[a] + R[a]) > f(seat, R[a - 1] + R[a - 1])) bad.push(`${R[a]}${R[a]}>${R[a - 1]}${R[a - 1]}`);
   check(`${seat} kickers and pairs in order`, bad.length === 0, bad.join(" "));
 }
+
+// Facing a 3-bet: only opened hands, call + 4-bet <= 100%, sensible defence sizes, pairs in order
+for (let i = 0; i < V3.length; i++) {
+  const v = V3[i], rng = getRange({ mode: "v3", v3: i }), open = rng.open;
+  check(v.id + ": matches a 3-bet chart", VS.some(x => x.id === v.vs && x.hero === v.vil && x.vil === v.hero));
+  let oc = 0, rc = 0, cc = 0;
+  for (const h of ALL_HANDS) {
+    const r = rng.raise[h] || 0, c = rng.call[h] || 0, o = open[h] || 0;
+    if (r || c) check(v.id + ": " + h + " was opened", o > 0);
+    check(v.id + ": " + h + " call + 4-bet <= 100%", r + c <= 1 + 1e-9, r + c);
+    oc += o * combos(h); rc += o * r * combos(h); cc += o * c * combos(h);
+  }
+  const cont = (rc + cc) / oc, four = rc / oc;
+  check(v.id + ": continues 40-65% of the opening range", cont >= 0.4 && cont <= 0.65, pctOf(cont));
+  check(v.id + ": 4-bets 5-15% of the opening range", four >= 0.05 && four <= 0.15, pctOf(four));
+  for (const h of ["AA", "KK"]) check(v.id + ": " + h + " always continues", (rng.raise[h] || 0) + (rng.call[h] || 0) >= 0.999);
+  const cont1 = h => (open[h] ? (rng.raise[h] || 0) + (rng.call[h] || 0) : null);
+  for (let k = 0; k < 12; k++) {
+    const hi = R[k] + R[k], lo = R[k + 1] + R[k + 1];
+    if (cont1(lo) !== null) check(v.id + ": " + hi + " continues at least as often as " + lo, cont1(hi) + 1e-9 >= cont1(lo));
+  }
+}
+check("3-bet pot calling ranges are offered to the calculators", rangeOptions().filter(o => o.key.startsWith("call3:")).length === V3.length);
 
 // Range reading: overlap score in combos, half credit on mixed hands
 {

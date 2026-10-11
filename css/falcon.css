@@ -390,3 +390,8 @@ ol.takeaways li::marker{font-family:var(--mono);color:var(--red)}
 @media (max-width:480px){.rd-felt{padding:16px 12px}.rd-grid{gap:2px}}
 .rd-flopbox{gap:14px}
 .rd-flopbox .qhands{gap:20px}
+.bx-match{display:grid;gap:10px}
+.bx-group{display:grid;gap:6px}
+.bx-pot{margin:0}
+/* Facing a 3-bet: hands the opener never opened */
+.cell.unopened{opacity:.35}

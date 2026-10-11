@@ -1,7 +1,7 @@
 /* Falcon preflop: range viewer + trainer. Depends on ranges.js. */
 /* ---------- RANGES VIEW ---------- */
-let state={mode:"rfi",seat:"BTN",vs:0,sel:"A5s"};
-const spotFromState=()=>state.mode==="rfi"?{mode:"rfi",seat:state.seat}:{mode:"vs",vs:state.vs};
+let state={mode:"rfi",seat:"BTN",vs:0,v3:0,sel:"A5s"};
+const spotFromState=()=>state.mode==="rfi"?{mode:"rfi",seat:state.seat}:state.mode==="v3"?{mode:"v3",v3:state.v3}:{mode:"vs",vs:state.vs};
 
 function renderPicker(){
   const p=document.getElementById("picker");p.innerHTML="";
@@ -10,6 +10,10 @@ function renderPicker(){
     SEATS.forEach(s=>{const b=document.createElement("button");b.className="chip";b.textContent=s;
       if(s==="BB"){b.disabled=true;b.title="The big blind never opens: if everyone folds, you win the blinds.";}
       b.setAttribute("aria-pressed",s===state.seat);b.onclick=()=>{state.seat=s;render();};p.appendChild(b);});
+  }else if(state.mode==="v3"){
+    document.getElementById("pick-label").textContent="Spot (you opened, then faced a 3-bet)";
+    V3.forEach((v,i)=>{const b=document.createElement("button");b.className="chip";b.textContent=v.id;
+      b.setAttribute("aria-pressed",i===state.v3);b.onclick=()=>{state.v3=i;render();};p.appendChild(b);});
   }else{
     document.getElementById("pick-label").textContent="Spot (you vs opener)";
     VS.forEach((v,i)=>{const b=document.createElement("button");b.className="chip";b.textContent=v.id;
@@ -20,31 +24,35 @@ function renderPicker(){
 function render(){
   document.getElementById("m-rfi").setAttribute("aria-pressed",state.mode==="rfi");
   document.getElementById("m-vs").setAttribute("aria-pressed",state.mode==="vs");
+  document.getElementById("m-v3").setAttribute("aria-pressed",state.mode==="v3");
   renderPicker();
   const rng=getRange(spotFromState());
-  const tot={raise:0,call:0,fold:0};
+  const tot={raise:0,call:0,fold:0};let all=0;
   const g=document.getElementById("grid");g.innerHTML="";
   for(let i=0;i<13;i++)for(let j=0;j<13;j++){
-    const h=handAt(i,j),f=freqs(rng,h),c=combos(h);
-    tot.raise+=f.raise*c;tot.call+=f.call*c;tot.fold+=f.fold*c;
+    const h=handAt(i,j),f=freqs(rng,h),c=combos(h),w=rng.open?(rng.open[h]||0):1;
+    tot.raise+=f.raise*c*w;tot.call+=f.call*c*w;tot.fold+=f.fold*c*w;all+=c*w;
     const b=document.createElement("button");
-    b.className="cell"+(f.fold>=0.999?" zero":"")+(i===j?" pair":"");
+    b.className="cell"+(f.fold>=0.999?" zero":"")+(i===j?" pair":"")+(w?"":" unopened");
     b.innerHTML=`<span class="r">${h.slice(0,2)}</span>${h.length===3?`<span class="s">${h[2]}</span>`:""}`;
     b.style.background=bg(f);b.setAttribute("aria-pressed",h===state.sel);
-    b.setAttribute("aria-label",`${h}: ${rng.labels.raise} ${pct(f.raise)}${rng.vs?`, call ${pct(f.call)}`:""}, fold ${pct(f.fold)}`);
+    b.setAttribute("aria-label",w?`${h}: ${rng.labels.raise} ${pct(f.raise)}${rng.vs?`, call ${pct(f.call)}`:""}, fold ${pct(f.fold)}`:`${h}: not in ${rng.hero}'s opening range`);
     b.onclick=()=>{state.sel=h;render();};
     g.appendChild(b);
   }
-  if(rng.vs){
+  if(rng.v3){
+    document.getElementById("title").textContent=`${rng.hero} facing a ${rng.vil} 3-bet`;
+    document.getElementById("ctx").textContent=`You opened to 2.5bb and ${rng.vil} 3-bet to ${threeBetSize(rng.vil)}bb. 4-bet to about ${fourBetSize(rng.vil)}bb. Shares are of the hands you opened; faded squares weren't opened.`;
+  }else if(rng.vs){
     document.getElementById("title").textContent=`${rng.hero} facing ${rng.vil} open`;
-    document.getElementById("ctx").textContent=`${rng.vil} opens to 2.5bb. 3-bet to about ${rng.hero==="BTN"||rng.hero==="CO"?"7.5":"11"}bb.`;
+    document.getElementById("ctx").textContent=`${rng.vil} opens to 2.5bb. 3-bet to about ${threeBetSize(rng.hero)}bb.`;
   }else{
     document.getElementById("title").textContent=`${state.seat} open-raise`;
     document.getElementById("ctx").textContent=`Everyone before you folded. Open to ${state.seat==="SB"?"3":"2.5"}bb.`;
   }
   const keys=rng.vs?["raise","call","fold"]:["raise","fold"];
-  document.getElementById("bar").innerHTML=keys.map(k=>`<span style="width:${tot[k]/1326*100}%;background:${COLORS[k]}"></span>`).join("");
-  document.getElementById("stats").innerHTML=keys.map(k=>`<span><i class="sw" style="background:${COLORS[k]};${k==="fold"?"outline:1px solid var(--line)":""}"></i>${rng.labels[k]} <b>${pct(tot[k]/1326)}</b> · ${Math.round(tot[k])} combos</span>`).join("");
+  document.getElementById("bar").innerHTML=keys.map(k=>`<span style="width:${tot[k]/all*100}%;background:${COLORS[k]}"></span>`).join("");
+  document.getElementById("stats").innerHTML=keys.map(k=>`<span><i class="sw" style="background:${COLORS[k]};${k==="fold"?"outline:1px solid var(--line)":""}"></i>${rng.labels[k]} <b>${pct(tot[k]/all)}</b> · ${Math.round(tot[k])} combos</span>`).join("");
   renderPanel(rng);
 }
 
@@ -78,6 +86,14 @@ function freqBars(rng,f,keys){
 
 function renderPanel(rng){
   const h=state.sel,f=freqs(rng,h),c=combos(h);
+  if(rng.open&&!rng.open[h]){
+    document.getElementById("panel").innerHTML=`
+      <div class="hand"><span class="big">${h}</span><span class="meta">${c} combos</span></div>
+      <div class="verdict">Not in ${rng.hero}'s opening range</div>
+      <p>${rng.hero} folds ${h} before anyone can 3-bet, so it never faces this decision. Pick a coloured square to see how the hands ${rng.hero} opens respond.</p>
+      <div class="insight"><div class="label" style="margin-bottom:4px">This spot</div><p style="font-size:13px">${rng.note}</p></div>`;
+    return;
+  }
   const type=h.length===2?"Pocket pair":h[2]==="s"?"Suited":"Offsuit";
   const v=verdictText(rng,f);
   const odds=h.length===2?{v:"11.8%",l:"flops a set or better"}:h[2]==="s"?{v:"10.9%",l:"flops a flush draw"}:{v:"0%",l:"chance of a flush on the flop"};
@@ -99,10 +115,11 @@ function renderPanel(rng){
 
 document.getElementById("m-rfi").onclick=()=>{state.mode="rfi";render();};
 document.getElementById("m-vs").onclick=()=>{state.mode="vs";render();};
+document.getElementById("m-v3").onclick=()=>{state.mode="v3";render();};
 
 /* ---------- TRAINER ---------- */
 const SUITS=[{s:"♠",red:false},{s:"♥",red:true},{s:"♦",red:true},{s:"♣",red:false}];
-const ALL_SPOTS=[...Object.keys(RFI).map(seat=>({mode:"rfi",seat})),...VS.map((_,i)=>({mode:"vs",vs:i}))];
+const ALL_SPOTS=[...Object.keys(RFI).map(seat=>({mode:"rfi",seat})),...VS.map((_,i)=>({mode:"vs",vs:i})),...V3.map((_,i)=>({mode:"v3",v3:i}))];
 let tr={pool:"all",skipEasy:true,cur:null,answered:false,n:0,good:0,streak:0,best:0,log:[]};
 try{tr.best=+localStorage.getItem("falcon.bestStreak")||0;}catch(e){}
 
@@ -110,13 +127,14 @@ try{tr.best=+localStorage.getItem("falcon.bestStreak")||0;}catch(e){}
 let ST={spots:{},missed:[]};
 try{const s=JSON.parse(localStorage.getItem("falcon.stats")||"null");if(s&&s.spots&&Array.isArray(s.missed))ST=s;}catch(e){}
 const saveST=()=>{try{localStorage.setItem("falcon.stats",JSON.stringify(ST));}catch(e){}};
-const spotKey=s=>s.mode==="rfi"?"rfi:"+s.seat:"vs:"+VS[s.vs].id;
+const spotKey=s=>s.mode==="rfi"?"rfi:"+s.seat:s.mode==="v3"?"v3:"+V3[s.v3].id:"vs:"+VS[s.vs].id;
 function spotFromKey(k){
   const [m,rest]=[k.slice(0,k.indexOf(":")),k.slice(k.indexOf(":")+1)];
   if(m==="rfi")return RFI[rest]?{mode:"rfi",seat:rest}:null;
+  if(m==="v3"){const i=V3.findIndex(v=>v.id===rest);return i<0?null:{mode:"v3",v3:i};}
   const i=VS.findIndex(v=>v.id===rest);return i<0?null:{mode:"vs",vs:i};
 }
-const spotLabel=s=>s.mode==="rfi"?`${s.seat} open`:VS[s.vs].id;
+const spotLabel=s=>s.mode==="rfi"?`${s.seat} open`:s.mode==="v3"?V3[s.v3].id:VS[s.vs].id;
 const totalPlayed=()=>Object.values(ST.spots).reduce((a,s)=>a+s.n,0);
 function weightedPick(items,w){const tot=items.reduce((a,x)=>a+w(x),0);let r=Math.random()*tot;for(const x of items){r-=w(x);if(r<=0)return x;}return items[items.length-1];}
 function cardsFor(h){
@@ -134,6 +152,11 @@ function isEasyFold(rng,h){
     if(freqs(rng,handAt(a,b)).fold<0.999)return false;
   }
   return true;
+}
+/* Facing a 3-bet you only ever hold a hand you opened, dealt as often as you open it */
+function dealFor(rng){
+  let d;do{d=dealCards();}while(rng.open&&!(Math.random()<(rng.open[d.hand]||0)));
+  return d;
 }
 function dealCards(){
   const c1=Math.floor(Math.random()*52);let c2;do{c2=Math.floor(Math.random()*52);}while(c2===c1);
@@ -158,7 +181,7 @@ function deal(){
       }
       const w=s=>{const st=ST.spots[spotKey(s)];if(!st||!st.n)return 0.4;const err=(st.n-st.good+0.5)/(st.n+1);return 0.05+err*err*4;};
       let spot,rng,d,tries=0;
-      do{spot=weightedPick(ALL_SPOTS,w);rng=getRange(spot);d=dealCards();tries++;}
+      do{spot=weightedPick(ALL_SPOTS,w);rng=getRange(spot);d=dealFor(rng);tries++;}
       while(tries<60&&isEasyFold(rng,d.hand)&&Math.random()<0.9);
       tr.cur={spot,rng,...d};tr.answered=false;renderTrainer();return;
     }
@@ -166,7 +189,7 @@ function deal(){
   const pool=ALL_SPOTS.filter(s=>tr.pool==="all"||tr.pool==="leaks"||s.mode===tr.pool);
   let spot,rng,d,tries=0;
   do{
-    spot=pool[Math.floor(Math.random()*pool.length)];rng=getRange(spot);d=dealCards();tries++;
+    spot=pool[Math.floor(Math.random()*pool.length)];rng=getRange(spot);d=dealFor(rng);tries++;
   }while(tr.skipEasy&&tries<40&&isEasyFold(rng,d.hand)&&Math.random()<0.85);
   tr.cur={spot,rng,...d};tr.answered=false;renderTrainer();
 }
@@ -175,6 +198,10 @@ function seatStrip(rng){
   const hi=SEATS.indexOf(rng.hero),vi=rng.vs?SEATS.indexOf(rng.vil):-1;
   return SEATS.map((s,i)=>{
     let cls="seat",note="";
+    if(rng.v3){
+      if(i===hi){cls+=" hero";note="You";}else if(i===vi){cls+=" vil";note="3-bet";}else{cls+=" folded";note="Fold";}
+      return`<div class="${cls}">${s}<small>${note}</small></div>`;
+    }
     if(i===hi){cls+=" hero";note="You";}
     else if(i===vi){cls+=" vil";note="Raised";}
     else if(rng.vs){ if(i<hi && i!==vi){cls+=" folded";note="Fold";} else {cls+=" wait";note="To act";} }
@@ -188,14 +215,16 @@ function cardHTML(c){const su=SUITS[c.s];return`<div class="pcard${su.red?" red"
 function renderTrainer(){
   const {rng,cards,hand}=tr.cur;
   document.getElementById("seats").innerHTML=seatStrip(rng);
-  document.getElementById("sit").innerHTML=rng.vs
+  document.getElementById("sit").innerHTML=rng.v3
+    ?`You open from the <b>${rng.hero}</b> and <b>${rng.vil}</b> 3-bets to ${threeBetSize(rng.vil)}bb. What do you do?`
+    :rng.vs
     ?`<b>${rng.vil}</b> opens to 2.5bb. You are in the <b>${rng.hero}</b>. What do you do?`
     :`Everyone folds to you in the <b>${rng.hero}</b>. What do you do?`;
   document.getElementById("cards").innerHTML=cards.map(cardHTML).join("");
   document.getElementById("cls").textContent=`${hand} · ${hand.length===2?"pocket pair":hand[2]==="s"?"suited":"offsuit"}${tr.cur.review?" · review: you missed this before":""}`;
   const keys=rng.vs?["fold","call","raise"]:["fold","raise"];
   const kb={fold:"F",call:"C",raise:"R"};
-  document.getElementById("acts").innerHTML=keys.map(k=>`<button class="act ${k}" data-act="${k}">${rng.labels[k]}${k==="raise"?` ${rng.vs?(rng.hero==="BTN"||rng.hero==="CO"?"7.5bb":"11bb"):(rng.hero==="SB"?"3bb":"2.5bb")}`:""}<kbd>${kb[k]}</kbd></button>`).join("");
+  document.getElementById("acts").innerHTML=keys.map(k=>`<button class="act ${k}" data-act="${k}">${rng.labels[k]}${k==="raise"?` ${rng.v3?fourBetSize(rng.vil)+"bb":rng.vs?threeBetSize(rng.hero)+"bb":(rng.hero==="SB"?"3bb":"2.5bb")}`:""}<kbd>${kb[k]}</kbd></button>`).join("");
   document.querySelectorAll(".act").forEach(b=>b.onclick=()=>answer(b.dataset.act));
   document.getElementById("fbwrap").innerHTML="";
 }
@@ -256,7 +285,7 @@ function renderScore(){
 }
 
 function openInChart(spot,hand){
-  state.mode=spot.mode;if(spot.mode==="rfi")state.seat=spot.seat;else state.vs=spot.vs;state.sel=hand;
+  state.mode=spot.mode;if(spot.mode==="rfi")state.seat=spot.seat;else if(spot.mode==="v3")state.v3=spot.v3;else state.vs=spot.vs;state.sel=hand;
   show("ranges");render();window.scrollTo({top:0});
 }
 
