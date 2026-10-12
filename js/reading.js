@@ -1,10 +1,10 @@
 /* Falcon range reading: paint the range a player has in a spot, then compare it with the chart in combos.
    After checking, "Play a flop" shows what the misread costs: your equity against your painted range vs the chart range.
-   Depends on engine.js, ranges.js (RFI, VS, parse, getRange, freqs, rangeOverlap, handGroup) and preflop.js (openInChart). */
+   Depends on engine.js, ranges.js (RFI, VS, V3, threeBetSize, parse, getRange, freqs, rangeOverlap, handGroup) and preflop.js (openInChart). */
 (function(){
   const $=id=>document.getElementById(id),E=window.Engine;
 
-  /* Every spot with a real range to read: 5 opens, 5 calls, 5 3-bets (tiny ranges are skipped) */
+  /* Every spot with a real range to read: 5 opens, 5 calls, 5 3-bets, 5 openers calling a 3-bet (tiny ranges are skipped) */
   const SPOTS=[];
   for(const seat of Object.keys(RFI))SPOTS.push({kind:"rfi",chart:parse(RFI[seat].raise),color:"var(--raise)",spot:{mode:"rfi",seat},who:seat,
     prompt:`Everyone folds to <b>${seat}</b>, who opens to ${seat==="SB"?"3":"2.5"}bb. Paint ${seat}'s opening range.`});
@@ -16,16 +16,28 @@
     SPOTS.push({kind:"3bet",chart:raise,color:"var(--raise)",spot:{mode:"vs",vs:i},who:v.hero,
       prompt:`<b>${v.vil}</b> opens to 2.5bb and <b>${v.hero}</b> 3-bets. Paint ${v.hero}'s 3-betting range.`});
   });
+  // Calling a 3-bet: the opener's range is open frequency × call frequency, as in rangeOptions' call3: presets
+  V3.forEach((v,i)=>{
+    const open=parse(RFI[v.hero].raise),call=parse(v.call),chart={};
+    for(const h in call)if(open[h])chart[h]=open[h]*call[h];
+    SPOTS.push({kind:"call3",chart,color:"var(--call)",spot:{mode:"v3",v3:i},who:v.hero,
+      prompt:`<b>${v.hero}</b> opens to ${v.hero==="SB"?"3":"2.5"}bb, <b>${v.vil}</b> 3-bets to ${threeBetSize(v.vil)}bb and ${v.hero} calls. Paint the hands ${v.hero} calls the 3-bet with.`});
+  });
   const sizeOf=m=>Object.keys(m).reduce((t,h)=>t+m[h]*combos(h),0);
 
   /* For the flop step: who you are and which range your hand comes from.
-     Against a caller or 3-bettor you are the opener. Against an open you are the caller from the chart that defends
+     Against a caller or 3-bettor you are the opener; against an opener who calls your 3-bet you are the 3-bettor. Against an open you are the caller from the chart that defends
      against that seat; HJ and SB opens have no defending chart, so you hold a hand from the BB's defence vs the BTN. */
   const callMap=i=>SPOTS.find(x=>x.kind==="call"&&x.spot.vs===i).chart;
   function heroFor(sp){
     if(sp.kind==="rfi"){
       const i=VS.findIndex(v=>v.vil===sp.who),j=i>=0?i:VS.findIndex(v=>v.id==="BB vs BTN");
       return{map:callMap(j),text:`${sp.who} opens and you call in the ${VS[j].hero}.`};
+    }
+    if(sp.kind==="call3"){
+      const v=V3[sp.spot.v3],i=VS.findIndex(x=>x.id===v.vs),three={};
+      ALL_HANDS.forEach(h=>{const f=freqs(getRange({mode:"vs",vs:i}),h);if(f.raise>0)three[h]=f.raise;});
+      return{map:three,text:`${v.hero} opens, you 3-bet from ${v.vil} and ${v.hero} calls.`};
     }
     const v=VS[sp.spot.vs];
     return{map:parse(RFI[v.vil].raise),text:sp.kind==="call"
@@ -170,6 +182,7 @@
         <p>Your range overlaps the chart by <strong>${pct(r.score)}</strong>. You match ${fmtC(r.hit)} combos, missed ${fmtC(r.missed)} and added ${fmtC(r.extra)} it doesn't play. ${sizeLine}</p>
         ${list?`<div><div class="label" style="margin-bottom:6px">Biggest differences</div><ul class="takeaways rd-list">${list}</ul></div>`:"<p>No differences worth mentioning.</p>"}
         ${offsuit}
+        ${rd.cur.kind==="call3"?`<p>This range is built in two steps: the hands ${rd.cur.who} opens, then the share of those it calls a 3-bet with. "See in chart" shows the second step. A hand opened half the time and called 60% of the time counts 30% here. The strongest hands, like AA, 4-bet instead of calling, so they are not in it.</p>`:""}
         <div class="rd-legend"><span><i class="sw" style="background:${rd.cur.color}"></i>In both</span><span><i class="sw rd-miss-sw" style="background:color-mix(in srgb,${rd.cur.color} 35%,var(--fold))"></i>Missed</span><span><i class="sw rd-extra-sw"></i>Added</span></div>
         <div class="btns"><button class="btn primary" id="rd-next">Next spot <span style="opacity:.6;font-weight:500">(Enter)</span></button>
         <button class="btn" id="rd-flop-btn">Play a flop against it</button>
