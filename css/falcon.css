@@ -395,3 +395,7 @@ ol.takeaways li::marker{font-family:var(--mono);color:var(--red)}
 .bx-pot{margin:0}
 /* Facing a 3-bet: hands the opener never opened */
 .cell.unopened{opacity:.35}
+
+/* Site footer: shown under every view */
+.sitefoot{max-width:760px;margin:48px auto 0;padding:20px 16px 32px;font-size:12px;color:var(--muted);text-align:center}
+.sitefoot p{margin:0 0 6px}
