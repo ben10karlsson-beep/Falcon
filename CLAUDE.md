@@ -1,12 +1,20 @@
 # Falcon
 
-A poker study app for understanding the math and strategy of No-Limit Hold'em, pre and post flop. Built for the owner to learn with, and possibly shared with others later. The goal is understanding, not just memorizing: every tool should explain *why*, in plain language.
+A poker study app for understanding the math and strategy of No-Limit Hold'em, pre and post flop. Built for the owner to learn with, and now public (see Deployment). The goal is understanding, not just memorizing: every tool should explain *why*, in plain language.
 
 ## How to run
 
 - Open `index.html` in a browser. No build step, no dependencies, no framework. Keep it that way unless there is a strong reason.
 - All tests: `node tests/run-all.js` (must stay green). It runs `tests/engine.test.js` (evaluator, equity) and `tests/ranges.test.js` (range parser plus the range audit below).
 - Hooks run the tests automatically: a Claude Code PostToolUse hook (`.claude/settings.json` → `.claude/hooks/test-on-edit.js`) after edits to `js/engine.js`, `js/ranges.js` or `tests/`, and a git pre-commit hook in `.githooks/`. Enable the git hook once per clone: `git config core.hooksPath .githooks`.
+
+## Deployment
+
+- Live at https://ben10karlsson-beep.github.io/Falcon/ via GitHub Pages (branch `main`, root). Every push to `main` redeploys in a minute or two. `.nojekyll` makes Pages serve files as-is.
+- Pages is case-sensitive (Windows isn't): asset paths in `index.html` must match file names exactly.
+- Analytics: GoatCounter (site code `falcon`, dashboard https://falcon.goatcounter.com), no cookies. A snippet before `</body>` counts each hash route (`#trainer/read`, `#theory/...`) as its own page.
+- Link previews: `og.png` (1200×630) in the repo root, referenced by absolute URL in the Open Graph / Twitter tags. It shows the real BTN opening range; if the BTN chart changes, regenerate it (an HTML template that loads engine.js + ranges.js, screenshotted with headless Chrome at 1200×630).
+- The footer under every view states that charts are approximations and figures are computed by the engine. Keep it true.
 
 ## Layout
 
@@ -21,6 +29,7 @@ js/postflop.js    equity calculator + board explorer (Postflop tab); Hand vs han
 js/theory.js      theory chapter routing (window.Theory) + calculators (pot odds, outs, matchups, combo drill, hand vs range, EV, seat bars)
 js/app.js         tab routing + Trainer modes (address hash: #trainer[/read|quiz|range], #postflop, #theory/<chapter>), data-go practice buttons, keyboard shortcuts; loaded last
 tests/            engine + range tests; run-all.js runs both
+og.png            link preview image (see Deployment)
 ```
 
 Scripts are plain globals loaded in order: engine → ranges → preflop → reading → theory → postflop → app.
@@ -64,6 +73,8 @@ Plain, direct sentences. Name things the way players do (3-bet, c-bet, outs). Ex
 Every number in UI copy (equities, combo counts, pot odds, range sizes) must be computed with the engine or worked out step by step, never written from memory. Hardcoded figures in theory examples come from running `js/engine.js` with a high sample count, and should match what the in-page calculators show.
 
 ## Ideas / roadmap
+
+Suggested next: real postflop solver data via TexasSolver's console version, batch-solving one spot family (e.g. BTN vs BB single-raised pots over representative flops) into compact JSON (bet frequency per flop, strategy by hand class). That would replace the hand-written board explorer tips and enable the c-bet trainer. Preflop solver data is much harder (needs a paid preflop solver such as MonkerSolver); keep the hand-built charts, labelled as approximations. Check GoatCounter for which trainers get used before choosing.
 
 - Board explorer: turn and river (3-bet pots are live, with pot size and SPR).
 - Real solver data import (e.g. TexasSolver output) to replace approximated ranges.
