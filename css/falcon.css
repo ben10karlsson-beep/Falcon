@@ -6,7 +6,7 @@ body{margin:0}img{max-width:100%}[hidden]{display:none!important}
   --bg:#1d1914; --surface:#27211b; --surface-2:#322a22; --line:#3f352b;
   --text:#f4eadb; --text-2:#ddd0bd; --muted:#ae9f8c; --dim:#827360; --fold-ink:#9a979a;
   /* --red is the UI accent (brick). --raise, --call and --fold are the range grid's colours and stay exact */
-  --red:#de6752; --red-soft:#f2a796; --raise:#e23b3f; --call:#6e6f78; --fold:#26262a;
+  --red:#de6752; --red-soft:#f2a796; --raise:#e23b3f; --call:#6e6f78; --fold:#26262a; --bet-small:#f0857a;
   --good:#6cc08b; --warn:#e3a64b;
   --card:#f6ecdc; --card-ink:#1d1914; --card-red:#c43d33;
   --r-sm:8px; --r:14px; --r-lg:20px;
@@ -269,6 +269,8 @@ button{font:inherit;color:inherit}
 .ptable th{color:var(--muted);font-weight:600}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tag2{font-size:12px;padding:4px 10px;border-radius:999px;background:var(--surface-2)}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:8px;font-size:12px;color:var(--text-2);font-variant-numeric:tabular-nums}
+.hint .linkbtn{color:var(--red-soft);font-size:inherit}
 .tips{margin:0;padding-left:18px;display:grid;gap:6px;font-size:13px;color:var(--text-2)}
 .qtable{display:grid;gap:16px}
 .qhands{display:flex;gap:28px;flex-wrap:wrap}

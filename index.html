@@ -891,6 +891,10 @@
         <div class="label">Flop</div>
         <div class="slots board" id="bx-flop"></div>
         <div class="row" id="bx-presets"></div>
+        <div id="bx-solved-wrap" hidden>
+          <label class="hint" for="bx-solved" style="display:block;margin-bottom:6px">Solver results exist for these flops</label>
+          <select id="bx-solved" class="select"></select>
+        </div>
       </div>
       <div id="bx-picker-wrap" hidden>
         <div class="label" style="margin-bottom:6px">Pick a flop card</div>
@@ -1000,7 +1004,7 @@
 </main>
 
 <footer class="sitefoot">
-  <p>Falcon is a free study tool for 6-max cash games at 100bb. The preflop charts are hand-built approximations shaped like solver output, not exact solver data. Every equity, combo count and outs figure is calculated by Falcon's own engine.</p>
+  <p>Falcon is a free study tool for 6-max cash games at 100bb. The preflop charts are hand-built approximations shaped like solver output, not exact solver data. Every equity, combo count and outs figure is calculated by Falcon's own engine. Flop strategies for BTN vs BB come from TexasSolver runs on these charts.</p>
   <p>Play responsibly, and only with money you can afford to lose.</p>
 </footer>
 
@@ -1009,6 +1013,7 @@
 <script src="js/preflop.js"></script>
 <script src="js/reading.js"></script>
 <script src="js/theory.js"></script>
+<script src="js/solved.js"></script>
 <script src="js/postflop.js"></script>
 <script src="js/app.js"></script>
 <script>

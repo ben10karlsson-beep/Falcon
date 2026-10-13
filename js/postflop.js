@@ -228,12 +228,107 @@
   ];
   const bx = { match: 0, flop: E.parseCards("Kd 7s 2c"), active: null, job: 0 };
 
+  /* Solved flops (solved.js, from TexasSolver) for BTN opens, BB calls. A flop matches a solved one if it is
+     the same up to relabelling suits; any other flop borrows the closest solved flop by texture. */
+  const SOLVED = window.Solved || null;
+  const isSolvedSpot = m => SOLVED && m.group === "Single-raised pot" && m.agg === "BTN" && m.caller === "BB";
+  const SUIT_PERMS = [];
+  (function perms(a, rest) { if (!rest.length) SUIT_PERMS.push(a); rest.forEach((x, i) => perms(a.concat(x), rest.filter((_, j) => j !== i))); })([], [0, 1, 2, 3]);
+  function flopKey(cards) {
+    let best = null;
+    for (const p of SUIT_PERMS) {
+      const k = cards.map(c => E.card(E.rankOf(c), p[E.suitOf(c)])).sort((a, b) => b - a).join(",");
+      if (best === null || k < best) best = k;
+    }
+    return best;
+  }
+  function flopFeatures(cards) {
+    const t = E.texture(cards), r = cards.map(E.rankOf).sort((a, b) => b - a);
+    return { r, paired: t.paired, maxSuit: t.maxSuit, windows: t.windows };
+  }
+  const SOLVED_FLOPS = SOLVED ? SOLVED.flops.map(f => {
+    const cards = E.parseCards(f.board.match(/../g).join(" "));
+    return { ...f, cards, key: flopKey(cards), feat: flopFeatures(cards) };
+  }) : [];
+  // Texture distance: pairing and suits matter most, then the high card, then the rest
+  function flopDistance(a, b) {
+    return (a.paired !== b.paired ? 6 : 0) + Math.abs(a.maxSuit - b.maxSuit) * 3 + Math.abs(a.windows - b.windows) * 0.5 +
+      Math.abs(a.r[0] - b.r[0]) * 0.7 + Math.abs(a.r[1] - b.r[1]) * 0.35 + Math.abs(a.r[2] - b.r[2]) * 0.2;
+  }
+  function solvedFor(cards) {
+    const key = flopKey(cards), exact = SOLVED_FLOPS.find(f => f.key === key);
+    if (exact) return { flop: exact, exact: true };
+    const feat = flopFeatures(cards);
+    return { flop: SOLVED_FLOPS.reduce((best, f) => flopDistance(feat, f.feat) < flopDistance(feat, best.feat) ? f : best), exact: false };
+  }
+  const flopText = cards => cards.map(c => { const r = E.RANKS[E.rankOf(c)]; return (r === "T" ? "10" : r) + E.SUIT_SYMBOL[E.suitOf(c)]; }).join(" ");
+  const ACT_COLORS = ["var(--call)", "var(--bet-small)", "var(--raise)"];
+  const ACT_NAMES = ["Check", "Bet 33%", "Bet 75%"];
+  function actSplit(mix, names) {
+    return `<div class="split tall">${mix.map((x, i) => x > 0.005 ? `<span style="width:${x * 100}%;background:${ACT_COLORS[i]}${i === 1 ? ";color:var(--card-ink)" : ""}" title="${names[i]}: ${fmt(x)}">${x >= 0.14 ? fmt(x) : ""}</span>` : "").join("")}</div>`;
+  }
+
+  // The "why" text must describe the flop the strategy came from, so a borrowed flop gets its own equity and strong-hand gap
+  function solvedAdvantage(sv, openMap, callMap, eA, nut) {
+    if (sv.exact) return [eA, nut];
+    const b = sv.flop.cards;
+    return [E.equityRangeVsRange(openMap, callMap, b, 30000).equity, E.rangeProfile(openMap, b).buckets[0] - E.rangeProfile(callMap, b).buckets[0]];
+  }
+
+  /* The solver section for BTN vs BB: BTN's c-bet mix, the mix by hand type, BB's answers, and why */
+  function solvedHTML(sv, eA, nut) {
+    const f = sv.flop, [chk, sm, bg] = f.btn, bet = sm + bg;
+    const legend = `<div class="legend">${ACT_NAMES.map((n, i) => `<span><i class="sw" style="background:${ACT_COLORS[i]}"></i>${n} ${fmt(f.btn[i])}</span>`).join("")}</div>`;
+    const rows = f.byHand.map((r, i) => ({ name: E.BUCKETS[i], share: r[0], mix: r.slice(1) })).filter(r => r.share >= 0.005);
+    const table = `<table class="ptable"><thead><tr><th>Hand type</th><th>Of range</th>${ACT_NAMES.map(n => `<th>${n}</th>`).join("")}</tr></thead><tbody>
+      ${rows.map(r => `<tr><td>${r.name}</td><td>${fmt(r.share)}</td>${r.mix.map(x => `<td>${fmt(x)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+    // A pure bluff of size b (fraction of the pot) breaks even when the opponent folds b / (1 + b) of the time
+    const need = b => b / (1 + b);
+    const resp = (label, r, b) => `<tr><td>${label}</td><td>${fmt(r[0])}</td><td>${fmt(r[1])}</td><td>${fmt(r[2])}</td><td>${fmt(need(b))}</td></tr>`;
+    const bbTable = `<table class="ptable"><thead><tr><th>BB facing</th><th>Fold</th><th>Call</th><th>Raise</th><th>Bluff needs</th></tr></thead><tbody>
+      ${resp("Bet 33%", f.vsSmall, 0.33)}${resp("Bet 75%", f.vsBig, 0.75)}</tbody></table>`;
+
+    const why = [];
+    const strong = f.byHand[0], weak = f.byHand[2];
+    const edge = eA >= 0.52 ? `BTN has the range advantage (${fmt(eA)} equity)` : `BB's range connects well with this flop (BTN has only ${fmt(eA)} equity)`;
+    if (bet >= 0.6 && sm >= 2 * bg) why.push(`<strong>Small and often.</strong> BTN bets ${fmt(bet)} of the time, mostly a third of the pot. ${eA >= 0.52 ? edge : "BTN's range holds up well here"}${nut > -0.02 ? " and BB doesn't have more strong hands" : ""}, so a cheap bet works with almost the whole range: BB's many weak hands have to fold or call with little equity, and BTN risks little when it is behind.`);
+    else if (bg >= 1.5 * sm && bg >= 0.25) why.push(`<strong>Bet big or check.</strong> BTN bets three quarters of the pot ${fmt(bg)} of the time and checks ${fmt(chk)}. ${edge}. ${strong[0] >= 0.005 ? `Strong hands bet big ${fmt(strong[3])} of the time` : "The best hands bet big"}, balanced by draws and some air. Medium hands${weak[0] >= 0.005 ? ` (weaker pairs check ${fmt(weak[1])})` : ""} mostly check, because a big bet gets called mainly by better hands and folds out the worse ones.`);
+    else if (chk >= 0.5) why.push(`<strong>Check a lot.</strong> BTN checks ${fmt(chk)} of the time. ${eA < 0.52 ? `${edge}${nut <= -0.02 ? " and BB has more strong hands" : ""}, so betting the whole range would get check-raised often.` : "Neither player has many strong hands here, so most of BTN's hands gain little from betting and are happy to see a free turn."} BTN keeps some strong hands in the checking range, so BB cannot attack the check freely.`);
+    else if (sm >= 2 * bg) why.push(`<strong>Bet small with part of the range.</strong> BTN bets ${fmt(bet)} of the time, mostly a third of the pot, and checks ${fmt(chk)}. ${edge}, which is enough to bet often but not with everything. The table above shows which hand types bet and which check.`);
+    else why.push(`<strong>A mixed strategy.</strong> BTN bets ${fmt(bet)} of the time (${fmt(sm)} small, ${fmt(bg)} big) and checks ${fmt(chk)}. ${edge}. No single size fits the whole range here, so BTN splits it: the table above shows which hand types bet small, bet big or check.`);
+    if (sm > 0.1 && bg > 0.1) why.push(`Both sizes are used. When the solver mixes sizes, the two options are often close in value, so how often BTN bets matters more than which size it picks.`);
+    why.push(f.vsSmall[0] >= need(0.33)
+      ? `BB folds ${fmt(f.vsSmall[0])} against the small bet. A pure bluff of a third of the pot only needs to work ${fmt(need(0.33))} of the time (bet ÷ (pot + bet)), so a small bet makes money from folds alone, even with BTN's worst hands.`
+      : `BB folds only ${fmt(f.vsSmall[0])} against the small bet, less than the ${fmt(need(0.33))} a pure bluff of a third of the pot needs (bet ÷ (pot + bet)). So BTN's bets here lean on hands with some equity, not pure air.`);
+
+    return `<div>
+        <div class="label" style="margin-bottom:6px">Solver: BTN after BB checks</div>
+        ${sv.exact ? "" : `<p class="hint" style="margin-bottom:6px">This exact flop isn't solved. Showing the closest solved flop, <strong>${flopText(f.cards)}</strong> (${f.family.toLowerCase()}), as a guide. <button class="linkbtn" id="bx-go-solved">Open that flop</button></p>`}
+        ${actSplit(f.btn, ACT_NAMES)}${legend}
+      </div>
+      <div><div class="label" style="margin-bottom:6px">BTN's strategy by hand type</div>${table}</div>
+      <div><div class="label" style="margin-bottom:6px">How BB answers each bet</div>${bbTable}</div>
+      <div class="infobox">
+        <div class="label">Why</div>
+        <ul class="tips">${why.map(x => `<li>${x}</li>`).join("")}</ul>
+        <p class="note" style="border:0;padding:0">Solved with TexasSolver using Falcon's BTN opening and BB calling charts, 97.5bb behind, to within about 0.5% of the pot. BTN could check or bet 33% or 75% of the pot, BB could call, check-raise or fold. A different preflop chart or other bet sizes would change the numbers somewhat. Range equity and the hand bars above are for the flop you picked.</p>
+      </div>`;
+  }
+
   function renderBx() {
     $("bx-match").innerHTML = ["Single-raised pot", "3-bet pot"].map(g => `<div class="bx-group"><span class="hint">${g}</span><div class="row">${BX.map((m, i) => m.group === g ? `<button class="chip" aria-pressed="${i === bx.match}" data-m="${i}">${m.label}</button>` : "").join("")}</div></div>`).join("");
     $("bx-match").querySelectorAll("[data-m]").forEach(b => b.onclick = () => { bx.match = +b.dataset.m; renderBx(); computeBx(); });
     $("bx-presets").innerHTML = PRESETS.map(([l, cs]) => `<button class="chip" data-p="${cs}">${l}</button>`).join("") + `<button class="chip" id="bx-rand">Random flop</button>`;
     $("bx-presets").querySelectorAll("[data-p]").forEach(b => b.onclick = () => { bx.flop = E.parseCards(b.dataset.p); bx.active = null; renderBx(); computeBx(); });
     $("bx-rand").onclick = () => { const d = shuffledDeck([]); bx.flop = [d[0], d[1], d[2]]; bx.active = null; renderBx(); computeBx(); };
+    const solvedSpot = isSolvedSpot(BX[bx.match]);
+    $("bx-solved-wrap").hidden = !solvedSpot;
+    if (solvedSpot) {
+      const cur = bx.flop.every(c => c != null) ? flopKey(bx.flop) : null;
+      $("bx-solved").innerHTML = `<option value="">Pick one of the ${SOLVED_FLOPS.length} solved flops</option>` +
+        SOLVED_FLOPS.map((f, i) => `<option value="${i}" ${f.key === cur ? "selected" : ""}>${flopText(f.cards)} · ${f.family}</option>`).join("");
+      $("bx-solved").onchange = e => { if (e.target.value === "") return; bx.flop = SOLVED_FLOPS[+e.target.value].cards.slice(); bx.active = null; renderBx(); computeBx(); };
+    }
     $("bx-flop").innerHTML = [0, 1, 2].map(i => slotHTML("f" + i, bx.flop[i] ?? null, "Flop", bx.active === i)).join("");
     $("bx-flop").querySelectorAll(".slot").forEach(b => b.onclick = () => {
       const i = +b.dataset.slot[1];
@@ -273,6 +368,7 @@
       if (eA < 0.52 || nut <= -0.03) tips.push(`${m.caller} connects well here. Expect ${m.agg} to check much more often and ${m.caller} to fight back with check-raises.`);
       if (m.group === "3-bet pot") tips.push(`In 3-bet pots the stacks are short compared with the pot (SPR ${(m.behind / m.pot).toFixed(1)}), so top pair is often good enough to get all in, and bets tend to be smaller, around a third of the pot.`);
       if (!tips.length) tips.push(`A mixed board. ${m.agg} usually bets part of the range and checks the rest, often with a medium size.`);
+      const sv = isSolvedSpot(m) ? solvedFor(board) : null;
       out.innerHTML = `
         <p class="hint bx-pot">${m.group}: pot ${m.pot}bb, ${m.behind}bb behind, SPR ${(m.behind / m.pot).toFixed(1)}</p>
         <div class="tags">${[t.highText + " card", t.suitText, t.conn, t.wetness].map(x => `<span class="tag2">${x}</span>`).join("")}</div>
@@ -285,9 +381,12 @@
         <div class="infobox">
           <div class="label">What this means</div>
           <p><strong>${rangeAdv}</strong> (${fmt(eA)} equity). <strong>${nutAdv}</strong>: ${fmt(strongA)} vs ${fmt(strongB)} two pair or better.</p>
-          <ul class="tips">${tips.map(x => `<li>${x}</li>`).join("")}</ul>
-          <p class="note" style="border:0;padding:0">The numbers are calculated from Falcon's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. ${m.group === "3-bet pot" ? "In 3-bet pots the opener's range is the facing-a-3-bet calling chart, and the 3-bettor's range includes hands that would 5-bet." : "The opener's range includes hands that would have 4-bet, which slightly overstates it."}</p>
-        </div>`;
+          ${sv ? "" : `<ul class="tips">${tips.map(x => `<li>${x}</li>`).join("")}</ul>
+          <p class="note" style="border:0;padding:0">The numbers are calculated from Falcon's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. ${m.group === "3-bet pot" ? "In 3-bet pots the opener's range is the facing-a-3-bet calling chart, and the 3-bettor's range includes hands that would 5-bet." : "The opener's range includes hands that would have 4-bet, which slightly overstates it."}</p>`}
+        </div>
+        ${sv ? solvedHTML(sv, ...solvedAdvantage(sv, openMap, callMap, eA, nut)) : ""}`;
+      const go = $("bx-go-solved");
+      if (go) go.onclick = () => { bx.flop = sv.flop.cards.slice(); bx.active = null; renderBx(); computeBx(); };
     }, 10);
   }
 
