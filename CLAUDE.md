@@ -38,6 +38,8 @@ Tabs: **Trainer** holds every graded trainer (Preflop hands, Read ranges, Hand v
 
 ## Design language
 
+Design skills (`design-taste-frontend` in `.agents/skills/`, symlinked into `.claude/skills/`; the impeccable and frontend-design plugins) are welcome for taste and polish, but this file wins on any conflict: no build step or dependencies (no Tailwind, component libraries or npm installs), keep the warm charcoal tokens, fonts and grid colours below, and the copy rules further down.
+
 - "Warm charcoal": minimal and homey, not sharp. Warm brown-tinted darks, warm white text, soft rounded shapes.
 - Tokens: `--bg #1d1914`, `--surface #27211b`, `--surface-2 #322a22`, `--line #3f352b`, `--text #f4eadb`, `--text-2 #ddd0bd` (body copy), `--muted #ae9f8c`, `--red #de6752` (UI accent, brick), `--good/--warn` for grading only. Radii: `--r-sm 8px`, `--r 14px`, `--r-lg 20px`, pills 999px.
 - The range grid colours are a player convention and stay exact: `--raise #e23b3f`, `--call #6e6f78`, `--fold #26262a`. Use `--raise` for anything meaning "raise" (grid, raise button, raise verdict); use `--red` for accents.
