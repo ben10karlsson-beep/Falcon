@@ -327,3 +327,7 @@ When a trainer grades an answer as correct (a `.fb.good` appears), the button th
 ## Trainer table band
 
 Each trainer table (`.felt`) has a plain, still checkerboard along its top edge: two rows of 11px ink squares (a 22px conic-gradient tile repeated across), inverting with the theme. No animation. It replaced a static magenta dot strip and two animated experiments that read as generic tech effects.
+
+## Welcome page
+
+Shown on a first visit (no address hash and no `falcon-welcomed` in localStorage) and whenever the logo is clicked (`#welcome`). Left: a large Anybody headline, a one-sentence lede, three starting paths and three plain facts. The paths are full-width rows ruled in ink, each with an outlined disc marker (magenta, ultramarine, ink) that fills and inverts the row to solid ink on hover. They are not a row of cards. Right: the button's real opening range as a live unit field (lens included); picking a hand opens it in the preflop charts. Stacks to one column under 900px.

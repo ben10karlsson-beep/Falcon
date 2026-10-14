@@ -1,6 +1,7 @@
 /* Falcon app shell: tab routing, trainer modes and keyboard shortcuts. Loaded last. */
 let view = "ranges";
 const VIEWS = {
+  welcome: ["view-welcome", null],
   ranges: ["view-ranges", "t-ranges"],
   train: ["view-train", "t-train"],
   postflop: ["view-postflop", "t-postflop"],
@@ -31,7 +32,8 @@ function syncHash() {
   const hash = {
     ranges: "",
     train: "#trainer" + (trainMode === "hands" ? "" : "/" + trainMode),
-    theory: "#theory/" + Theory.current()
+    theory: "#theory/" + Theory.current(),
+    welcome: "#welcome"
   }[view] ?? "#" + view;
   history.replaceState(null, "", hash || location.pathname + location.search);
 }
@@ -40,7 +42,8 @@ function show(v) {
   view = v;
   for (const [k, [vid, tid]] of Object.entries(VIEWS)) {
     document.getElementById(vid).hidden = k !== v;
-    const t = document.getElementById(tid);
+    const t = tid && document.getElementById(tid);
+    if (!t) continue;
     if (k === v) t.setAttribute("aria-current", "page"); else t.removeAttribute("aria-current");
   }
   if (v === "train") { setTrainMode(trainMode, trainSub); trainSub = null; }
@@ -48,6 +51,7 @@ function show(v) {
   syncHash();
 }
 for (const [k, [, tid]] of Object.entries(VIEWS)) {
+  if (!tid) continue;
   document.getElementById(tid).onclick = () => { show(k); window.scrollTo({ top: 0 }); };
 }
 
@@ -57,6 +61,7 @@ document.addEventListener("click", e => {
   if (!b) return;
   const [v, sub, mode] = b.dataset.go.split(":");
   if (v === "train") { trainMode = sub || "hands"; trainSub = mode || null; }
+  if (v === "theory" && sub) Theory.show(sub, false);
   show(v);
   if (v === "postflop" && sub) Postflop.open(sub);
   window.scrollTo({ top: 0 });
@@ -119,10 +124,32 @@ render();
 /* Open the view named in the address, e.g. #theory/combos or #trainer/read */
 function route() {
   const [hashView, part] = location.hash.split("/");
-  const v = { "#trainer": "train", "#postflop": "postflop", "#theory": "theory", "#resources": "resources" }[hashView];
+  const v = { "#welcome": "welcome", "#trainer": "train", "#postflop": "postflop", "#theory": "theory", "#resources": "resources" }[hashView];
   if (v === "theory" && part) Theory.show(part, false);
   if (v === "train") trainMode = TRAIN_MODES[part] ? part : "hands";
   if (v) show(v);
 }
+/* Welcome page: the button's opening range as a live field; picking a hand opens it in the charts */
+(function () {
+  const g = document.getElementById("welcome-field"), rng = getRange({ mode: "rfi", seat: "BTN" });
+  for (let i = 0; i < 13; i++) for (let j = 0; j < 13; j++) {
+    const h = handAt(i, j), f = freqs(rng, h), b = document.createElement("button");
+    b.type = "button";
+    b.className = "cell" + (f.fold >= 0.999 ? " zero" : "") + (i === j ? " pair" : "");
+    b.innerHTML = unitHTML(h);
+    b.style.setProperty("--i", i); b.style.setProperty("--j", j);
+    setUnit(b, f.raise, f.raise, "var(--raise)");
+    b.setAttribute("aria-label", `${h}: raise ${pct(f.raise)}, open it in the charts`);
+    b.onclick = () => { state = { mode: "rfi", seat: "BTN", vs: 0, v3: 0, sel: h }; render(); show("ranges"); window.scrollTo({ top: 0 }); };
+    g.appendChild(b);
+  }
+  g.classList.add("sweep");
+})();
+
 route();
+// First visit: nothing in the address and no record of a visit opens the welcome page
+try {
+  if (!location.hash && !localStorage.getItem("falcon-welcomed")) show("welcome");
+  localStorage.setItem("falcon-welcomed", "1");
+} catch (e) {}
 window.addEventListener("hashchange", route);

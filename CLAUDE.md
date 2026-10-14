@@ -13,13 +13,13 @@ A poker study app for understanding the math and strategy of No-Limit Hold'em, p
 - Live at https://ben10karlsson-beep.github.io/Falcon/ via GitHub Pages (branch `main`, root). Every push to `main` redeploys in a minute or two. `.nojekyll` makes Pages serve files as-is.
 - Pages is case-sensitive (Windows isn't): asset paths in `index.html` must match file names exactly.
 - Analytics: GoatCounter (site code `falcon`, dashboard https://falcon.goatcounter.com), no cookies. A snippet before `</body>` counts each hash route (`#trainer/read`, `#theory/...`) as its own page.
-- Link previews: `og.png` (1200×630) in the repo root, referenced by absolute URL in the Open Graph / Twitter tags. It shows the real BTN opening range; if the BTN chart changes, regenerate it (an HTML template that loads engine.js + ranges.js, screenshotted with headless Chrome at 1200×630).
+- Link previews: `og.png` (1200×630) in the repo root, referenced by absolute URL in the Open Graph / Twitter tags. It shows the real BTN opening range as Op Field disc units next to the wordmark and a one-line description; if the BTN chart or the design changes, regenerate it (a temporary HTML template in the repo root that loads css/falcon.css, engine.js and ranges.js and draws the grid with setUnit/unitHTML, served locally and screenshotted with headless Chrome at 1200×630, then deleted).
 - The footer under every view states that charts are approximations and figures are computed by the engine. Keep it true.
 
 ## Layout
 
 ```
-index.html        page shell + markup for every view (tabs: Preflop ranges, Trainer, Postflop, Theory, Resources)
+index.html        page shell + markup for every view (a first-visit Welcome page, then tabs: Preflop ranges, Trainer, Postflop, Theory, Resources)
 css/falcon.css    all styles; colors are CSS variables on :root
 js/engine.js      card encoding, 5–7 card evaluator, equity (exact + Monte Carlo), flop classification, board texture. UMD: window.Engine in browser, module.exports in Node
 js/ranges.js      preflop range data (RFI, VS, V3 = facing a 3-bet), range-string parser, shared helpers (getRange, freqs, handAt, pct, combos, rangeOptions, rangeSize)
@@ -33,7 +33,7 @@ js/opfield.js     living layer (Op Field): grid lens, gutter dot field, grade ri
 PRODUCT.md        product truth (users, purpose, constraints) for design work
 DESIGN.md         the Op Field design system (tokens, components, motion, themes); .impeccable/design.json is its token sidecar
 archive/          previous designs kept for reuse (archive/warm-charcoal/)
-js/app.js         tab routing + Trainer modes (address hash: #trainer[/read|quiz|range|cbet], #postflop, #theory/<chapter>), data-go practice buttons, keyboard shortcuts; loaded last
+js/app.js         tab routing + Trainer modes (address hash: #welcome, #trainer[/read|quiz|range|cbet], #postflop, #theory/<chapter>); opens #welcome on a first visit (falcon-welcomed in localStorage), the logo links back to it, data-go practice buttons, keyboard shortcuts; loaded last
 tests/            engine, range and solved-data tests; run-all.js runs them all
 solver/           offline postflop solving (not loaded by the site): make-config.js turns the BTN open + BB flat charts into a TexasSolver config, summarize.js reads a flop dump, flops.js lists the 30 solved flops, batch.js solves them all (resumable, retries TexasSolver's occasional startup crash), overview.js prints a table, export.js writes js/solved.js and js/solved-combos.js. TexasSolver v0.2.0 (Windows release, unzipped into solver/TexasSolver/) and solver/work/ are gitignored. Units are tenths of a bb (pot 55 = 5.5bb, stack 975); one flop takes 2–7 min (12 threads) to reach ~0.5% exploitability
 og.png            link preview image (see Deployment)

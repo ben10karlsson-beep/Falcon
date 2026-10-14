@@ -49,7 +49,7 @@
     // Positions move when the page scrolls; measure again on the next pointer move
     addEventListener("scroll", () => { units = null; }, { passive: true });
   }
-  ["grid", "rd-grid"].forEach(id => { const g = document.getElementById(id); if (g) lens(g); });
+  ["grid", "rd-grid", "welcome-field"].forEach(id => { const g = document.getElementById(id); if (g) lens(g); });
 
   /* ---------- 2 and 3. The ground field and its ripples ---------- */
   const canvas = document.createElement("canvas");

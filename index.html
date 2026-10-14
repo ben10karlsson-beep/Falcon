@@ -22,7 +22,7 @@
 <script>try{var t=localStorage.getItem("falcon-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;document.documentElement.dataset.fx=localStorage.getItem("falcon-fx")==="off"?"off":"on";document.documentElement.dataset.dots=localStorage.getItem("falcon-dots")==="off"?"off":"on"}catch(e){}</script>
 </head>
 <body><header class="appbar">
-  <div class="brand"><svg class="opmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" class="sq"/><circle cx="16" cy="16" r="11" class="disc"/><circle cx="16" cy="16" r="5" class="core"/></svg>Falcon</div>
+  <a class="brand" href="#welcome" aria-label="Falcon, welcome page"><svg class="opmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" class="sq"/><circle cx="16" cy="16" r="11" class="disc"/><circle cx="16" cy="16" r="5" class="core"/></svg>Falcon</a>
   <nav class="tabs" aria-label="Tools">
     <button class="tab" id="t-ranges" aria-current="page">Preflop ranges</button>
     <button class="tab" id="t-train">Trainer</button>
@@ -34,6 +34,28 @@
   <button class="fx-switch" id="fx-switch" type="button" aria-pressed="false" title="Pause or play the moving effects"><span class="fx-icon" aria-hidden="true"></span><span class="fx-label">Pause effects</span></button>
   <button class="theme-switch" id="theme-switch" type="button" aria-pressed="false" title="Switch between light and dark"><span class="ts" aria-hidden="true"><i data-t="light"></i><i data-t="dark"></i></span><span id="theme-label">Dark</span></button>
 </header>
+
+<!-- WELCOME VIEW: shown on a first visit (no address, nothing saved yet), and from the logo. Routing in app.js -->
+<main class="welcome" id="view-welcome" hidden>
+  <section class="wl-text">
+    <h1>Learn No&#8209;Limit Hold'em by seeing why.</h1>
+    <p class="wl-lede">Ranges, equity and solver strategy for 6&#8209;max cash games at 100bb, worked out as you use them and explained in plain language.</p>
+    <ul class="wl-paths">
+      <li><button type="button" data-go="theory:equity"><b>New to the math?</b><span>Start the theory course with chapter 1, Equity. Seven short chapters, each building on the last.</span></button></li>
+      <li><button type="button" data-go="train:hands"><b>Know the basics?</b><span>Drill preflop decisions in the trainer, graded against the charts, with the reason for every answer.</span></button></li>
+      <li><button type="button" data-go="ranges"><b>Looking up a spot?</b><span>Open the preflop charts for every seat, facing a raise and facing a 3-bet.</span></button></li>
+    </ul>
+    <ul class="wl-facts">
+      <li>Every equity, combo count and outs figure is calculated by Falcon's own engine as you use it.</li>
+      <li>The preflop charts are hand-built approximations shaped like solver output. Flop strategies for BTN vs BB come from real solver runs.</li>
+      <li>Free, no account. Your trainer stats stay in this browser.</li>
+    </ul>
+  </section>
+  <figure class="wl-field">
+    <div class="grid wl-grid" id="welcome-field" role="group" aria-label="The button's opening range"></div>
+    <figcaption>The button's opening range. Each disc's size is how often the hand is played; pick one to open it in the charts.</figcaption>
+  </figure>
+</main>
 
 <!-- RANGES VIEW -->
 <main class="wrap" id="view-ranges">
