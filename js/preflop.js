@@ -84,11 +84,16 @@ function freqBars(rng,f,keys){
   return`<div class="freqs">${keys.map(k=>`<div class="freq"><span>${rng.labels[k]}</span><span class="track"><span style="width:${f[k]*100}%;background:${k==="fold"?"var(--dim)":COLORS[k]}"></span></span><span class="pct">${pct(f[k])}</span></div>`).join("")}</div>`;
 }
 
+/* Two example cards for a hand class, fanned like a hand held at the table: spades and hearts, or both spades if suited */
+function handFan(h){
+  const card=(r,red)=>`<span class="mc sm ${red?"red":""}"><b>${r==="T"?"10":r}</b><i>${red?"♥":"♠"}</i></span>`;
+  return`<span class="fan" aria-hidden="true">${card(h[0],false)}${card(h[1],h[2]!=="s")}</span>`;
+}
 function renderPanel(rng){
   const h=state.sel,f=freqs(rng,h),c=combos(h);
   if(rng.open&&!rng.open[h]){
     document.getElementById("panel").innerHTML=`
-      <div class="hand"><span class="big">${h}</span><span class="meta">${c} combos</span></div>
+      <div class="hand"><span class="big">${h}</span><span class="meta">${c} combos</span>${handFan(h)}</div>
       <div class="verdict">Not in ${rng.hero}'s opening range</div>
       <p>${rng.hero} folds ${h} before anyone can 3-bet, so it never faces this decision. Pick a coloured square to see how the hands ${rng.hero} opens respond.</p>
       <div class="insight"><div class="label" style="margin-bottom:4px">This spot</div><p style="font-size:13px">${rng.note}</p></div>`;
@@ -98,7 +103,7 @@ function renderPanel(rng){
   const v=verdictText(rng,f);
   const odds=h.length===2?{v:"11.8%",l:"flops a set or better"}:h[2]==="s"?{v:"10.9%",l:"flops a flush draw"}:{v:"0%",l:"chance of a flush on the flop"};
   document.getElementById("panel").innerHTML=`
-    <div class="hand"><span class="big">${h}</span><span class="meta">${type}<br>${c} combos</span></div>
+    <div class="hand"><span class="big">${h}</span><span class="meta">${type}<br>${c} combos</span>${handFan(h)}</div>
     <div>
       <div class="verdict" style="color:${v.main==="raise"&&!v.mixed?"var(--raise)":"var(--text)"}">${v.text}</div>
       ${v.mixed?`<p style="font-size:13px;color:var(--muted);margin-top:4px">A mixed strategy means the options are worth about the same. Mixing keeps you from being predictable.</p>`:""}

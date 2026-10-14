@@ -302,7 +302,8 @@
     if (straightHigh(mask) < 0) for (let r = 0; r < 13; r++) if (!((mask >> r) & 1) && straightHigh(mask | (1 << r)) >= 0) straightOuts++;
     return { flushDraw, oesd: straightOuts >= 2, gutshot: straightOuts === 1 };
   }
-  /* Buckets: 0 Strong (two pair+ using hole cards), 1 Top pair or overpair, 2 Weaker pair, 3 Draw, 4 Nothing */
+  /* Buckets: 0 Strong (two pair+ using hole cards), 1 Top pair or overpair, 2 Weaker pair, 3 Draw, 4 Nothing.
+     Works on the turn and river too; on the river nothing is left to draw to, so draws count as nothing. */
   const BUCKETS = ["Strong hands", "Top pair / overpair", "Weaker pair", "Draws", "Nothing"];
   function classifyFlop(hole, board) {
     const v = evaluate(hole.concat(board)), cat = category(v);
@@ -317,6 +318,7 @@
     if (pocket && r1 > top) return 1;
     if (!pocket && pairedHole === top) return 1;
     if (pairedHole >= 0) return 2;
+    if (board.length >= 5) return 4;
     const d = drawInfo(hole, board);
     if (d.flushDraw || d.oesd) return 3;
     return 4;

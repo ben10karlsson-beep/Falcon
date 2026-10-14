@@ -79,6 +79,9 @@ mc("As Kc", "Ad Qh", 0.735);
   check("nothing", E.classifyFlop(E.parseCards("Qh Jh"), b) === 4);
   check("flush draw", E.classifyFlop(E.parseCards("Ah 5h"), E.parseCards("Kh 7h 2c")) === 3);
   check("oesd", E.classifyFlop(E.parseCards("9s 8s"), E.parseCards("Td 7c 2h")) === 3);
+  check("turn flush draw", E.classifyFlop(E.parseCards("Ah 5h"), E.parseCards("Kh 7h 2c 3d")) === 3);
+  check("missed draw on the river is nothing", E.classifyFlop(E.parseCards("Ah 5h"), E.parseCards("Kh 7h 2c 3d 9s")) === 4);
+  check("river top pair", E.classifyFlop(E.parseCards("Ks Qs"), E.parseCards("Kh 7h 2c 3d 9s")) === 1);
 }
 // Texture
 {

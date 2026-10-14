@@ -11,8 +11,8 @@ let postflopReady = false;
 
 /* Trainer tab: every graded trainer, one at a time.
    hands = preflop trainer (preflop.js), read = range reading (reading.js),
-   quiz = Hand vs hand and range = Range trainer (both in postflop.js) */
-const TRAIN_MODES = { hands: "tr-hands", read: "tr-read", quiz: "pf-quiz", range: "pf-range" };
+   quiz = Hand vs hand, range = Range trainer and cbet = C-bet trainer (all in postflop.js) */
+const TRAIN_MODES = { hands: "tr-hands", read: "tr-read", quiz: "pf-quiz", range: "pf-range", cbet: "pf-cbet" };
 let trainMode = "hands", trainSub = null;
 function setTrainMode(m, sub) {
   if (!TRAIN_MODES[m]) m = "hands";
@@ -21,7 +21,7 @@ function setTrainMode(m, sub) {
   document.querySelectorAll("[data-tm]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tm === m));
   if (m === "hands" && !tr.cur) { deal(); renderLeaks(); }
   if (m === "read") Reading.show();
-  if (m === "quiz" || m === "range") Postflop.openTrainer(m, sub);
+  if (m === "quiz" || m === "range" || m === "cbet") Postflop.openTrainer(m, sub);
   if (view === "train") syncHash();
 }
 document.querySelectorAll("[data-tm]").forEach(b => b.onclick = () => setTrainMode(b.dataset.tm));
@@ -68,11 +68,34 @@ document.addEventListener("keydown", e => {
   if (tag === "select" || tag === "textarea" || (tag === "input" && e.target.type !== "range")) return;
   if (view !== "train") return;
   if (trainMode === "read") { if (Reading.key(e)) e.preventDefault(); return; }
-  if (trainMode === "quiz" || trainMode === "range") { if (Postflop.key(e, trainMode)) e.preventDefault(); return; }
+  if (trainMode === "quiz" || trainMode === "range" || trainMode === "cbet") { if (Postflop.key(e, trainMode)) e.preventDefault(); return; }
   const k = e.key.toLowerCase();
   const map = { f: "fold", c: "call", r: "raise" };
   if (!tr.answered && map[k]) { answer(map[k]); e.preventDefault(); }
   else if (tr.answered && (k === " " || k === "enter" || k === "n")) { deal(); e.preventDefault(); }
+});
+
+/* Recessed rails (.seg): one raised plaque slides to whichever option is pressed.
+   Re-placed when the selection changes and when the rail's size changes (fonts loading, a hidden view being shown). */
+document.querySelectorAll(".seg").forEach(seg => {
+  const thumb = document.createElement("span");
+  thumb.className = "seg-thumb instant";
+  thumb.setAttribute("aria-hidden", "true");
+  seg.prepend(thumb);
+  seg.classList.add("slides");
+  const place = () => {
+    const b = seg.querySelector('button[aria-pressed="true"]');
+    // Hidden rails measure 0; the next placement after they appear jumps straight there instead of sliding in
+    if (!b || !seg.offsetWidth) { thumb.classList.add("instant"); thumb.style.opacity = 0; return; }
+    thumb.style.opacity = 1;
+    thumb.style.width = b.offsetWidth + "px";
+    thumb.style.height = b.offsetHeight + "px";
+    thumb.style.transform = `translate(${b.offsetLeft}px,${b.offsetTop}px)`;
+    if (thumb.classList.contains("instant")) { void thumb.offsetWidth; thumb.classList.remove("instant"); }
+  };
+  new MutationObserver(place).observe(seg, { subtree: true, attributes: true, attributeFilter: ["aria-pressed"] });
+  new ResizeObserver(place).observe(seg);
+  place();
 });
 
 render();

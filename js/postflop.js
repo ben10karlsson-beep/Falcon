@@ -1,4 +1,4 @@
-/* Falcon postflop: equity calculator and board explorer (Postflop tab), plus the Hand vs hand quiz and range trainer (Trainer tab).
+/* Falcon postflop: equity calculator and board explorer (Postflop tab), plus the Hand vs hand quiz, range trainer and c-bet trainer (Trainer tab).
    Depends on Engine (engine.js) and range data/helpers (ranges.js). */
 (function () {
   "use strict";
@@ -226,7 +226,7 @@
         aggKey: "3bet:" + v.vs, callKey: "call3:" + v.id, pot: 2 * b3 + dead, behind: 100 - b3 };
     })
   ];
-  const bx = { match: 0, flop: E.parseCards("Kd 7s 2c"), active: null, job: 0 };
+  const bx = { match: 0, board: [...E.parseCards("Kd 7s 2c"), null, null], active: null, job: 0 };
 
   /* Solved flops (solved.js, from TexasSolver) for BTN opens, BB calls. A flop matches a solved one if it is
      the same up to relabelling suits; any other flop borrows the closest solved flop by texture. */
@@ -315,78 +315,237 @@
       </div>`;
   }
 
+  /* Turn and river: what kind of card arrived, and what it did to each range */
+  function straightPossible(cards) {
+    const rs = new Set(cards.map(E.rankOf));
+    for (let lo = -1; lo <= 8; lo++) {
+      let n = 0;
+      for (let r = lo; r < lo + 5; r++) if (rs.has(r === -1 ? 12 : r)) n++;
+      if (n >= 3) return true;
+    }
+    return false;
+  }
+  // How many two-card rank holdings (like KT) make a straight with this board: more means more straights are out there
+  function straightHoldings(cards) {
+    const base = cards.reduce((m, c) => m | 1 << E.rankOf(c), 0);
+    let n = 0;
+    for (let a = 0; a < 13; a++) for (let b = a; b < 13; b++) {
+      let m = base | 1 << a | 1 << b;
+      m = m << 1 | (m >> 12 & 1); // bit 0 = ace low
+      for (let lo = 0; lo <= 9; lo++) if ((m >> lo & 31) === 31) { n++; break; }
+    }
+    return n;
+  }
+  const suitCounts = cards => cards.reduce((n, c) => (n[E.suitOf(c)]++, n), [0, 0, 0, 0]);
+  function laterTags(cards) {
+    const ranks = cards.map(E.rankOf), top = Math.max(...ranks), maxSuit = Math.max(...suitCounts(cards));
+    const pairs = ranks.length - new Set(ranks).size;
+    return [
+      (top >= 10 ? "High" : top >= 7 ? "Middling" : "Low") + " card",
+      maxSuit >= 4 ? "Four to a flush" : maxSuit === 3 ? "Flush possible" : maxSuit === 2 && cards.length === 4 ? "Flush draw possible" : "No flush",
+      straightPossible(cards) ? "Straight possible" : "No straight",
+      ranks.some(r => ranks.filter(x => x === r).length >= 3) ? "Trips on board" : pairs >= 2 ? "Double paired" : pairs === 1 ? "Paired" : "Unpaired"
+    ];
+  }
+  // Plain facts about the newest card compared with the board before it
+  function cardFacts(card, prev) {
+    const r = E.rankOf(card), pr = prev.map(E.rankOf), ps = suitCounts(prev)[E.suitOf(card)], facts = [];
+    if (r > Math.max(...pr)) facts.push("is an overcard to the board");
+    if (pr.includes(r)) facts.push("pairs the board");
+    if (ps === 2) facts.push("makes a flush possible (three of a suit)");
+    else if (ps >= 3) facts.push("puts four of a suit on the board");
+    else if (ps === 1 && prev.length === 3) facts.push("brings a flush draw");
+    const sNow = straightHoldings(prev.concat(card)), sPrev = straightHoldings(prev);
+    if (sNow > sPrev) facts.push(sPrev ? "adds new straights" : "makes a straight possible");
+    return facts.length ? facts : ["doesn't go over the board, pair it or complete a draw"];
+  }
+  const signed = x => (x >= 0 ? "+" : "−") + Math.abs(x * 100).toFixed(1);
+  const STREET = ["flop", "turn", "river"];
+
+  /* Next-card map: the aggressor's range equity after each possible turn (or river), as a 4 × 13 grid like the card picker.
+     Computed in small chunks after the main result so the page stays responsive. */
+  function nextCardMap(job, m, openMap, callMap, cards, base) {
+    const deck = E.remainingDeck(cards), res = new Map(), next = STREET[cards.length - 2];
+    let i = 0;
+    const step = () => {
+      const el = $("bx-next");
+      if (job !== bx.job || !el) return;
+      for (const end = Math.min(deck.length, i + 7); i < end; i++) res.set(deck[i], E.equityRangeVsRange(openMap, callMap, cards.concat(deck[i]), 15000).equity);
+      if (i < deck.length) { el.querySelector(".hint").textContent = `Working out every ${next} card… ${Math.round(i / deck.length * 100)}%`; setTimeout(step, 0); return; }
+      renderNextMap(el, m, cards, base, res);
+    };
+    setTimeout(step, 0);
+  }
+  function renderNextMap(el, m, cards, base, res) {
+    const next = STREET[cards.length - 2];
+    let grid = "";
+    for (const s of [0, 1, 2, 3]) {
+      grid += `<div class="prow">`;
+      for (let r = 12; r >= 0; r--) {
+        const c = E.card(r, s), eq = res.get(c);
+        if (eq === undefined) { grid += `<span class="pk nm-gone" aria-hidden="true"></span>`; continue; }
+        const d = eq - base, a = Math.round(Math.min(1, Math.abs(d) / 0.05) * 85);
+        const bg = Math.abs(d) < 0.012 ? "var(--surface)" : `color-mix(in srgb,${d > 0 ? "var(--red)" : "var(--call)"} ${a}%,var(--surface))`;
+        const name = flopText([c]);
+        grid += `<button class="pk ${s === 1 || s === 2 ? "red" : ""}" data-c="${c}" style="background:${bg}" title="${name}: ${m.agg} ${fmt(eq)} (${signed(d)})" aria-label="${name}: ${m.agg} equity ${fmt(eq)}, ${signed(d)} points">${E.RANKS[r] === "T" ? "10" : E.RANKS[r]}<i>${E.SUIT_SYMBOL[s]}</i></button>`;
+      }
+      grid += `</div>`;
+    }
+    // Summary by rank (averaging the suits takes out most of the sampling noise), plus the flush suit if there is one
+    const avg = xs => xs.reduce((t, x) => t + x, 0) / xs.length;
+    const byRank = [];
+    for (let r = 12; r >= 0; r--) {
+      const xs = [0, 1, 2, 3].map(s => res.get(E.card(r, s))).filter(x => x !== undefined);
+      if (xs.length) byRank.push({ r, d: avg(xs) - base });
+    }
+    const rankName = r => ({ 12: "aces", 11: "kings", 10: "queens", 9: "jacks", 8: "10s" }[r] || E.RANKS[r] + "s");
+    const sorted = byRank.slice().sort((a, b) => b.d - a.d);
+    const best = sorted.filter(x => x.d >= 0.01).slice(0, 2), worst = sorted.filter(x => x.d <= -0.01).reverse().slice(0, 2);
+    const say = xs => `<strong>${xs.map(x => rankName(x.r)).join(" and ")}</strong> (${xs.map(x => signed(x.d)).join(" and ")} points for ${m.agg})`;
+    const lines = [];
+    if (best.length) lines.push(`Best for ${m.agg}: ${say(best)}.`);
+    if (worst.length) lines.push(`Best for ${m.caller}: ${say(worst)}.`);
+    if (!best.length && !worst.length) lines.push(`No ${next} rank moves range equity by a full point on average.`);
+    const sc = suitCounts(cards), fs = sc.findIndex(n => n >= 2);
+    if (fs >= 0) {
+      const on = [], off = [];
+      for (const [c, eq] of res) (E.suitOf(c) === fs ? on : off).push(eq);
+      const d = avg(on) - avg(off);
+      if (Math.abs(d) >= 0.01) lines.push(`${E.SUIT_SYMBOL[fs]} cards, which ${sc[fs] === 2 ? "make a flush possible" : "add to the flush"}, are ${signed(d)} points for ${m.agg} compared with the other suits.`);
+    }
+    el.innerHTML = `
+      <div class="label" style="margin-bottom:6px">Which ${next} cards help whom</div>
+      <p class="hint" style="margin:0 0 8px">${m.agg}'s range equity after each ${next} card, compared with ${fmt(base)} now. Red cards help ${m.agg}, grey cards help ${m.caller}, and the stronger the colour, the bigger the swing. Click a card to deal it.</p>
+      <div class="picker nextmap">${grid}</div>
+      <ul class="tips" style="margin-top:10px">${lines.map(x => `<li>${x}</li>`).join("")}</ul>
+      <p class="note" style="border:0;padding:0">Each card is estimated from 15,000 random deals, so a single card can be off by up to a point. The rank averages are steadier.</p>`;
+    el.querySelectorAll("[data-c]").forEach(b => b.onclick = () => {
+      bx.board[cards.length] = +b.dataset.c; bx.active = null; renderBx(); computeBx();
+      $("bx-flop").scrollIntoView({ block: "start", behavior: "smooth" });
+    });
+  }
+
   function renderBx() {
+    const setFlop = cs => { bx.board = [...cs, null, null]; bx.active = null; renderBx(); computeBx(); };
     $("bx-match").innerHTML = ["Single-raised pot", "3-bet pot"].map(g => `<div class="bx-group"><span class="hint">${g}</span><div class="row">${BX.map((m, i) => m.group === g ? `<button class="chip" aria-pressed="${i === bx.match}" data-m="${i}">${m.label}</button>` : "").join("")}</div></div>`).join("");
     $("bx-match").querySelectorAll("[data-m]").forEach(b => b.onclick = () => { bx.match = +b.dataset.m; renderBx(); computeBx(); });
     $("bx-presets").innerHTML = PRESETS.map(([l, cs]) => `<button class="chip" data-p="${cs}">${l}</button>`).join("") + `<button class="chip" id="bx-rand">Random flop</button>`;
-    $("bx-presets").querySelectorAll("[data-p]").forEach(b => b.onclick = () => { bx.flop = E.parseCards(b.dataset.p); bx.active = null; renderBx(); computeBx(); });
-    $("bx-rand").onclick = () => { const d = shuffledDeck([]); bx.flop = [d[0], d[1], d[2]]; bx.active = null; renderBx(); computeBx(); };
+    $("bx-presets").querySelectorAll("[data-p]").forEach(b => b.onclick = () => setFlop(E.parseCards(b.dataset.p)));
+    $("bx-rand").onclick = () => setFlop(shuffledDeck([]).slice(0, 3));
+    const flopFull = bx.board.slice(0, 3).every(c => c != null);
     const solvedSpot = isSolvedSpot(BX[bx.match]);
     $("bx-solved-wrap").hidden = !solvedSpot;
     if (solvedSpot) {
-      const cur = bx.flop.every(c => c != null) ? flopKey(bx.flop) : null;
+      const cur = flopFull ? flopKey(bx.board.slice(0, 3)) : null;
       $("bx-solved").innerHTML = `<option value="">Pick one of the ${SOLVED_FLOPS.length} solved flops</option>` +
         SOLVED_FLOPS.map((f, i) => `<option value="${i}" ${f.key === cur ? "selected" : ""}>${flopText(f.cards)} · ${f.family}</option>`).join("");
-      $("bx-solved").onchange = e => { if (e.target.value === "") return; bx.flop = SOLVED_FLOPS[+e.target.value].cards.slice(); bx.active = null; renderBx(); computeBx(); };
+      $("bx-solved").onchange = e => { if (e.target.value !== "") setFlop(SOLVED_FLOPS[+e.target.value].cards.slice()); };
     }
-    $("bx-flop").innerHTML = [0, 1, 2].map(i => slotHTML("f" + i, bx.flop[i] ?? null, "Flop", bx.active === i)).join("");
+    $("bx-flop").innerHTML = ["Flop", "Flop", "Flop", "Turn", "River"].map((l, i) => slotHTML("f" + i, bx.board[i], l, bx.active === i)).join("");
     $("bx-flop").querySelectorAll(".slot").forEach(b => b.onclick = () => {
       const i = +b.dataset.slot[1];
-      bx.flop[i] = null; bx.active = i; renderBx(); computeBx();
+      // Clearing the turn also clears the river
+      if (bx.board[i] != null) { bx.board[i] = null; if (i === 3) bx.board[4] = null; }
+      bx.active = i; renderBx(); computeBx();
     });
-    $("bx-picker-wrap").hidden = !bx.flop.some(c => c === null || c === undefined);
-    renderPicker($("bx-picker"), bx.flop, c => {
-      let i = bx.active; if (i === null || bx.flop[i] != null) i = [0, 1, 2].find(j => bx.flop[j] == null);
-      if (i === undefined) return;
-      bx.flop[i] = c; bx.active = [0, 1, 2].find(j => bx.flop[j] == null) ?? null; renderBx(); computeBx();
+    // Deal the next street at random, or step back a street
+    const hasTurn = bx.board[3] != null, hasRiver = bx.board[4] != null;
+    $("bx-streets").innerHTML = !flopFull ? "" :
+      (!hasRiver ? `<button class="chip" data-st="deal">Deal a ${hasTurn ? "river" : "turn"}</button>` : "") +
+      (hasTurn ? `<button class="chip" data-st="back">Back to the ${hasRiver ? "turn" : "flop"}</button>` : "");
+    $("bx-streets").hidden = !flopFull;
+    $("bx-streets").querySelectorAll("[data-st]").forEach(b => b.onclick = () => {
+      if (b.dataset.st === "deal") bx.board[hasTurn ? 4 : 3] = shuffledDeck(bx.board.filter(c => c != null))[0];
+      else bx.board[hasRiver ? 4 : 3] = null;
+      bx.active = null; renderBx(); computeBx();
     });
+    const target = bx.active != null && bx.board[bx.active] == null ? bx.active : [0, 1, 2].find(j => bx.board[j] == null);
+    $("bx-picker-wrap").hidden = target === undefined;
+    $("bx-picker-label").textContent = target === 3 ? "Pick the turn" : target === 4 ? "Pick the river" : "Pick a flop card";
+    renderPicker($("bx-picker"), bx.board, c => {
+      if (target === undefined) return;
+      bx.board[target] = c; bx.active = [0, 1, 2].find(j => bx.board[j] == null) ?? null; renderBx(); computeBx();
+    });
+  }
+
+  /* Flop: range equity, how each range hits, general tips or the solver section. Turn and river: the same plus what the new
+     card changed. Flop and turn also get the next-card map. */
+  function flopTips(m, board, eA, nut) {
+    const t = E.texture(board), tips = [];
+    if (t.paired) tips.push("Paired boards are hard to connect with, so the preflop raiser can usually bet small and often.");
+    if (t.maxSuit === 3) tips.push("Monotone boards shrink everyone's edge. Bets tend to be smaller and less frequent, and holding the ace of the suit matters a lot.");
+    if (eA >= 0.52 && nut > -0.02 && t.wetness === "Dry" && !t.paired) tips.push(`This is a good board for ${m.agg} to continuation-bet very often with a small size, around a third of the pot.`);
+    if (nut >= 0.03 && t.wetness !== "Dry") tips.push(`With more strong hands on a board where the next cards change a lot, ${m.agg} can use bigger bets (two-thirds pot or more) with a more selective range.`);
+    if (eA < 0.52 || nut <= -0.03) tips.push(`${m.caller} connects well here. Expect ${m.agg} to check much more often and ${m.caller} to fight back with check-raises.`);
+    if (m.group === "3-bet pot") tips.push(`In 3-bet pots the stacks are short compared with the pot (SPR ${(m.behind / m.pot).toFixed(1)}), so top pair is often good enough to get all in, and bets tend to be smaller, around a third of the pot.`);
+    if (!tips.length) tips.push(`A mixed board. ${m.agg} usually bets part of the range and checks the rest, often with a medium size.`);
+    return `<ul class="tips">${tips.map(x => `<li>${x}</li>`).join("")}</ul>
+      <p class="note" style="border:0;padding:0">The numbers are calculated from Falcon's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. ${m.group === "3-bet pot" ? "In 3-bet pots the opener's range is the facing-a-3-bet calling chart, and the 3-bettor's range includes hands that would 5-bet." : "The opener's range includes hands that would have 4-bet, which slightly overstates it."}</p>`;
+  }
+  // What the newest card did, measured against the board one street earlier
+  function changeHTML(m, board, openMap, callMap, eA, pa, pb) {
+    const street = board.length - 3, prev = board.slice(0, -1), card = board[board.length - 1];
+    const eP = E.equityRangeVsRange(openMap, callMap, prev, 30000).equity;
+    const paP = E.rangeProfile(openMap, prev), pbP = E.rangeProfile(callMap, prev);
+    const d = eA - eP, tp = p => p.buckets[0] + p.buckets[1];
+    const who = Math.abs(d) < 0.01 ? `It barely moves range equity: ${m.agg} goes from ${fmt(eP)} to ${fmt(eA)}.`
+      : `It helps <strong>${d > 0 ? m.agg : m.caller}</strong>: ${m.agg}'s range equity goes from ${fmt(eP)} to ${fmt(eA)} (${signed(d)} points).`;
+    const items = [
+      `<strong>The ${flopText([card])} ${cardFacts(card, prev).join(" and ")}.</strong> ${who}`,
+      `Top pair or better: ${m.agg} ${fmt(tp(paP))} → ${fmt(tp(pa))}, ${m.caller} ${fmt(tp(pbP))} → ${fmt(tp(pb))}. Two pair or better: ${m.agg} ${fmt(paP.buckets[0])} → ${fmt(pa.buckets[0])}, ${m.caller} ${fmt(pbP.buckets[0])} → ${fmt(pb.buckets[0])}.`,
+      d >= 0.01 ? `A ${STREET[street]} that helps the preflop aggressor's range is a good card to keep betting on: ${m.agg}'s range got stronger relative to ${m.caller}'s.`
+        : d <= -0.01 ? `A ${STREET[street]} that helps ${m.caller} is a card for ${m.agg} to slow down on: check more, bet a more selective range, and expect ${m.caller} to bet or raise more.`
+        : pa.buckets[0] - paP.buckets[0] >= 0.05 && pb.buckets[0] - pbP.buckets[0] >= 0.05
+          ? `It hits both ranges about equally. The edge stays where it was, but many more hands are now two pair or better on both sides, so both players have more hands that are happy to play a big pot.`
+          : `A card that changes little keeps the ${STREET[street - 1]}'s story going: whoever had the edge before still has it.`
+    ];
+    if (street === 2) items.push(`On the river nothing is left to draw to: every hand is either made or missed. That is why river bets tend to be strong hands or bluffs, and medium hands check.`);
+    return `<ul class="tips">${items.map(x => `<li>${x}</li>`).join("")}</ul>
+      <p class="note" style="border:0;padding:0">These are both players' full preflop ranges, as if nobody bet on the ${street === 1 ? "flop" : "flop or turn"}. After a bet and a call both ranges are narrower, so treat the numbers as a starting point.${isSolvedSpot(m) ? " The solver results cover the flop only: go back to the flop to see them." : ""}</p>`;
   }
 
   function computeBx() {
     const out = $("bx-result");
-    if (bx.flop.length < 3 || bx.flop.some(c => c === null || c === undefined)) { out.innerHTML = `<div class="empty">Pick three flop cards, or choose a preset above.</div>`; return; }
+    $("bx-next").hidden = true;
+    if (bx.board.slice(0, 3).some(c => c == null)) { out.innerHTML = `<div class="empty">Pick three flop cards, or choose a preset above.</div>`; return; }
+    if (bx.board[4] != null && bx.board[3] == null) { out.innerHTML = `<div class="empty">Pick the turn before the river.</div>`; return; }
     const m = BX[bx.match];
     const openMap = rangeByKey(m.aggKey).map, callMap = rangeByKey(m.callKey).map;
     const job = ++bx.job;
     out.classList.add("busy");
     setTimeout(() => {
       if (job !== bx.job) return;
-      const board = bx.flop.slice();
-      const eq = E.equityRangeVsRange(openMap, callMap, board, 30000);
+      const board = bx.board.filter(c => c != null), street = board.length - 3;
+      const eA = E.equityRangeVsRange(openMap, callMap, board, 30000).equity;
       const pa = E.rangeProfile(openMap, board), pb = E.rangeProfile(callMap, board);
-      const t = E.texture(board);
       out.classList.remove("busy");
-      const eA = eq.equity, strongA = pa.buckets[0], strongB = pb.buckets[0];
-      const nut = strongA - strongB;
+      const strongA = pa.buckets[0], strongB = pb.buckets[0], nut = strongA - strongB;
       const rangeAdv = eA >= 0.56 ? `${m.agg} has a clear range advantage` : eA >= 0.52 ? `${m.agg} has a small range advantage` : eA > 0.48 ? "Neither player has a real range advantage" : `${m.caller} has the range advantage`;
       const nutAdv = nut >= 0.03 ? `${m.agg} has more strong hands` : nut <= -0.03 ? `${m.caller} has more strong hands` : "Both ranges have a similar share of strong hands";
-      const tips = [];
-      if (t.paired) tips.push("Paired boards are hard to connect with, so the preflop raiser can usually bet small and often.");
-      if (t.maxSuit === 3) tips.push("Monotone boards shrink everyone's edge. Bets tend to be smaller and less frequent, and holding the ace of the suit matters a lot.");
-      if (eA >= 0.52 && nut > -0.02 && t.wetness === "Dry" && !t.paired) tips.push(`This is a good board for ${m.agg} to continuation-bet very often with a small size, around a third of the pot.`);
-      if (nut >= 0.03 && t.wetness !== "Dry") tips.push(`With more strong hands on a board where the next cards change a lot, ${m.agg} can use bigger bets (two-thirds pot or more) with a more selective range.`);
-      if (eA < 0.52 || nut <= -0.03) tips.push(`${m.caller} connects well here. Expect ${m.agg} to check much more often and ${m.caller} to fight back with check-raises.`);
-      if (m.group === "3-bet pot") tips.push(`In 3-bet pots the stacks are short compared with the pot (SPR ${(m.behind / m.pot).toFixed(1)}), so top pair is often good enough to get all in, and bets tend to be smaller, around a third of the pot.`);
-      if (!tips.length) tips.push(`A mixed board. ${m.agg} usually bets part of the range and checks the rest, often with a medium size.`);
-      const sv = isSolvedSpot(m) ? solvedFor(board) : null;
+      const sv = isSolvedSpot(m) && !street ? solvedFor(board) : null;
+      const t = E.texture(board.slice(0, 3));
+      const tags = street ? laterTags(board) : [t.highText + " card", t.suitText, t.conn, t.wetness];
       out.innerHTML = `
-        <p class="hint bx-pot">${m.group}: pot ${m.pot}bb, ${m.behind}bb behind, SPR ${(m.behind / m.pot).toFixed(1)}</p>
-        <div class="tags">${[t.highText + " card", t.suitText, t.conn, t.wetness].map(x => `<span class="tag2">${x}</span>`).join("")}</div>
+        <p class="hint bx-pot">${m.group}: pot ${m.pot}bb${street ? " on the flop" : ""}, ${m.behind}bb behind, SPR ${(m.behind / m.pot).toFixed(1)}</p>
+        <div class="tags">${tags.map(x => `<span class="tag2">${x}</span>`).join("")}</div>
         <div>
-          <div class="label" style="margin-bottom:6px">Range equity</div>
+          <div class="label" style="margin-bottom:6px">Range equity on the ${STREET[street]}</div>
           <div class="split tall"><span style="width:${eA * 100}%;background:var(--red)">${m.agg} ${fmt(eA)}</span><span style="width:${(1 - eA) * 100}%;background:var(--call);justify-content:flex-end">${fmt(1 - eA)} ${m.caller}</span></div>
         </div>
-        <div><div class="label" style="margin-bottom:6px">How each range hits this flop</div>
+        <div><div class="label" style="margin-bottom:6px">How each range hits this ${street ? "board" : "flop"}</div>
         ${profileBars([{ name: `${m.agg} (${m.aggRole})`, prof: pa }, { name: `${m.caller} (${m.callRole})`, prof: pb }])}</div>
         <div class="infobox">
-          <div class="label">What this means</div>
+          <div class="label">${street ? `What the ${STREET[street]} changed` : "What this means"}</div>
           <p><strong>${rangeAdv}</strong> (${fmt(eA)} equity). <strong>${nutAdv}</strong>: ${fmt(strongA)} vs ${fmt(strongB)} two pair or better.</p>
-          ${sv ? "" : `<ul class="tips">${tips.map(x => `<li>${x}</li>`).join("")}</ul>
-          <p class="note" style="border:0;padding:0">The numbers are calculated from Falcon's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. ${m.group === "3-bet pot" ? "In 3-bet pots the opener's range is the facing-a-3-bet calling chart, and the 3-bettor's range includes hands that would 5-bet." : "The opener's range includes hands that would have 4-bet, which slightly overstates it."}</p>`}
+          ${street ? changeHTML(m, board, openMap, callMap, eA, pa, pb) : sv ? "" : flopTips(m, board, eA, nut)}
         </div>
-        ${sv ? solvedHTML(sv, ...solvedAdvantage(sv, openMap, callMap, eA, nut)) : ""}`;
+        ${sv ? solvedHTML(sv, ...solvedAdvantage(sv, openMap, callMap, eA, nut)) : ""}
+`;
+      $("bx-next").hidden = street >= 2;
+      if (street < 2) $("bx-next").innerHTML = `<p class="hint">Working out every ${STREET[street + 1]} card…</p>`;
       const go = $("bx-go-solved");
-      if (go) go.onclick = () => { bx.flop = sv.flop.cards.slice(); bx.active = null; renderBx(); computeBx(); };
+      if (go) go.onclick = () => { bx.board = [...sv.flop.cards, null, null]; bx.active = null; renderBx(); computeBx(); };
+      if (street < 2) nextCardMap(job, m, openMap, callMap, board, eA);
     }, 10);
   }
 
@@ -635,6 +794,137 @@
     $("rq-err").textContent = rq.mode === "eq" ? (rq.err / rq.n).toFixed(1) : "–";
   }
 
+  /* ================= 5. C-BET TRAINER (lives in the Trainer tab) ================= */
+  /* BTN opens, BB calls, BB checks the flop: bet or check? Graded per combo against the solver (js/solved-combos.js,
+     loaded on first use). Only bet vs check is graded; the solver's two sizes are often close in value, so the size
+     is only mentioned when it clearly prefers one. Flops are the 30 solved ones with their suits relabelled at random. */
+  const ALPHA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+  const cb = { cur: null, answered: false, n: 0, good: 0, streak: 0, loading: false };
+  const CB_NEED_SMALL = 0.33 / 1.33;
+  let cbEntries = null;
+  // Each solved flop's combos as { c: [card, card], mix: [check, small, big], w: BTN's preflop frequency }
+  function cbData() {
+    if (cbEntries) return cbEntries;
+    const open = rangeByKey("rfi:BTN").map;
+    cbEntries = SOLVED_FLOPS.map(f => {
+      const s = window.SolvedCombos[f.board], list = [];
+      for (let i = 0; i < s.length; i += 6) {
+        const c = [P(s.slice(i, i + 2)), P(s.slice(i + 2, i + 4))];
+        const sm = ALPHA.indexOf(s[i + 4]) / 50, bg = ALPHA.indexOf(s[i + 5]) / 50;
+        list.push({ c, mix: [Math.max(0, 1 - sm - bg), sm, bg], w: open[E.handClass(c[0], c[1])] || 0 });
+      }
+      return list;
+    });
+    return cbEntries;
+  }
+  function loadCombos(then) {
+    if (window.SolvedCombos) return then();
+    if (cb.loading) return;
+    cb.loading = true;
+    $("cb-ask").innerHTML = `<p class="hint">Loading the solver data…</p>`;
+    const s = document.createElement("script");
+    s.src = "js/solved-combos.js";
+    s.onload = () => { cb.loading = false; then(); };
+    s.onerror = () => { cb.loading = false; $("cb-ask").innerHTML = `<p class="hint">Couldn't load the solver data. Check your connection and reload the page.</p>`; };
+    document.head.appendChild(s);
+  }
+  function dealCbet() {
+    loadCombos(() => {
+      const data = cbData(), fi = (Math.random() * SOLVED_FLOPS.length) | 0, list = data[fi];
+      let r = Math.random() * list.reduce((s, x) => s + x.w, 0), pick = list[0];
+      for (const x of list) { r -= x.w; if (r <= 0) { pick = x; break; } }
+      // Relabel suits at random so the same 30 flops don't always look the same
+      const perm = SUIT_PERMS[(Math.random() * SUIT_PERMS.length) | 0], relabel = c => E.card(E.rankOf(c), perm[E.suitOf(c)]);
+      const board = SOLVED_FLOPS[fi].cards.map(relabel).sort((a, b) => b - a);
+      cb.cur = { fi, flop: SOLVED_FLOPS[fi], board, hero: pick.c.map(relabel), mix: pick.mix, list };
+      cb.answered = false; renderCbet();
+    });
+  }
+  function renderCbet() {
+    const c = cb.cur;
+    $("cb-table").innerHTML = `
+      <div class="qhands">
+        <div><div class="label">You · BTN</div><div class="cardrow">${c.hero.map(x => cardHTML(x)).join("")}</div></div>
+        <div><div class="label">Opponent · BB</div><div class="cardrow"><span class="mc back" aria-label="unknown card"></span><span class="mc back" aria-label="unknown card"></span></div></div>
+      </div>
+      <div><div class="label">Flop · pot 5.5bb</div><div class="cardrow">${c.board.map(x => cardHTML(x)).join("")}</div></div>`;
+    $("cb-ask").innerHTML = `
+      <p class="sit">You open the button to 2.5bb and the big blind calls. On the flop, BB checks to you. Bet or check?</p>
+      <div class="acts"><button class="act call" id="cb-check">Check<kbd>K</kbd></button><button class="act raise" id="cb-bet">Bet<kbd>B</kbd></button></div>`;
+    $("cb-check").onclick = () => answerCbet("check");
+    $("cb-bet").onclick = () => answerCbet("bet");
+    $("cb-fb").innerHTML = "";
+  }
+  /* Why the solver plays this hand the way it does, from its equity, its draws and the numbers on this flop */
+  function cbetWhy(c, eq, desc) {
+    const [chk, sm, bg] = c.mix, bet = sm + bg, f = c.flop, why = [];
+    const fold = f.vsSmall[0];
+    if (bet >= 0.25 && chk >= 0.25) why.push(`<strong>A close spot.</strong> The solver mixes, which means betting and checking earn about the same with this hand. Either answer is fine here.`);
+    if (bet >= 0.5) {
+      if (eq >= 0.6) why.push(`<strong>Betting for value.</strong> You have ${fmt(eq)} equity against BB's checking range, so you are ahead of most of it. A bet builds the pot while BB's worse pairs and draws can still call.`);
+      else if (desc.draws.length) why.push(`<strong>A semi-bluff.</strong> You have ${fmt(eq)} equity: behind for now, but your draw can improve. Betting can win the pot straight away, and when BB calls you still have outs.`);
+      else if (eq >= 0.4) why.push(`<strong>Betting for thin value and protection.</strong> You have ${fmt(eq)} equity, ahead of a good part of BB's range but not most of it. A bet makes BB's overcards and weak draws pay or fold instead of seeing a free card.`);
+      else why.push(`<strong>Betting as a bluff.</strong> With ${fmt(eq)} equity this hand rarely wins at showdown, so checking would give up most of the pot. ${fold >= CB_NEED_SMALL
+        ? `BB folds ${fmt(fold)} to the small bet, more than the ${fmt(CB_NEED_SMALL)} a third-pot bluff needs to break even, so the bet makes money from folds alone.`
+        : `BB folds ${fmt(fold)} to the small bet, a bit less than the ${fmt(CB_NEED_SMALL)} a third-pot bluff needs, but the bet still picks up the hands BB folds and keeps BTN's betting range from being only strong hands.`}`);
+    } else if (chk >= 0.5) {
+      if (eq >= 0.65) why.push(`<strong>Checking a strong hand.</strong> You have ${fmt(eq)} equity, so a free card rarely hurts you. Checking some strong hands means BTN's checks aren't all weak, so BB can't bet freely on the turn.`);
+      else if (desc.draws.length) why.push(`<strong>Taking a free card.</strong> You have ${fmt(eq)} equity and a draw, and checking lets you see the turn for free. BTN can't bet everything on this flop, and checking some draws means its checks aren't only give-ups.`);
+      else if (eq >= 0.4) why.push(`<strong>A medium hand checks.</strong> With ${fmt(eq)} equity you win at showdown fairly often, but a bet would mostly get called by better hands and fold out worse ones. Checking keeps the pot small and takes a free look at the turn.`);
+      else why.push(`<strong>Giving up for now.</strong> You have ${fmt(eq)} equity and few ways to improve. BTN can't bet everything on this flop, and it picks its bluffs from hands with more backup, like draws. Checking sees a free turn card.`);
+    }
+    const bucket = E.classifyFlop(c.hero, c.board), row = f.byHand[bucket], rb = row[2] + row[3];
+    why.push(`On this flop BTN bets ${fmt(f.btn[1] + f.btn[2])} of its whole range. Hands like yours (${E.BUCKETS[bucket].toLowerCase()}) bet ${fmt(rb)} of the time.`);
+    // Same hand class, different suits: point out when the exact suits change the answer
+    const hc = E.handClass(c.hero[0], c.hero[1]), heroClassCombos = c.list.filter(x => E.handClass(x.c[0], x.c[1]) === hc);
+    if (heroClassCombos.length > 1) {
+      const avg = heroClassCombos.reduce((s, x) => s + x.mix[1] + x.mix[2], 0) / heroClassCombos.length;
+      if (Math.abs(avg - bet) >= 0.2) why.push(`Your exact suits matter here: across all ${heroClassCombos.length} ${hc} combos on this flop the solver bets ${fmt(avg)}, but with these suits it bets ${fmt(bet)}. Flush draws and holding (or blocking) a card of the board's suit change the answer.`);
+    }
+    return why;
+  }
+  function answerCbet(ans) {
+    if (cb.answered || !cb.cur) return;
+    cb.answered = true;
+    const c = cb.cur, [chk, sm, bg] = c.mix, bet = sm + bg;
+    document.querySelectorAll("#cb-ask .act").forEach(b => { b.disabled = true; if (b.id === "cb-" + ans) b.classList.add("picked"); });
+    const took = ans === "bet" ? bet : chk;
+    const grade = took >= 0.25 ? "good" : took >= 0.05 ? "ok" : "bad";
+    cb.n++;
+    if (grade === "good") { cb.good++; cb.streak++; } else cb.streak = 0;
+    const head = grade === "good" ? (Math.min(bet, chk) >= 0.25 ? "Correct, a mixed spot" : "Correct") : grade === "ok" ? "Inaccurate" : "Mistake";
+    const desc = handDescription(c.hero, c.board), youText = desc.made + (desc.draws.length ? " with " + desc.draws.join(" and ") : "");
+    let size = "";
+    if (bet >= 0.25) {
+      if (sm >= 0.8 * bet) size = `When it bets, it almost always picks the small size, a third of the pot (${(5.5 * 0.33).toFixed(1)}bb).`;
+      else if (bg >= 0.8 * bet) size = `When it bets, it almost always picks the big size, three quarters of the pot (${(5.5 * 0.75).toFixed(1)}bb).`;
+      else size = `It uses both sizes, a third and three quarters of the pot. They are close in value, so whether you bet matters more than the size.`;
+    }
+    // The head goes up at once; the body follows when the equity is worked out
+    $("cb-fb").innerHTML = `<div class="fb ${grade}"><div class="head"><span class="dot" style="background:${{ good: "var(--good)", ok: "var(--warn)", bad: "var(--red)" }[grade]}"></span>${head}</div><div id="cb-body" style="display:grid;gap:12px"><p>Working out your equity…</p></div></div>`;
+    setTimeout(() => {
+      if (cb.cur !== c) return;
+      const eq = E.equityHandVsRange(c.hero, rangeByKey("call:BB vs BTN").map, c.board, 20000).equity;
+      const why = cbetWhy(c, eq, desc);
+      $("cb-body").innerHTML = `
+          <p>You have <strong>${youText}</strong>. The solver ${bet >= 0.995 ? "always bets this hand" : chk >= 0.995 ? "always checks this hand" : `bets this hand <strong>${fmt(bet)}</strong> of the time and checks <strong>${fmt(chk)}</strong>`}.${size ? " " + size : ""}</p>
+          <div>${actSplit(c.mix, ACT_NAMES)}<div class="legend">${ACT_NAMES.map((n, i) => `<span><i class="sw" style="background:${ACT_COLORS[i]}"></i>${n} ${fmt(c.mix[i])}</span>`).join("")}</div></div>
+          <ul class="tips">${why.map(x => `<li>${x}</li>`).join("")}</ul>
+          <div class="btns"><button class="btn primary" id="cb-next">Next spot <span style="opacity:.6;font-weight:500">(Enter)</span></button>
+          <button class="btn" id="cb-open">See this flop in the board explorer</button></div>`;
+      $("cb-next").onclick = dealCbet;
+      $("cb-open").onclick = () => {
+        show("postflop");
+        bx.match = 0; bx.board = [...c.board, null, null]; bx.active = null;
+        setSub("board"); renderBx(); computeBx(); window.scrollTo({ top: 0 });
+      };
+      $("cb-next").focus({ preventScroll: true });
+    }, 10);
+    $("cb-n").textContent = cb.n;
+    $("cb-acc").textContent = Math.round(cb.good / cb.n * 100) + "%";
+    $("cb-streak").textContent = cb.streak;
+  }
+
   /* Switching mode starts a fresh session score */
   function setQuizMode(m) {
     qz.mode = m; qz.n = 0; qz.err = 0; qz.good = 0;
@@ -664,7 +954,7 @@
     },
     /* Postflop tab: open a tool ("calc" or "board") */
     open(s) { setSub(s); },
-    /* Trainer tab: Hand vs hand ("quiz") and the Range trainer ("range"), optionally in a given mode */
+    /* Trainer tab: Hand vs hand ("quiz"), the Range trainer ("range", optionally in a given mode) and the C-bet trainer ("cbet") */
     initTrainers() {
       if (trainersReady) return;
       trainersReady = true;
@@ -675,6 +965,7 @@
       this.initTrainers();
       if (kind === "quiz") { if (mode && mode !== qz.mode) { setQuizMode(mode); qz.cur = null; } if (!qz.cur) dealQuiz(); }
       if (kind === "range") { if (mode && mode !== rq.mode) { setRangeMode(mode); rq.cur = null; } if (!rq.cur) dealRange(); }
+      if (kind === "cbet" && !cb.cur) dealCbet();
     },
     key(e, kind) {
       const k = e.key.toLowerCase();
@@ -682,6 +973,11 @@
         if (rq.answered && (k === "enter" || k === " " || k === "n")) { dealRange(); return true; }
         if (!rq.answered && rq.mode === "cf" && (k === "f" || k === "c")) { answerRange(k === "c" ? "call" : "fold"); return true; }
         if (!rq.answered && rq.mode === "eq" && k === "enter") { answerRange(+$("rq-guess").value / 100); return true; }
+        return false;
+      }
+      if (kind === "cbet") {
+        if (cb.answered && (k === "enter" || k === " " || k === "n")) { dealCbet(); return true; }
+        if (!cb.answered && cb.cur && (k === "k" || k === "b")) { answerCbet(k === "b" ? "bet" : "check"); return true; }
         return false;
       }
       if (kind !== "quiz") return false;

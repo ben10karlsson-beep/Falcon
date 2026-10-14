@@ -32,5 +32,25 @@ for (const f of S.flops) {
   if (f.byHand[0][0] > 0.01 && f.byHand[4][0] > 0.01) check(f.board + " strong hands bet more than air", bet(f.byHand[0]) > bet(f.byHand[4]));
 }
 
+// Per-combo data (js/solved-combos.js): valid entries that add back up to BTN's overall mix
+const C = require("../js/solved-combos.js");
+const { btnRange } = require("../solver/make-config.js");
+const ALPHA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz", R = "AKQJT98765432";
+const handKey = c => { let [a, s1, b, s2] = c; if (R.indexOf(a) > R.indexOf(b)) [a, s1, b, s2] = [b, s2, a, s1]; return a === b ? a + b : a + b + (s1 === s2 ? "s" : "o"); };
+const btn = btnRange();
+for (const f of S.flops) {
+  const s = C[f.board];
+  check(f.board + " has per-combo data", typeof s === "string" && s.length % 6 === 0);
+  if (!s) continue;
+  const tot = [0, 0, 0]; let w = 0, bad = 0;
+  for (let i = 0; i < s.length; i += 6) {
+    const c = s.slice(i, i + 4), sm = ALPHA.indexOf(s[i + 4]) / 50, bg = ALPHA.indexOf(s[i + 5]) / 50;
+    if (!/^([2-9TJQKA][shdc]){2}$/.test(c) || sm < 0 || bg < 0 || sm + bg > 1.0001 || f.board.includes(c.slice(0, 2)) || f.board.includes(c.slice(2))) bad++;
+    const p = btn[handKey(c)] || 0; w += p; tot[0] += p * (1 - sm - bg); tot[1] += p * sm; tot[2] += p * bg;
+  }
+  check(f.board + " per-combo entries are valid", bad === 0, bad);
+  [0, 1, 2].forEach(a => check(`${f.board} per-combo action ${a} matches overall mix`, Math.abs(tot[a] / w - f.btn[a]) < 0.01, tot[a] / w));
+}
+
 console.log(`${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -6,7 +6,7 @@
 <title>Falcon · Poker study app</title>
 <meta name="description" content="Learn the math and strategy of No-Limit Hold'em: preflop ranges, graded trainers, an equity calculator and a theory course that explains why.">
 <meta name="theme-color" content="#27211b">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23de6752'/%3E%3Ccircle cx='16' cy='16' r='11.5' fill='none' stroke='%23f6ecdc' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23de6752'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(0 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(60 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(120 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(180 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(240 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(300 16 16)'/%3E%3Ccircle cx='16' cy='16' r='9.6' fill='none' stroke='%23f6ecdc' stroke-width='1.6'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Falcon · Poker study app">
 <meta property="og:description" content="Learn the math and strategy of No-Limit Hold'em: preflop ranges, graded trainers, an equity calculator and a theory course that explains why.">
@@ -21,7 +21,7 @@
 <link rel="stylesheet" href="css/falcon.css">
 </head>
 <body><header class="appbar">
-  <div class="brand"><i aria-hidden="true"></i>Falcon</div>
+  <div class="brand"><svg class="chipmark" viewBox="0 0 32 32" aria-hidden="true"><circle class="face" cx="16" cy="16" r="15"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(0 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(60 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(120 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(180 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(240 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(300 16 16)"/><circle class="ring" cx="16" cy="16" r="9.6"/></svg>Falcon</div>
   <nav class="tabs" aria-label="Tools">
     <button class="tab" id="t-ranges" aria-current="page">Preflop ranges</button>
     <button class="tab" id="t-train">Trainer</button>
@@ -65,6 +65,7 @@
       <button data-tm="read" aria-pressed="false">Read ranges</button>
       <button data-tm="quiz" aria-pressed="false">Hand vs hand</button>
       <button data-tm="range" aria-pressed="false">Range trainer</button>
+      <button data-tm="cbet" aria-pressed="false">C-bet</button>
     </div>
   </div>
 
@@ -236,6 +237,38 @@
         <p>Facing a bet, compare your estimate with the price: call ÷ (pot + call), with their bet counted in the pot. A half-pot bet asks for 25%, a pot-size bet for 33%. Theory chapters 5 and 6 walk through it.</p>
       </div>
       <div class="note">Spots are single-raised pots from Falcon's preflop charts. Your hand is dealt from your own range, and the opponent's range is their full chart range before any flop betting. The opener's range also includes hands that would have 4-bet, which overstates it slightly. In call or fold, they bet their whole range and nobody bets after your call. Real players bet a narrower range and keep betting on later streets, and out of position you win less of your equity, so treat close calls as close. Keys: <b>Enter</b> lock in / next, <b>F</b>/<b>C</b> in call or fold.</div>
+    </aside>
+  </section>
+
+  <!-- C-bet trainer: BTN vs BB, bet or check after BB checks, graded per combo against the solver (js/postflop.js) -->
+  <section class="pf-grid" id="pf-cbet" hidden>
+    <div style="display:grid;gap:16px;align-content:start;min-width:0">
+      <div class="felt" style="justify-items:stretch;text-align:left">
+        <div id="cb-table" class="qtable"></div>
+        <div id="cb-ask" style="display:grid;gap:12px;justify-items:start"></div>
+        <div id="cb-fb" aria-live="polite"></div>
+      </div>
+    </div>
+    <aside class="panel">
+      <div>
+        <div class="label" style="margin-bottom:8px">This session</div>
+        <div class="scores">
+          <div class="score"><b id="cb-n">0</b><span>spots played</span></div>
+          <div class="score"><b id="cb-acc">–</b><span>correct</span></div>
+          <div class="score"><b id="cb-streak">0</b><span>current streak</span></div>
+          <div class="score"><b>25%</b><span>counts as correct</span></div>
+        </div>
+      </div>
+      <div class="infobox">
+        <div class="label">How to think about a c-bet</div>
+        <ol class="tips">
+          <li>Who does this flop favour? High, dry boards suit the button's range; low, connected ones suit the big blind's.</li>
+          <li>Where is your hand in your range? Strong hands bet for value, hands with a draw or good backup bet as bluffs.</li>
+          <li>Medium hands that win at showdown often check, because a bet mostly gets called by better hands.</li>
+          <li>On a flop that favours you, bet often and small. On a flop that doesn't, check more.</li>
+        </ol>
+      </div>
+      <div class="note">Real solver output: 30 BTN vs BB flops solved with TexasSolver from Falcon's own preflop charts (the suits are shuffled so they look different each time). Your hand is dealt from the BTN opening range. Only bet or check is graded: the solver could bet a third or three quarters of the pot, and the two sizes are often close in value, so the feedback names a size only when the solver clearly prefers one. An action counts as correct if the solver takes it at least 25% of the time, and inaccurate if at least 5%. Keys: <b>K</b> check, <b>B</b> bet, <b>Enter</b> next spot.</div>
     </aside>
   </section>
 </main>
@@ -793,11 +826,12 @@
       </div>
       <div class="practice">
         <span class="label">Practice this</span>
-        <p>Learn the charts seat by seat, then see how both ranges hit different flops.</p>
+        <p>Learn the charts seat by seat, see how both ranges hit different flops, then decide when the button should c-bet.</p>
         <div class="row">
           <button class="btn primary" data-go="train:hands">Preflop hands trainer</button>
           <button class="btn" data-go="ranges">Preflop charts</button>
           <button class="btn" data-go="postflop:board">Board explorer</button>
+          <button class="btn" data-go="train:cbet">C-bet trainer</button>
         </div>
       </div>
       <div class="pager"></div>
@@ -882,14 +916,15 @@
   <!-- Board explorer -->
   <section class="pf-grid" id="pf-board" hidden>
     <div class="pf-inputs">
-      <p class="lede">See how two preflop ranges connect with a flop, in single-raised and 3-bet pots: who has more equity, who has more strong hands, and what that usually means for betting.</p>
+      <p class="lede">See how two preflop ranges connect with a flop, and how the turn and river change it, in single-raised and 3-bet pots: who has more equity, who has more strong hands, and what that usually means for betting.</p>
       <div class="slotgroup">
         <div class="label">Situation</div>
         <div class="bx-match" id="bx-match"></div>
       </div>
       <div class="slotgroup">
-        <div class="label">Flop</div>
+        <div class="label">Board</div>
         <div class="slots board" id="bx-flop"></div>
+        <div class="row" id="bx-streets"></div>
         <div class="row" id="bx-presets"></div>
         <div id="bx-solved-wrap" hidden>
           <label class="hint" for="bx-solved" style="display:block;margin-bottom:6px">Solver results exist for these flops</label>
@@ -897,9 +932,10 @@
         </div>
       </div>
       <div id="bx-picker-wrap" hidden>
-        <div class="label" style="margin-bottom:6px">Pick a flop card</div>
+        <div class="label" id="bx-picker-label" style="margin-bottom:6px">Pick a flop card</div>
         <div class="picker" id="bx-picker"></div>
       </div>
+      <div id="bx-next" aria-live="polite" hidden></div>
     </div>
     <aside class="panel pf-result" id="bx-result" aria-live="polite"></aside>
   </section>
@@ -1004,6 +1040,7 @@
 </main>
 
 <footer class="sitefoot">
+  <svg class="chipmark" viewBox="0 0 32 32" aria-hidden="true"><circle class="face" cx="16" cy="16" r="15"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(0 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(60 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(120 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(180 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(240 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(300 16 16)"/><circle class="ring" cx="16" cy="16" r="9.6"/></svg>
   <p>Falcon is a free study tool for 6-max cash games at 100bb. The preflop charts are hand-built approximations shaped like solver output, not exact solver data. Every equity, combo count and outs figure is calculated by Falcon's own engine. Flop strategies for BTN vs BB come from TexasSolver runs on these charts.</p>
   <p>Play responsibly, and only with money you can afford to lose.</p>
 </footer>
