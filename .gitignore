@@ -1,2 +1,6 @@
 solver/TexasSolver/
 solver/work/
+.impeccable/review/
+.impeccable/questions/
+.impeccable/hook.cache.json
+.impeccable/decision-direction.json

@@ -2,28 +2,24 @@ body{margin:0}img{max-width:100%}[hidden]{display:none!important}
 
 /* Layout: app bar with tool tabs → Ranges view (controls + 13×13 grid | hand panel) or Trainer view (table + cards + actions | session stats) */
 :root{
-  /* Warm charcoal: brown-tinted greys, tonal panels instead of outlines */
-  --bg:#1d1914; --surface:#27211b; --surface-2:#322a22; --line:#3f352b;
-  --text:#f4eadb; --text-2:#ddd0bd; --muted:#ae9f8c; --dim:#827360; --fold-ink:#9a979a;
-  /* --red is the UI accent (brick). --raise, --call and --fold are the range grid's colours and stay exact */
-  --red:#de6752; --red-soft:#f2a796; --raise:#e23b3f; --call:#6e6f78; --fold:#26262a; --bet-small:#f0857a;
-  --good:#6cc08b; --warn:#e3a64b;
-  --card:#f6ecdc; --card-ink:#1d1914; --card-red:#c43d33;
-  --r-sm:8px; --r:14px; --r-lg:20px;
-  /* Card room controls: buttons are plaques (crisp corners, lit top, a base edge that sinks on press); option groups sit in a recessed rail */
-  --r-btn:6px;
-  --hi:inset 0 1px 0 rgba(255,235,210,.08);
-  --groove:inset 0 1px 2px rgba(0,0,0,.5),inset 0 -1px 0 rgba(255,235,210,.04);
-  --rail:color-mix(in srgb,var(--bg) 72%,#000);
-  /* Signature motif: the edge inserts of a clay poker chip. Layer it over any round fill */
-  --rim:repeating-conic-gradient(from 15deg,var(--card) 0 20deg,transparent 20deg 60deg);
-  --grain:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 .86 0 0 0 0 .7 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  --lamp:radial-gradient(ellipse 70% 120% at 50% 0%,rgba(255,190,125,.09),transparent 70%);
-  --display:"Bricolage Grotesque","Figtree",system-ui,sans-serif;
-  --body:"Figtree",system-ui,sans-serif;
-  /* Numbers and hands use the body face with tabular figures */
-  --mono:"Figtree",system-ui,sans-serif;
-  color-scheme:dark;
+  /* Op Field: a living Vasarely field. Cool op-white ground, white reading plates, near-black ink,
+     ultramarine and magenta as the two field colours, orange as the rare highlight. Corners are sharp; circles are the only curves. */
+  --bg:#eef0f5; --surface:#fbfbfd; --surface-2:#e3e6ee; --line:#c9cdd8;
+  --text:#15161d; --text-2:#343846; --muted:#565c6d; --dim:#7a8091; --fold-ink:#8a90a0;
+  --ink:#15161d; --ultra:#2430d8; --magenta:#d8226a; --orange:#ff9a1f;
+  /* Grid colours: raise magenta, call ultramarine, fold is the bare square */
+  --red:var(--magenta); --red-soft:#b0154f; --raise:var(--magenta); --call:var(--ultra); --fold:#dfe2ea; --bet-small:#f07aa6;
+  --good:#0e8f63; --warn:#c96a00;
+  --card:#ffffff; --card-ink:#15161d; --card-red:#d8226a;
+  --hair:rgba(21,22,29,.07); --pair:#f2f3f8; --pair-2:#e4e7ef; --card-edge:#15161d; --field-alpha:.42; --nothing:#c9cdd8;
+  --r-sm:0px; --r:0px; --r-lg:0px; --r-btn:0px;
+  --hi:none; --groove:none; --rail:transparent; --lamp:none; --grain:none;
+  /* Signature motif: concentric rings (the op "target"), layered over any round fill */
+  --rim:repeating-radial-gradient(circle,transparent 0 2px,rgba(255,255,255,.75) 2px 3px);
+  --display:"Anybody","Hanken Grotesk",system-ui,sans-serif;
+  --body:"Hanken Grotesk",system-ui,sans-serif;
+  --mono:"Hanken Grotesk",system-ui,sans-serif;
+  color-scheme:light;
 }
 *{box-sizing:border-box}
 html{scrollbar-color:var(--line) var(--bg);accent-color:var(--red)}
@@ -440,3 +436,259 @@ ol.takeaways li::marker{font-family:var(--mono);color:var(--red)}
 .sitefoot{max-width:760px;margin:48px auto 0;padding:20px 16px 32px;font-size:12px;color:var(--muted);text-align:center}
 .sitefoot p{margin:0 0 6px}
 .sitefoot .chipmark{width:22px;height:22px;display:block;margin:0 auto 12px;opacity:.85}
+
+/* =====================================================================
+   OP FIELD. The world: a living Vasarely field. Plates are flat and sharp,
+   colour lives in the fields, text sits on calm white or op-white.
+   Controls show every option as a ghost; the chosen one is struck in ink.
+   ===================================================================== */
+body{font-size:15px;background:var(--bg)}
+:focus-visible{outline:2px solid var(--ultra);outline-offset:2px}
+::selection{background:color-mix(in srgb,var(--ultra) 22%,transparent);color:var(--text)}
+html{scrollbar-color:var(--line) var(--bg);accent-color:var(--ultra)}
+
+/* Display type: Anybody, wide and heavy, set tight */
+.summary h1,.article header h1,.article h2,.article h3,.fb .head,.hand .big,.eqbig,.brand,.pcard .rk,.pcard .c,.mc b,.score b,.outs b,.fact b{font-family:var(--display);font-stretch:118%}
+.summary h1{font-weight:850;font-size:clamp(34px,4.6vw,64px);line-height:.92;letter-spacing:-.025em}
+.article header h1{font-weight:850;font-size:clamp(40px,6vw,76px);line-height:.92;letter-spacing:-.03em;font-stretch:125%}
+.article h2{font-weight:800;font-size:clamp(30px,3.6vw,44px);line-height:.98;letter-spacing:-.02em}
+.article h3{font-weight:750;font-size:22px}
+.hand .big{font-weight:900;font-size:64px;letter-spacing:-.03em;font-stretch:125%}
+.eqbig{font-weight:850}
+.score b,.outs b,.fact b{font-weight:800}
+
+/* App bar: a white strip ruled in ink */
+.appbar{background:var(--surface);box-shadow:inset 0 -2px 0 var(--ink);padding:14px 20px}
+.brand{font-weight:900;font-size:24px;font-stretch:135%;letter-spacing:-.02em;gap:10px}
+.brand svg{width:26px;height:26px;transition:none}
+.brand:hover svg{transform:none}
+.opmark .sq{fill:var(--ultra)}
+.opmark .disc{fill:var(--magenta);transform-origin:16px 16px;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.opmark .core{fill:var(--bg)}
+.brand:hover .opmark .disc{transform:scale(.72)}
+.sitefoot .opmark{width:22px;height:22px;display:block;margin:0 auto 12px}
+
+/* Ghost and struck: tabs, rails, chips */
+.tab{border-radius:0;color:var(--muted);font-weight:600;padding:7px 14px;transition:color .2s,background .2s}
+.tab:hover:not([disabled]){color:var(--ink)}
+.tab[aria-current="page"]{background:var(--ink);color:var(--surface);font-weight:700}
+.seg{background:transparent;border-radius:0;box-shadow:inset 0 0 0 1.5px var(--ink);padding:3px}
+.seg button{border-radius:0;color:var(--muted);transition:color .25s}
+.seg button:hover:not([aria-pressed="true"]){color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface);box-shadow:none}
+.seg.slides button[aria-pressed="true"]{background:none;color:var(--surface)}
+.seg-thumb{border-radius:0;background:var(--ink);box-shadow:none}
+.chip{border-radius:0;border:1px solid var(--line);background:transparent;color:var(--text-2);box-shadow:none;transition:background .2s,color .2s,border-color .2s}
+.chip:hover{color:var(--ink);background:var(--surface);border-color:var(--ink)}
+.chip:active:not([disabled]){transform:none;box-shadow:none}
+.chip[aria-pressed="true"]{transform:none;box-shadow:none;background:var(--ink);border-color:var(--ink);color:var(--surface)}
+
+/* Buttons: ruled rectangles; the primary is solid ink */
+.btn{border-radius:0;background:transparent;box-shadow:inset 0 0 0 1.5px var(--ink);color:var(--ink);transition:background .2s,color .2s}
+.btn:hover{filter:none;background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.btn:active{transform:none;box-shadow:inset 0 0 0 1.5px var(--ink)}
+.btn.primary{background:var(--ink);color:var(--surface);box-shadow:none}
+.btn.primary:hover{background:var(--ultra)}
+.btn.primary:active{box-shadow:none}
+
+/* Action buttons: enamel blocks in the field colours */
+.act{border-radius:0;box-shadow:none;transition:opacity .2s,background .2s;font-family:var(--display);font-stretch:115%;font-weight:750;font-size:17px}
+.act:hover:not([disabled]){filter:none;opacity:.9}
+.act:active:not([disabled]){transform:none;box-shadow:none}
+.act.fold{background:transparent;color:var(--ink);box-shadow:inset 0 0 0 2px var(--ink)}
+.act.call{background:var(--ultra);color:#fff}
+.act.raise{background:var(--magenta);color:#fff}
+.act[disabled]{opacity:.22;box-shadow:none}
+.act.fold[disabled]{box-shadow:inset 0 0 0 2px var(--ink)}
+.act.picked{transform:none;outline:3px solid var(--ink);outline-offset:3px}
+.act.fold.picked{box-shadow:inset 0 0 0 2px var(--ink)}
+.act kbd{font-family:var(--body)}
+
+/* Plates */
+.panel{background:var(--surface);border-radius:0;box-shadow:0 0 0 1px var(--hair)}
+.infobox,.score,.fact,.outs div,.log button,.example,.recap,.calc,.step,.steps li,.ri,.bk,.insight{border-radius:0}
+.score,.fact,.outs div,.log button,.infobox,.insight{background:var(--bg)}
+.calc,.example,.recap,.step,.steps li,.ri,.bk{background:var(--surface);box-shadow:0 0 0 1px var(--hair)}
+.ri:hover{background:var(--surface);box-shadow:0 0 0 1.5px var(--ink)}
+.practice{border:1.5px dashed var(--ink);border-radius:0}
+.note{border-top-color:var(--line)}
+
+/* The trainer table: a white plate under a band of op discs */
+/* Trainer tables: a plain two-row ink checkerboard along the top edge */
+.felt{position:relative;border-radius:0;box-shadow:0 0 0 1px var(--hair);padding-top:42px;
+  background:repeating-conic-gradient(var(--ink) 0 25%,transparent 0 50%) 0 0/22px 22px repeat-x,var(--surface)}
+.seats .seat{border-radius:0;background:var(--bg)}
+.seat.hero{background:var(--magenta);border-color:var(--magenta);color:#fff}
+.seat.vil{border-color:var(--ink)}
+.sit b{color:var(--magenta)}
+
+/* Feedback: a plate ruled in the grade colour, its marker an op target */
+.fb{border-radius:0;background:var(--surface);border-width:2px}
+.fb.good{border-color:var(--good)}.fb.ok{border-color:var(--warn)}.fb.bad{border-color:var(--magenta)}
+.fb .head{font-weight:800;font-size:28px;letter-spacing:-.015em}
+.fb .dot{box-shadow:none}
+.fb .dot::after{-webkit-mask:none;mask:none;background:repeating-radial-gradient(circle,transparent 0 2.5px,rgba(255,255,255,.85) 2.5px 4px)}
+
+/* The range field: 169 plastic units. A square holding a disc whose area is the frequency */
+.grid{gap:3px}
+.cell{border-radius:0;background:var(--surface);color:var(--ink);text-shadow:none;overflow:hidden;transition:none}
+.cell.pair{background:var(--pair)}
+.cell .u{position:absolute;inset:0;pointer-events:none;scale:var(--lens,1);transition:scale .35s cubic-bezier(.16,1,.3,1);
+  background:radial-gradient(circle closest-side,var(--ca) 0 calc(var(--a,0)*88%),var(--cb) calc(var(--a,0)*88%) calc(var(--b,0)*88%),transparent calc(var(--b,0)*88% + 1px))}
+.cell .r,.cell .s{position:relative;z-index:1}
+.cell.lit{color:#fff}
+.cell.zero{color:var(--dim)}
+.cell:hover{transform:none}
+.cell[aria-pressed="true"]{outline:none;z-index:3}
+/* The selected hand gets an ink frame drawn inside its square, so the grid's scroll box can't clip it */
+.cell[aria-pressed="true"]::after{content:"";position:absolute;inset:0;box-shadow:inset 0 0 0 3px var(--ink);z-index:4;pointer-events:none}
+.rd-grid .cell[aria-pressed="true"]::after{content:none}
+.rd-grid .cell[aria-pressed="true"]{outline:none}
+.cell.unopened{opacity:.28}
+.lensing .cell .u{transition:scale .12s linear}
+.sweep .cell .u{animation:unit-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc((var(--i) + var(--j)) * 20ms)}
+@keyframes unit-in{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+.bar{height:10px;border-radius:0;background:var(--fold)}
+.axis{color:var(--muted)}
+.rd-grid .cell.rd-extra{outline:2px solid var(--magenta);outline-offset:-2px;color:var(--ink)}
+.rd-grid .cell.rd-miss{outline:2px dashed var(--ink);outline-offset:-3px}
+
+/* Playing cards: white stock ruled in ink; the back is an op target */
+.pcard,.mc{border-radius:4px;background:var(--card);box-shadow:inset 0 0 0 1.5px var(--card-edge)}
+.pcard{box-shadow:inset 0 0 0 1.5px var(--ink),8px 8px 0 -2px color-mix(in srgb,var(--ultra) 18%,transparent)}
+.mc.back{border:0;background:repeating-radial-gradient(circle at 50% 50%,var(--ultra) 0 3px,var(--surface) 3px 6px);box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4.5px var(--ink)}
+.mc.xs{box-shadow:inset 0 0 0 1px var(--ink)}
+.fan .mc{box-shadow:inset 0 0 0 1.5px var(--ink),3px 3px 0 0 var(--bg)}
+
+/* Bars, tables, inputs: flat and ruled */
+.split,.pbar,.potbar,.eq,.freq .track,.leak .track,.seatbar .t,.re-eq i{border-radius:0}
+.split{background:var(--fold)}
+.tag,.tag2,.rl{border-radius:0}
+.tag2{background:var(--bg)}
+.select,.tinput{border-radius:0;background:var(--surface);border:1.5px solid var(--ink);box-shadow:none}
+.slot{border-radius:4px;border-color:var(--ink)}
+.slot.active{border:2px solid var(--ink);background:var(--surface-2)}
+.pk{border-radius:0;background:var(--surface);box-shadow:inset 0 0 0 1px var(--line);color:var(--ink)}
+.pk.red{color:var(--magenta)}
+.pk:hover:not([disabled]){background:var(--surface);box-shadow:inset 0 0 0 1.5px var(--ink);border-color:transparent}
+.nextmap .pk{box-shadow:none}
+.nextmap .pk.on{color:#fff}
+
+/* Theory path: numbers become discs; the current chapter is struck in magenta */
+.path button{border-left-color:var(--line)}
+.path button b{border-radius:50%;background:var(--surface-2);color:var(--ink)}
+.path button[aria-current]{border-left-color:var(--ink)}
+.path button[aria-current] b{background:var(--magenta);color:#fff}
+.path button:hover{border-left-color:var(--ink)}
+.steps li::before,.step>b{color:#fff}
+.formula{border-radius:0;background:var(--surface);box-shadow:inset 3px 0 0 var(--ultra)}
+.article a{text-decoration-color:var(--ultra)}
+.article p,.takeaways{font-size:16px}
+
+/* The living ground: a dot field in the page gutters (js/opfield.js) */
+#opfield{position:fixed;inset:0;z-index:-1;pointer-events:none;width:100vw;height:100vh;
+  -webkit-mask:linear-gradient(to right,#000 0,#000 calc(50% - 660px),transparent calc(50% - 600px),transparent calc(50% + 600px),#000 calc(50% + 660px));
+          mask:linear-gradient(to right,#000 0,#000 calc(50% - 660px),transparent calc(50% - 600px),transparent calc(50% + 600px),#000 calc(50% + 660px))}
+
+@media (prefers-reduced-motion:reduce){.sweep .cell .u{animation:none}.cell .u,.opmark .disc{transition:none}}
+.hand .meta{white-space:nowrap}
+.article h2{line-height:1.06}
+.article header h1{line-height:.96}
+.hand .big{font-size:clamp(44px,4.2vw,56px);font-stretch:112%}
+.hand .meta{white-space:normal;min-width:62px}
+.cell:not(.lit):not(.zero){text-shadow:0 0 2px var(--surface),0 0 3px var(--surface),0 0 5px var(--surface)}
+.tab[aria-current="page"]:hover{color:var(--surface)}
+.chip[aria-pressed="true"]:hover{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+.split.tall span,.potbar span,.eq span{color:#fff}
+
+/* Review fixes */
+.cell .lab{position:relative;z-index:1;display:inline-flex;align-items:flex-end;line-height:1;padding:1px 2px}
+.cell .lab .s{align-self:flex-end;margin:0 0 -.1em 1px}
+.cell:not(.lit):not(.zero){text-shadow:none}
+.pcard,.mc,.slot,.fan .mc{border-radius:0}
+.pcard{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.fan .mc{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.insight .label,.example .label,.recap .label,.lvl{color:var(--ink)}
+.formula{box-shadow:inset 0 0 0 1.5px var(--ink)}
+.path button{border-left-width:1px}
+.nextmap .pk.on{color:#fff}
+@media (max-width:420px){.grid{grid-template-columns:repeat(13,minmax(0,1fr));gap:2px;min-width:0}.cell .lab{padding:0 1px}}
+
+/* Figure and ground: ink label, with a white copy clipped to the disc (radius = outer share x 44% of the square, times the lens) */
+.cell,.cell.lit{color:var(--ink)}
+.cell.zero{color:var(--dim)}
+.cell .inv{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;pointer-events:none;
+  clip-path:circle(calc(var(--b,0) * var(--lens,1) * 44%) at 50% 50%);transition:clip-path .35s cubic-bezier(.16,1,.3,1)}
+.lensing .cell .inv{transition:clip-path .12s linear}
+.sweep .cell .inv{animation:inv-in .6s cubic-bezier(.16,1,.3,1) both;animation-delay:calc((var(--i) + var(--j)) * 20ms)}
+@keyframes inv-in{from{clip-path:circle(0 at 50% 50%)}}
+/* Bar labels: white on the saturated field colours, ink on the light bet-33% segment, everywhere */
+.split span[style*="--bet-small"]{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){.sweep .cell .inv{animation:none}.cell .inv{transition:none}}
+.cell.full .inv{clip-path:none;animation:none}
+.cell.full>.lab{visibility:hidden}
+.rd-grid .cell{background:var(--bg)}
+.rd-grid .cell.pair{background:var(--pair-2)}
+.cell .inv{z-index:2}
+.cell.zero,.rd-grid .cell.zero{color:var(--muted)}
+.mc.sm,.mc.xs,.sw,.toc a{border-radius:0}
+@media (max-width:900px){.path button,.path .gl{border-radius:0}}
+
+/* ---------- Dark: Op Field at night. Deep ink-navy ground, the same two field colours lifted to glow,
+   white playing cards. Toggled by the switch in the app bar (data-theme on <html>, saved in localStorage) ---------- */
+:root[data-theme="dark"]{
+  --bg:#0f1120; --surface:#171a2c; --surface-2:#22263b; --line:#30354f;
+  --text:#eceef6; --text-2:#c4c8da; --muted:#9ba1b9; --dim:#7b819b; --fold-ink:#7b819b;
+  --ink:#eceef6; --ultra:#5361ff; --magenta:#e8357f;
+  --fold:#262a40; --bet-small:#f27fae;
+  --good:#3cc58f; --warn:#f0a03a;
+  --red-soft:#ff8fb8;
+  --hair:rgba(255,255,255,.06); --pair:#1d2034; --pair-2:#1b1e31; --card-edge:#15161d; --field-alpha:.5; --nothing:#4a506c;
+  color-scheme:dark;
+}
+.pcard,.fan .mc,.mc.xs{box-shadow:inset 0 0 0 1.5px var(--card-edge)}
+.mc.back{box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4.5px var(--ink)}
+:root[data-theme="dark"] .mc.back{background:repeating-radial-gradient(circle at 50% 50%,var(--ultra) 0 3px,#0f1120 3px 6px)}
+:root[data-theme="dark"] .cell.lit,:root[data-theme="dark"] .cell .inv{color:#fff}
+:root[data-theme="dark"] .appbar{box-shadow:inset 0 -2px 0 var(--line)}
+
+/* The theme switch: two tiny plastic units, the active one struck */
+.theme-switch{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:none;border:0;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;padding:6px 4px}
+.theme-switch:hover{color:var(--ink)}
+.theme-switch .ts{display:inline-grid;grid-template-columns:18px 18px;gap:2px;padding:2px;box-shadow:inset 0 0 0 1.5px var(--ink)}
+.theme-switch .ts i{width:18px;height:18px;display:block;background:radial-gradient(circle closest-side,var(--ink) 0 55%,transparent 60%)}
+.theme-switch .ts i.on{background:radial-gradient(circle closest-side,var(--surface) 0 55%,transparent 60%),var(--ink)}
+:root[data-theme="dark"] .btn.primary:hover{color:#fff}
+/* Large card ranks at normal width so "10" clears the corner index */
+.pcard .rk{font-stretch:100%;letter-spacing:-.04em}
+
+/* Effects switch: a pause glyph (two bars) that becomes a play triangle when effects are off */
+.theme-switch{margin-left:0}
+.fx-switch{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:none;border:0;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;padding:6px 4px}
+.fx-switch:hover{color:var(--ink)}
+.fx-icon{width:24px;height:24px;display:inline-block;box-shadow:inset 0 0 0 1.5px var(--ink);
+  background:linear-gradient(var(--ink),var(--ink)) 8px 7px/3px 10px no-repeat,linear-gradient(var(--ink),var(--ink)) 13px 7px/3px 10px no-repeat}
+.fx-icon{position:relative}
+.fx-switch[aria-pressed="true"] .fx-icon{background:none}
+.fx-switch[aria-pressed="true"] .fx-icon::before{content:"";position:absolute;top:6px;bottom:6px;left:8px;right:5px;background:var(--ink);clip-path:polygon(0 0,100% 50%,0 100%)}
+/* Paused: no sweep, no lens, no toss */
+:root[data-fx="off"] .sweep .cell .u,:root[data-fx="off"] .sweep .cell .inv,:root[data-fx="off"] .fb .dot,:root[data-fx="off"] .pcard{animation:none}
+:root[data-fx="off"] .cell .u,:root[data-fx="off"] .cell .inv{transition:none}
+@media (max-width:640px){.fx-switch .fx-label,.theme-switch #theme-label{display:none}}
+
+/* Dots switch: a 2 x 2 dot glyph; hidden shows the same dots as ghosts */
+.fx-switch{margin-left:0}
+.dots-switch{margin-left:auto;display:inline-flex;align-items:center;gap:8px;background:none;border:0;cursor:pointer;color:var(--muted);font-weight:600;font-size:13px;padding:6px 4px}
+.dots-switch:hover{color:var(--ink)}
+.dots-icon{width:24px;height:24px;display:inline-block;box-shadow:inset 0 0 0 1.5px var(--ink);background:radial-gradient(circle at 8.5px 8.5px,var(--ink) 0 2.3px,transparent 2.8px),radial-gradient(circle at 15.5px 8.5px,var(--ink) 0 2.3px,transparent 2.8px),radial-gradient(circle at 8.5px 15.5px,var(--ink) 0 2.3px,transparent 2.8px),radial-gradient(circle at 15.5px 15.5px,var(--ink) 0 2.3px,transparent 2.8px)}
+.dots-switch[aria-pressed="true"] .dots-icon{background:radial-gradient(circle at 8.5px 8.5px,transparent 0 1.4px,var(--ink) 1.7px 2.4px,transparent 2.9px),radial-gradient(circle at 15.5px 8.5px,transparent 0 1.4px,var(--ink) 1.7px 2.4px,transparent 2.9px),radial-gradient(circle at 8.5px 15.5px,transparent 0 1.4px,var(--ink) 1.7px 2.4px,transparent 2.9px),radial-gradient(circle at 15.5px 15.5px,transparent 0 1.4px,var(--ink) 1.7px 2.4px,transparent 2.9px)}
+:root[data-dots="off"] #opfield{display:none}
+@media (max-width:640px){.dots-switch .dots-label{display:none}}
+
+/* Right-answer celebration (js/opfield.js): a fixed layer above everything, never catching the pointer */
+.fx-layer{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.fx-ring{position:absolute;box-shadow:0 0 0 3px var(--good);transform-origin:center}
+.fx-bit{position:absolute;display:block;will-change:transform,opacity}
+.fx-bit.disc{border-radius:50%;background:var(--c)}
+.fx-bit.square{background:var(--c)}
+.fx-bit.ring{border-radius:50%;box-shadow:inset 0 0 0 2px var(--c)}

@@ -98,6 +98,23 @@ document.querySelectorAll(".seg").forEach(seg => {
   place();
 });
 
+/* Light / dark switch. The choice is saved; the first visit follows the system setting (set in <head> before paint) */
+function setTheme(t) {
+  document.documentElement.dataset.theme = t;
+  document.querySelector('meta[name="theme-color"]').content = t === "dark" ? "#0f1120" : "#eef0f5";
+  const b = document.getElementById("theme-switch");
+  b.setAttribute("aria-pressed", t === "dark");
+  b.querySelectorAll("[data-t]").forEach(i => i.classList.toggle("on", i.dataset.t === t));
+  document.getElementById("theme-label").textContent = t === "dark" ? "Light" : "Dark";
+  b.setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+}
+setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+document.getElementById("theme-switch").onclick = () => {
+  const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  setTheme(t);
+  try { localStorage.setItem("falcon-theme", t); } catch (e) {}
+};
+
 render();
 /* Open the view named in the address, e.g. #theory/combos or #trainer/read */
 function route() {

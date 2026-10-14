@@ -29,13 +29,14 @@ function render(){
   const rng=getRange(spotFromState());
   const tot={raise:0,call:0,fold:0};let all=0;
   const g=document.getElementById("grid");g.innerHTML="";
+  const key=JSON.stringify(spotFromState());g.classList.toggle("sweep",key!==render.lastKey);render.lastKey=key;
   for(let i=0;i<13;i++)for(let j=0;j<13;j++){
     const h=handAt(i,j),f=freqs(rng,h),c=combos(h),w=rng.open?(rng.open[h]||0):1;
     tot.raise+=f.raise*c*w;tot.call+=f.call*c*w;tot.fold+=f.fold*c*w;all+=c*w;
     const b=document.createElement("button");
     b.className="cell"+(f.fold>=0.999?" zero":"")+(i===j?" pair":"")+(w?"":" unopened");
-    b.innerHTML=`<span class="r">${h.slice(0,2)}</span>${h.length===3?`<span class="s">${h[2]}</span>`:""}`;
-    b.style.background=bg(f);b.setAttribute("aria-pressed",h===state.sel);
+    b.innerHTML=unitHTML(h);b.style.setProperty("--i",i);b.style.setProperty("--j",j);
+    setUnit(b,f.raise,f.raise+f.call,"var(--raise)","var(--call)");b.setAttribute("aria-pressed",h===state.sel);
     b.setAttribute("aria-label",w?`${h}: ${rng.labels.raise} ${pct(f.raise)}${rng.vs?`, call ${pct(f.call)}`:""}, fold ${pct(f.fold)}`:`${h}: not in ${rng.hero}'s opening range`);
     b.onclick=()=>{state.sel=h;render();};
     g.appendChild(b);

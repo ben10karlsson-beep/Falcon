@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Falcon · Poker study app</title>
 <meta name="description" content="Learn the math and strategy of No-Limit Hold'em: preflop ranges, graded trainers, an equity calculator and a theory course that explains why.">
-<meta name="theme-color" content="#27211b">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23de6752'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(0 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(60 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(120 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(180 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(240 16 16)'/%3E%3Crect x='13.6' y='1' width='4.8' height='5.2' rx='1' fill='%23f6ecdc' transform='rotate(300 16 16)'/%3E%3Ccircle cx='16' cy='16' r='9.6' fill='none' stroke='%23f6ecdc' stroke-width='1.6'/%3E%3C/svg%3E">
+<meta name="theme-color" content="#eef0f5">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232430d8'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23d8226a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23eef0f5'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Falcon · Poker study app">
 <meta property="og:description" content="Learn the math and strategy of No-Limit Hold'em: preflop ranges, graded trainers, an equity calculator and a theory course that explains why.">
@@ -17,11 +17,12 @@
 <meta property="og:image:alt" content="Falcon: poker math and strategy, explained. Shows the button opening range grid.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,300..900&family=Hanken+Grotesk:wght@400..700&display=swap">
 <link rel="stylesheet" href="css/falcon.css">
+<script>try{var t=localStorage.getItem("falcon-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;document.documentElement.dataset.fx=localStorage.getItem("falcon-fx")==="off"?"off":"on";document.documentElement.dataset.dots=localStorage.getItem("falcon-dots")==="off"?"off":"on"}catch(e){}</script>
 </head>
 <body><header class="appbar">
-  <div class="brand"><svg class="chipmark" viewBox="0 0 32 32" aria-hidden="true"><circle class="face" cx="16" cy="16" r="15"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(0 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(60 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(120 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(180 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(240 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(300 16 16)"/><circle class="ring" cx="16" cy="16" r="9.6"/></svg>Falcon</div>
+  <div class="brand"><svg class="opmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" class="sq"/><circle cx="16" cy="16" r="11" class="disc"/><circle cx="16" cy="16" r="5" class="core"/></svg>Falcon</div>
   <nav class="tabs" aria-label="Tools">
     <button class="tab" id="t-ranges" aria-current="page">Preflop ranges</button>
     <button class="tab" id="t-train">Trainer</button>
@@ -29,6 +30,9 @@
     <button class="tab" id="t-theory">Theory</button>
     <button class="tab" id="t-resources">Resources</button>
   </nav>
+  <button class="dots-switch" id="dots-switch" type="button" aria-pressed="false" title="Show or hide the dots in the page margins"><span class="dots-icon" aria-hidden="true"></span><span class="dots-label">Hide dots</span></button>
+  <button class="fx-switch" id="fx-switch" type="button" aria-pressed="false" title="Pause or play the moving effects"><span class="fx-icon" aria-hidden="true"></span><span class="fx-label">Pause effects</span></button>
+  <button class="theme-switch" id="theme-switch" type="button" aria-pressed="false" title="Switch between light and dark"><span class="ts" aria-hidden="true"><i data-t="light"></i><i data-t="dark"></i></span><span id="theme-label">Dark</span></button>
 </header>
 
 <!-- RANGES VIEW -->
@@ -297,9 +301,8 @@
     <!-- 1 -->
     <section class="chapter" data-ch="equity" hidden>
       <div class="ch-head">
-        <span class="label">Chapter 1 of 7</span>
         <h2>Equity: how often you win</h2>
-        <p class="builds">Builds on: nothing. Start here.</p>
+        <p class="builds">Chapter 1 of 7 · Builds on: nothing. Start here.</p>
       </div>
       <p><strong>Equity</strong> is your share of the pot if all the remaining cards were dealt right now. If you would win 30% of the time, you own 30% of the pot on average. A tie counts as half a win.</p>
       <p>Equity is the number everything else in this page is built on. Chapters 3 and 6 compare it with the price of a call, and chapter 5 averages it over all the hands your opponent could have.</p>
@@ -331,9 +334,8 @@
     <!-- 2 -->
     <section class="chapter" data-ch="outs" hidden>
       <div class="ch-head">
-        <span class="label">Chapter 2 of 7</span>
         <h2>Outs: your equity when you're behind</h2>
-        <p class="builds">Builds on: <a href="#theory/equity" data-ch="equity">1. Equity</a></p>
+        <p class="builds">Chapter 2 of 7 · Builds on: <a href="#theory/equity" data-ch="equity">1. Equity</a></p>
       </div>
       <p>After the flop, when you're behind, your equity comes from the cards that would put you ahead. An <strong>out</strong> is a card that should give you the best hand. Count your outs and you can estimate your equity without a calculator.</p>
       <p>The quick estimate is the <strong>rule of 4 and 2</strong>: on the flop, multiply your outs by 4 to estimate your chance of hitting by the river. On the turn, with one card to come, multiply by 2.</p>
@@ -370,9 +372,8 @@
     <!-- 3 -->
     <section class="chapter" data-ch="price" hidden>
       <div class="ch-head">
-        <span class="label">Chapter 3 of 7</span>
         <h2>The price: pot odds and EV</h2>
-        <p class="builds">Builds on: <a href="#theory/equity" data-ch="equity">1. Equity</a> · <a href="#theory/outs" data-ch="outs">2. Outs</a></p>
+        <p class="builds">Chapter 3 of 7 · Builds on: <a href="#theory/equity" data-ch="equity">1. Equity</a> · <a href="#theory/outs" data-ch="outs">2. Outs</a></p>
       </div>
       <p>Equity tells you how often you win. The <strong>price</strong> tells you how often you <em>need</em> to win for a call to pay off. Every call decision is just a comparison of the two.</p>
       <p>Throughout Falcon, <strong>the pot</strong> means every chip in the middle before you call, including the bet you're facing. You risk your call to win the pot:</p>
@@ -466,9 +467,8 @@
     <!-- 4 -->
     <section class="chapter" data-ch="combos" hidden>
       <div class="ch-head">
-        <span class="label">Chapter 4 of 7</span>
         <h2>Combos and blockers</h2>
-        <p class="builds">Builds on: nothing new, it's just counting. Chapter 5 uses it to weigh your equity.</p>
+        <p class="builds">Chapter 4 of 7 · Builds on: nothing new, it's just counting. Chapter 5 uses it to weigh your equity.</p>
       </div>
       <p>At a real table you never see the other player's cards. You think about every hand they could have, their <strong>range</strong>. But a range isn't a list where every hand counts the same: some hands get dealt far more often than others. To weigh them you count <strong>combos</strong>.</p>
       <p>A combo is one exact pair of cards, suits included. A♠K♥ and A♦K♣ are both "AK", but they are two different combos. You never count combos one at a time: you learn three numbers, count ranges in chunks, and adjust for the cards you can see.</p>
@@ -599,9 +599,8 @@
     <!-- 5 -->
     <section class="chapter" data-ch="range" hidden>
       <div class="ch-head">
-        <span class="label">Chapter 5 of 7</span>
         <h2>Equity against a range</h2>
-        <p class="builds">Builds on: <a href="#theory/equity" data-ch="equity">1. Equity</a> · <a href="#theory/combos" data-ch="combos">4. Combos and blockers</a></p>
+        <p class="builds">Chapter 5 of 7 · Builds on: <a href="#theory/equity" data-ch="equity">1. Equity</a> · <a href="#theory/combos" data-ch="combos">4. Combos and blockers</a></p>
       </div>
       <p>Chapter 1 gave you your equity against one hand. At the table you ask a different question: what's my equity against <strong>every hand they could have</strong>? The answer is an average of chapter 1 equities, weighted by the combos from chapter 4.</p>
       <ol class="takeaways">
@@ -725,9 +724,8 @@
     <!-- 6 -->
     <section class="chapter" data-ch="together" hidden>
       <div class="ch-head">
-        <span class="label">Chapter 6 of 7</span>
         <h2>Putting it together: calling against a range</h2>
-        <p class="builds">Builds on: <a href="#theory/price" data-ch="price">3. Pot odds and EV</a> · <a href="#theory/range" data-ch="range">5. Equity against a range</a></p>
+        <p class="builds">Chapter 6 of 7 · Builds on: <a href="#theory/price" data-ch="price">3. Pot odds and EV</a> · <a href="#theory/range" data-ch="range">5. Equity against a range</a></p>
       </div>
       <p>This is where everything joins up. Facing a bet at a real table, you answer three questions:</p>
       <div class="steps">
@@ -781,9 +779,8 @@
     <!-- 7 -->
     <section class="chapter" data-ch="strategy" hidden>
       <div class="ch-head">
-        <span class="label">Chapter 7 of 7</span>
         <h2>Ranges and strategy</h2>
-        <p class="builds">Builds on: <a href="#theory/price" data-ch="price">3. Pot odds and EV</a> · <a href="#theory/range" data-ch="range">5. Equity against a range</a></p>
+        <p class="builds">Chapter 7 of 7 · Builds on: <a href="#theory/price" data-ch="price">3. Pot odds and EV</a> · <a href="#theory/range" data-ch="range">5. Equity against a range</a></p>
       </div>
       <p>The first six chapters were about one decision: should I call? This one zooms out to how the same ideas shape the charts and a whole strategy.</p>
 
@@ -1040,7 +1037,7 @@
 </main>
 
 <footer class="sitefoot">
-  <svg class="chipmark" viewBox="0 0 32 32" aria-hidden="true"><circle class="face" cx="16" cy="16" r="15"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(0 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(60 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(120 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(180 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(240 16 16)"/><rect class="ink" x="13.6" y="1" width="4.8" height="5.2" rx="1" transform="rotate(300 16 16)"/><circle class="ring" cx="16" cy="16" r="9.6"/></svg>
+  <svg class="opmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" class="sq"/><circle cx="16" cy="16" r="11" class="disc"/><circle cx="16" cy="16" r="5" class="core"/></svg>
   <p>Falcon is a free study tool for 6-max cash games at 100bb. The preflop charts are hand-built approximations shaped like solver output, not exact solver data. Every equity, combo count and outs figure is calculated by Falcon's own engine. Flop strategies for BTN vs BB come from TexasSolver runs on these charts.</p>
   <p>Play responsibly, and only with money you can afford to lose.</p>
 </footer>
@@ -1053,6 +1050,7 @@
 <script src="js/solved.js"></script>
 <script src="js/postflop.js"></script>
 <script src="js/app.js"></script>
+<script src="js/opfield.js"></script>
 <script>
   // GoatCounter analytics (no cookies). Falcon's views live in the address hash (#trainer/read, #theory/...), which GoatCounter ignores by default
   window.goatcounter = {path: function () { return location.pathname + location.hash; }};

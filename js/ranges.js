@@ -99,11 +99,18 @@ function getRange(spot){
 function freqs(rng,h){const r=rng.raise[h]||0;const c=Math.min(rng.call[h]||0,1-r);return{raise:r,call:c,fold:Math.max(0,1-r-c)};}
 const pct=x=>(Math.round(x*1000)/10).toFixed(1).replace(".0","")+"%";
 
-function bg(f){
-  if(f.fold>=0.999)return"var(--fold)";
-  const a=f.raise*100,b=a+f.call*100;
-  return`linear-gradient(to right,var(--raise) 0 ${a}%,var(--call) ${a}% ${b}%,var(--fold) ${b}% 100%)`;
+/* A grid square as an op-art "plastic unit": a disc whose area is the inner share (colour ca),
+   ringed by a second colour out to the outer share (cb). Area, not radius, carries the frequency. */
+function setUnit(el,inner,outer,ca,cb){
+  el.style.setProperty("--a",Math.sqrt(Math.max(0,inner)).toFixed(3));
+  el.style.setProperty("--b",Math.sqrt(Math.max(0,outer)).toFixed(3));
+  // No ring when there is nothing between the two shares (avoids a hairline fringe of the ring colour)
+  el.style.setProperty("--ca",ca);el.style.setProperty("--cb",outer-inner>0.005?(cb||ca):ca);
+  el.classList.toggle("lit",outer>=0.6);el.classList.toggle("full",outer>=0.9); // a full disc carries the whole white label, unclipped
 }
+/* The label is drawn twice: ink underneath, and a white copy clipped to the disc, so it inverts exactly at the disc's edge */
+const unitHTML=h=>{const lab=`<span class="r">${h.slice(0,2)}</span>${h.length===3?`<span class="s">${h[2]}</span>`:""}`;
+  return`<span class="u" aria-hidden="true"></span><span class="lab">${lab}</span><span class="inv" aria-hidden="true"><span class="lab">${lab}</span></span>`;};
 
 /* Every grid square, and the range presets used by the equity calculators. */
 const ALL_HANDS=[];

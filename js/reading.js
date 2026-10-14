@@ -61,20 +61,20 @@
   }
 
   /* One cell's look. While painting: painted or not. After checking: your range, the chart, or the differences. */
+  /* Each square is a plastic unit: share is the disc's area (0..1), col its colour */
   function cellStyle(h){
     const g=rd.guess[h]||0,f=rd.cur.chart[h]||0,col=rd.cur.color;
-    const part=x=>x>=0.999?col:`linear-gradient(to right,${col} 0 ${x*100}%,var(--fold) ${x*100}% 100%)`;
-    if(!rd.checked||rd.view==="you")return{bg:g?col:"var(--fold)",cls:g?"":"zero",label:g?"in your range":"not in your range"};
-    if(rd.view==="chart")return{bg:f?part(f):"var(--fold)",cls:f?"":"zero",label:f?`chart plays it ${pct(f)}`:"chart folds it"};
-    if(g&&f)return{bg:part(f),cls:"",label:`in both${f<1?`, chart plays it ${pct(f)}`:""}`};
-    if(f)return{bg:`color-mix(in srgb,${col} 35%,var(--fold))`,cls:"rd-miss",label:`missed, chart plays it ${pct(f)}`};
-    if(g)return{bg:"var(--fold)",cls:"zero rd-extra",label:"extra, the chart doesn't play it"};
-    return{bg:"var(--fold)",cls:"zero",label:"not in either"};
+    if(!rd.checked||rd.view==="you")return{share:g?1:0,col,cls:g?"":"zero",label:g?"in your range":"not in your range"};
+    if(rd.view==="chart")return{share:f,col,cls:f?"":"zero",label:f?`chart plays it ${pct(f)}`:"chart folds it"};
+    if(g&&f)return{share:f,col,cls:"",label:`in both${f<1?`, chart plays it ${pct(f)}`:""}`};
+    if(f)return{share:f,col:`color-mix(in srgb,${col} 35%,var(--fold))`,cls:"rd-miss",label:`missed, chart plays it ${pct(f)}`};
+    if(g)return{share:0,col,cls:"zero rd-extra",label:"extra, the chart doesn't play it"};
+    return{share:0,col,cls:"zero",label:"not in either"};
   }
   function paintCell(b){
     const h=b.dataset.h,st=cellStyle(h);
     b.className="cell"+(h.length===2?" pair":"")+(st.cls?" "+st.cls:"");
-    b.style.background=st.bg;
+    setUnit(b,st.share,st.share,st.col);
     b.setAttribute("aria-label",`${h}: ${st.label}`);
     b.setAttribute("aria-pressed",!!rd.guess[h]);
   }
@@ -82,7 +82,7 @@
     const g=$("rd-grid");
     if(!g.children.length){
       let html="";
-      for(let i=0;i<13;i++)for(let j=0;j<13;j++){const h=handAt(i,j);html+=`<button class="cell" data-h="${h}"><span class="r">${h.slice(0,2)}</span>${h.length===3?`<span class="s">${h[2]}</span>`:""}</button>`;}
+      for(let i=0;i<13;i++)for(let j=0;j<13;j++){const h=handAt(i,j);html+=`<button class="cell" data-h="${h}" style="--i:${i};--j:${j}">${unitHTML(h)}</button>`;}
       g.innerHTML=html;
     }
     g.classList.toggle("locked",rd.checked);

@@ -1,0 +1,175 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-14T12:00:00Z",
+  "title": "Design System: Falcon (Op Field)",
+  "extensions": {
+    "colorMeta": {
+      "op-white": { "role": "neutral", "displayName": "Op-White", "canonical": "#eef0f5", "tonalRamp": ["oklch(15% 0.008 270)", "oklch(27% 0.008 270)", "oklch(39% 0.008 270)", "oklch(51% 0.008 270)", "oklch(63% 0.008 270)", "oklch(75% 0.008 270)", "oklch(87% 0.008 270)", "oklch(95.5% 0.008 270)"] },
+      "plate-white": { "role": "neutral", "displayName": "Plate White", "canonical": "#fbfbfd", "tonalRamp": ["oklch(15% 0.003 270)", "oklch(27% 0.003 270)", "oklch(39% 0.003 270)", "oklch(51% 0.003 270)", "oklch(63% 0.003 270)", "oklch(75% 0.003 270)", "oklch(87% 0.003 270)", "oklch(99% 0.003 270)"] },
+      "rail-grey": { "role": "neutral", "displayName": "Rail Grey", "canonical": "#e3e6ee" },
+      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#c9cdd8" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#15161d", "tonalRamp": ["oklch(15% 0.015 280)", "oklch(20% 0.015 280)", "oklch(32% 0.015 280)", "oklch(45% 0.015 280)", "oklch(58% 0.015 280)", "oklch(71% 0.015 280)", "oklch(84% 0.015 280)", "oklch(95% 0.015 280)"] },
+      "ink-soft": { "role": "neutral", "displayName": "Ink Soft", "canonical": "#343846" },
+      "muted": { "role": "neutral", "displayName": "Muted", "canonical": "#565c6d" },
+      "dim": { "role": "neutral", "displayName": "Dim (hints only)", "canonical": "#7a8091" },
+      "ultramarine": { "role": "primary", "displayName": "Ultramarine", "canonical": "#2430d8", "tonalRamp": ["oklch(15% 0.1 268)", "oklch(25% 0.16 268)", "oklch(35% 0.21 268)", "oklch(45% 0.25 268)", "oklch(58% 0.2 268)", "oklch(70% 0.14 268)", "oklch(83% 0.08 268)", "oklch(95% 0.025 268)"] },
+      "magenta": { "role": "secondary", "displayName": "Op Magenta", "canonical": "#d8226a", "tonalRamp": ["oklch(15% 0.06 5)", "oklch(27% 0.11 5)", "oklch(39% 0.16 5)", "oklch(51% 0.2 5)", "oklch(56% 0.21 5)", "oklch(70% 0.15 5)", "oklch(83% 0.08 5)", "oklch(95% 0.025 5)"] },
+      "magenta-light": { "role": "secondary", "displayName": "Light Magenta (small-bet bars)", "canonical": "#f07aa6" },
+      "selection-orange": { "role": "tertiary", "displayName": "Selection Orange", "canonical": "#ff9a1f", "tonalRamp": ["oklch(15% 0.05 63)", "oklch(27% 0.08 63)", "oklch(39% 0.11 63)", "oklch(51% 0.13 63)", "oklch(63% 0.15 63)", "oklch(78% 0.17 63)", "oklch(87% 0.09 63)", "oklch(95% 0.03 63)"] },
+      "fold-square": { "role": "neutral", "displayName": "Fold Square", "canonical": "#dfe2ea" },
+      "pair-square": { "role": "neutral", "displayName": "Pair Square", "canonical": "#f2f3f8" },
+      "grade-good": { "role": "neutral", "displayName": "Grade Good", "canonical": "#0e8f63" },
+      "grade-warn": { "role": "neutral", "displayName": "Grade Warn", "canonical": "#c96a00" },
+      "card-stock": { "role": "neutral", "displayName": "Card Stock", "canonical": "#ffffff" }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "View titles over the field; Theory chapter titles go larger and wider (clamp(40px, 6vw, 76px), width 125%)." },
+      "headline": { "displayName": "Headline", "purpose": "Theory section headings; the hand name in the hand plate and the feedback grade head sit at this level." },
+      "title": { "displayName": "Title", "purpose": "Theory sub-headings, stat figures, action block labels." },
+      "body": { "displayName": "Body", "purpose": "UI copy on plates, about 62ch, tabular figures." },
+      "body-long": { "displayName": "Body long", "purpose": "Theory paragraphs and takeaways, about 66ch." },
+      "label": { "displayName": "Label", "purpose": "Sentence-case control and plate labels; no tracking, no caps." }
+    },
+    "shadows": [
+      { "name": "plate-hairline", "value": "0 0 0 1px rgba(21,22,29,.07)", "purpose": "Edge of plates, trainer tables, examples and steps. A border, not a shadow." },
+      { "name": "ink-rule", "value": "inset 0 0 0 1.5px var(--ink)", "purpose": "Segmented rails, ghost buttons, playing cards, formula boxes." },
+      { "name": "appbar-rule", "value": "inset 0 -2px 0 var(--ink)", "purpose": "The heavy ink line closing the app bar." }
+    ],
+    "motion": [
+      { "name": "ease-op", "value": "cubic-bezier(.16,1,.3,1)", "purpose": "Seg thumb slide (0.34s), lens settle (0.35s), disc sweep-in (0.6s), logo disc scale (0.5s)." },
+      { "name": "lens-follow", "value": "0.12s linear", "purpose": "Disc scale and label clip while the pointer moves over a grid; up to 1.42x with Gaussian falloff." },
+      { "name": "sweep-stagger", "value": "calc((row + column) * 20ms)", "purpose": "Diagonal entrance of the discs when a range loads." },
+      { "name": "control-fade", "value": "0.2s", "purpose": "Colour and background changes on tabs, chips, buttons, action blocks." },
+      { "name": "ground-ripple", "value": "0.62px/ms, 2600ms fade", "purpose": "Grade ring through the gutter dot field." },
+      { "name": "reduced-motion", "value": "prefers-reduced-motion: reduce", "purpose": "Ground draws one still frame, no ripples, no lens, no sweep or clip transitions, no logo scale, no feedback marker toss." }
+    ],
+    "breakpoints": [
+      { "name": "phone-grid", "value": "420px" },
+      { "name": "narrow", "value": "480px" },
+      { "name": "stack", "value": "900px" },
+      { "name": "content-band", "value": "1200px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Solid ink rectangle for the main action; turns ultramarine on hover.",
+      "html": "<button class=\"ds-btn-primary\">Next hand</button>",
+      "css": ".ds-btn-primary { background: var(--ink, #15161d); color: var(--surface, #fbfbfd); border: 0; border-radius: 0; padding: 9px 18px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: background .2s, color .2s; } .ds-btn-primary:hover { background: var(--ultra, #2430d8); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Transparent rectangle ruled in ink for secondary actions.",
+      "html": "<button class=\"ds-btn-ghost\">See in chart</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: var(--ink, #15161d); border: 0; border-radius: 0; box-shadow: inset 0 0 0 1.5px var(--ink, #15161d); padding: 9px 18px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: background .2s; } .ds-btn-ghost:hover { background: rgba(21,22,29,.07); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Segmented Rail",
+      "kind": "nav",
+      "refersTo": "segment-option",
+      "description": "Every option visible as a ghost inside an ink-ruled rail; the chosen one struck in ink (in the build an ink thumb slides to it).",
+      "html": "<div class=\"ds-seg\"><button class=\"ds-seg-on\">First in (open)</button><button>Facing a raise</button><button>Facing a 3-bet</button></div>",
+      "css": ".ds-seg { display: inline-flex; gap: 2px; padding: 3px; box-shadow: inset 0 0 0 1.5px var(--ink, #15161d); background: transparent; } .ds-seg button { border: 0; border-radius: 0; background: none; padding: 6px 14px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: var(--muted, #565c6d); cursor: pointer; transition: color .25s, background .34s cubic-bezier(.16,1,.3,1); } .ds-seg button:hover { color: var(--ink, #15161d); } .ds-seg button.ds-seg-on { background: var(--ink, #15161d); color: var(--surface, #fbfbfd); } .ds-seg button:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Chip",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Seat and option chips: hairline ghost, struck in ink when chosen.",
+      "html": "<div style=\"display:flex;gap:6px\"><button class=\"ds-chip\">CO</button><button class=\"ds-chip ds-chip-on\">BTN</button><button class=\"ds-chip\">SB</button></div>",
+      "css": ".ds-chip { border: 1px solid var(--line, #c9cdd8); border-radius: 0; background: transparent; color: var(--text-2, #343846); padding: 6px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; cursor: pointer; transition: background .2s, color .2s, border-color .2s; } .ds-chip:hover { background: var(--surface, #fbfbfd); color: var(--ink, #15161d); border-color: var(--ink, #15161d); } .ds-chip-on, .ds-chip-on:hover { background: var(--ink, #15161d); border-color: var(--ink, #15161d); color: var(--surface, #fbfbfd); } .ds-chip:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Action Blocks",
+      "kind": "button",
+      "refersTo": "action-raise",
+      "description": "Trainer answers as enamel blocks: fold ruled in ink, call ultramarine, raise magenta; the picked one gets the orange selection outline.",
+      "html": "<div style=\"display:flex;gap:10px\"><button class=\"ds-act ds-fold\">Fold</button><button class=\"ds-act ds-call\">Call</button><button class=\"ds-act ds-raise ds-picked\">3-bet 11bb</button></div>",
+      "css": ".ds-act { flex: 1; min-width: 100px; padding: 14px 12px; border: 0; border-radius: 0; cursor: pointer; font-family: 'Anybody', 'Hanken Grotesk', sans-serif; font-stretch: 115%; font-weight: 750; font-size: 17px; transition: opacity .2s; } .ds-act:hover { opacity: .9; } .ds-fold { background: transparent; color: var(--ink, #15161d); box-shadow: inset 0 0 0 2px var(--ink, #15161d); } .ds-call { background: var(--ultra, #2430d8); color: #fff; } .ds-raise { background: var(--magenta, #d8226a); color: #fff; } .ds-picked { outline: 3px solid var(--orange, #ff9a1f); outline-offset: 3px; } .ds-act:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
+    },
+    {
+      "name": "Plate",
+      "kind": "card",
+      "refersTo": "plate",
+      "description": "Flat white reading plate on the op-white ground, edged by a hairline; tiles inside sit in op-white.",
+      "html": "<div class=\"ds-plate\"><div class=\"ds-label\">This spot</div><p>The best seat at the table: you act last on every street.</p><div class=\"ds-tile\"><b>0.3%</b><span>of all starting hands</span></div></div>",
+      "css": ".ds-plate { background: var(--surface, #fbfbfd); border-radius: 0; box-shadow: 0 0 0 1px rgba(21,22,29,.07); padding: 20px; display: grid; gap: 14px; max-width: 320px; font-family: 'Hanken Grotesk', system-ui, sans-serif; color: var(--ink, #15161d); } .ds-plate p { margin: 0; color: var(--text-2, #343846); font-size: 15px; line-height: 1.5; } .ds-label { font-size: 13px; font-weight: 600; color: var(--ink, #15161d); } .ds-tile { background: var(--bg, #eef0f5); padding: 12px; display: grid; gap: 2px; } .ds-tile b { font-family: 'Anybody', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 18px; } .ds-tile span { font-size: 12px; color: var(--muted, #565c6d); }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Range-string and number input: white field, 1.5px ink border, square corners.",
+      "html": "<input class=\"ds-input\" value=\"55+, A2s+, KTs-K8s\" aria-label=\"Range\">",
+      "css": ".ds-input { background: var(--surface, #fbfbfd); color: var(--ink, #15161d); border: 1.5px solid var(--ink, #15161d); border-radius: 0; padding: 9px 10px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-variant-numeric: tabular-nums; caret-color: var(--magenta, #d8226a); } .ds-input:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 1px; }"
+    },
+    {
+      "name": "Range Field Units",
+      "kind": "custom",
+      "refersTo": "grid-unit",
+      "description": "Plastic units: square cells holding a disc whose area is the frequency (radius = sqrt(share)); white label clipped to the disc, ink label beneath; orange outline on the selected unit.",
+      "html": "<div class=\"ds-field\"><div class=\"ds-u\" style=\"--b:1\"><span>AA</span><span class=\"ds-inv\">AA</span></div><div class=\"ds-u\" style=\"--b:.707\"><span>Q3s</span><span class=\"ds-inv\">Q3s</span></div><div class=\"ds-u ds-sel\" style=\"--b:.5;--c:#2430d8\"><span>87o</span><span class=\"ds-inv\">87o</span></div><div class=\"ds-u\" style=\"--b:0\"><span>72o</span><span class=\"ds-inv\">72o</span></div></div>",
+      "css": ".ds-field { display: grid; grid-template-columns: repeat(4, 56px); gap: 3px; } .ds-u { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle closest-side, var(--c, #d8226a) 0 calc(var(--b) * 88%), transparent calc(var(--b) * 88% + 1px)), var(--surface, #fbfbfd); color: var(--ink, #15161d); font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 14px; transition: scale .35s cubic-bezier(.16,1,.3,1); } .ds-u:hover { scale: 1.12; } .ds-inv { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; clip-path: circle(calc(var(--b) * 44%) at 50% 50%); } .ds-sel { outline: 3px solid var(--orange, #ff9a1f); z-index: 1; } @media (prefers-reduced-motion: reduce) { .ds-u { transition: none; } .ds-u:hover { scale: 1; } }"
+    },
+    {
+      "name": "Feedback Plate with Op Target",
+      "kind": "custom",
+      "refersTo": "plate",
+      "description": "Grade plate ruled 2px in the grade colour, its marker a disc with concentric white rings.",
+      "html": "<div class=\"ds-fb\"><div class=\"ds-fb-head\"><i class=\"ds-dot\"></i>Mistake</div><p>You chose 3-bet, but the chart never does that with 43o here. Always fold.</p></div>",
+      "css": ".ds-fb { background: var(--surface, #fbfbfd); border: 2px solid var(--magenta, #d8226a); border-radius: 0; padding: 16px 18px; display: grid; gap: 12px; max-width: 340px; font-family: 'Hanken Grotesk', sans-serif; } .ds-fb p { margin: 0; color: var(--text-2, #343846); } .ds-fb-head { display: flex; align-items: center; gap: 10px; font-family: 'Anybody', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 28px; letter-spacing: -.015em; color: var(--ink, #15161d); } .ds-dot { width: 18px; height: 18px; border-radius: 50%; background: repeating-radial-gradient(circle, transparent 0 2.5px, rgba(255,255,255,.85) 2.5px 4px), var(--magenta, #d8226a); }"
+    },
+    {
+      "name": "Card Back",
+      "kind": "custom",
+      "refersTo": "plate",
+      "description": "Concentric-ring op target on a square card with a white margin and ink edge.",
+      "html": "<div class=\"ds-back\"></div>",
+      "css": ".ds-back { width: 56px; height: 78px; border-radius: 0; background: repeating-radial-gradient(circle at 50% 50%, var(--ultra, #2430d8) 0 3px, var(--surface, #fbfbfd) 3px 6px); box-shadow: inset 0 0 0 3px var(--surface, #fbfbfd), inset 0 0 0 4.5px var(--ink, #15161d); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Living Vasarely Field",
+    "overview": "The 169 starting hands already form an op-art field; Falcon draws them as one. Every hand is a plastic unit: a sharp square holding a disc whose area is the frequency the hand is played. The visitor sees the range as a pattern first and reads it second. Colour lives in the fields (the discs, the action blocks, the bars); text sits on calm, achromatic plates of white or op-white, so reading never fights the pattern.\n\nThe world is light, cool and exact. Every corner is square; circles are the only curves, and they always carry meaning (a frequency, a grade, a card back, a chapter number). Controls show every option at once as a ghost, and the chosen one is struck in solid ink. Motion belongs to the field: discs swell under the pointer like a lens, the page gutters breathe as a slow dot field, and a graded answer sends a ring through that field in the grade's colour. Under reduced motion, all of it holds still.\n\nThe world rejects the dark poker-felt study tool it replaces: no felt, no wood, no glow, no rounded casino chrome.",
+    "keyCharacteristics": [
+      "Cool op-white ground, white reading plates, near-black ink.",
+      "Two field colours with fixed meaning: ultramarine calls, magenta raises.",
+      "Orange appears only to mark the current selection.",
+      "All corners sharp; circles are the only curves.",
+      "Ghost-and-struck controls: options outlined or bare, the chosen one solid ink.",
+      "Wide, heavy Anybody display over Hanken Grotesk reading text.",
+      "Flat plates separated by tone and hairlines, never by shadow.",
+      "A living ground: lens, breathing gutter dots, grade ripples; still under reduced motion."
+    ],
+    "rules": [
+      { "name": "The Field Colour Rule", "body": "Ultramarine means call, magenta means raise, everywhere they appear as fills. A button, bar or disc in either colour is making that claim.", "section": "colors" },
+      { "name": "The One Orange Rule", "body": "Orange marks the current selection and nothing else. It is never a fill for content, a heading or a decoration.", "section": "colors" },
+      { "name": "The Achromatic Plate Rule", "body": "Text plates are white or op-white. Colour belongs to the fields and to thin rules; it does not tint reading surfaces.", "section": "colors" },
+      { "name": "The Wide Ink Rule", "body": "Display type is Anybody, wide and heavy, and only for titles, hand names, grades and figures. Never set reading copy in it.", "section": "typography" },
+      { "name": "The Sentence Case Rule", "body": "Labels are sentence case with normal tracking. No all-caps, no letter-spaced labels.", "section": "typography" },
+      { "name": "The No-Cast-Shadow Rule", "body": "Nothing floats. Plates sit on the ground and are separated from it by tone and a hairline.", "section": "elevation" },
+      { "name": "The Only-Circles Rule", "body": "A shape is either a square-cornered rectangle or a true circle. No pills, no rounded rectangles.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do encode frequency as disc area (radius = square root of the share) in any range or frequency view.",
+      "Do use ultramarine for call and magenta for raise on every fill that means an action.",
+      "Do strike the chosen option in solid ink and leave the others visible as ghosts.",
+      "Do keep reading text on plate white or op-white, in ink, ink soft or muted.",
+      "Do keep every corner square and reserve circles for things that mean something.",
+      "Do use orange only for the current selection.",
+      "Do give every new animation a still state under reduced motion."
+    ],
+    "donts": [
+      "Don't use pills or rounded rectangles; corners are 0px, curves are full circles.",
+      "Don't cast shadows or lift elements on hover; depth is tone plus hairline.",
+      "Don't tint text plates with the field colours.",
+      "Don't set body copy in Anybody, or labels in all caps or letter-spacing.",
+      "Don't use dim for anything a player needs to read.",
+      "Don't let the gutter field enter the content band."
+    ]
+  }
+}

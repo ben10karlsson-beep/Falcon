@@ -169,7 +169,8 @@
     $("pc-result").innerHTML = html;
   }
 
-  const BUCKET_COLORS = ["var(--red)", "var(--red-soft)", "#cbc3b9", "#857c72", "#3a3430"];
+  // Strong to nothing: magenta, pale magenta, pale ultramarine, ultramarine, bare grey
+  const BUCKET_COLORS = ["var(--magenta)", "var(--bet-small)", "#9ea5f2", "var(--ultra)", "var(--nothing)"];
   function profileBars(rows) {
     return `<div class="profile">${rows.map(r => `
         <div class="prof-row"><span class="pn">${r.name}</span><span class="pbar">${r.prof.buckets.map((x, i) => `<span style="width:${x * 100}%;background:${BUCKET_COLORS[i]}" title="${E.BUCKETS[i]}: ${fmt(x)}"></span>`).join("")}</span></div>`).join("")}
@@ -387,7 +388,7 @@
         const d = eq - base, a = Math.round(Math.min(1, Math.abs(d) / 0.05) * 85);
         const bg = Math.abs(d) < 0.012 ? "var(--surface)" : `color-mix(in srgb,${d > 0 ? "var(--red)" : "var(--call)"} ${a}%,var(--surface))`;
         const name = flopText([c]);
-        grid += `<button class="pk ${s === 1 || s === 2 ? "red" : ""}" data-c="${c}" style="background:${bg}" title="${name}: ${m.agg} ${fmt(eq)} (${signed(d)})" aria-label="${name}: ${m.agg} equity ${fmt(eq)}, ${signed(d)} points">${E.RANKS[r] === "T" ? "10" : E.RANKS[r]}<i>${E.SUIT_SYMBOL[s]}</i></button>`;
+        grid += `<button class="pk ${s === 1 || s === 2 ? "red" : ""} ${a >= 72 ? "on" : ""}" data-c="${c}" style="background:${bg}" title="${name}: ${m.agg} ${fmt(eq)} (${signed(d)})" aria-label="${name}: ${m.agg} equity ${fmt(eq)}, ${signed(d)} points">${E.RANKS[r] === "T" ? "10" : E.RANKS[r]}<i>${E.SUIT_SYMBOL[s]}</i></button>`;
       }
       grid += `</div>`;
     }
@@ -415,7 +416,7 @@
     }
     el.innerHTML = `
       <div class="label" style="margin-bottom:6px">Which ${next} cards help whom</div>
-      <p class="hint" style="margin:0 0 8px">${m.agg}'s range equity after each ${next} card, compared with ${fmt(base)} now. Red cards help ${m.agg}, grey cards help ${m.caller}, and the stronger the colour, the bigger the swing. Click a card to deal it.</p>
+      <p class="hint" style="margin:0 0 8px">${m.agg}'s range equity after each ${next} card, compared with ${fmt(base)} now. Magenta cards help ${m.agg}, blue cards help ${m.caller}, and the stronger the colour, the bigger the swing. Click a card to deal it.</p>
       <div class="picker nextmap">${grid}</div>
       <ul class="tips" style="margin-top:10px">${lines.map(x => `<li>${x}</li>`).join("")}</ul>
       <p class="note" style="border:0;padding:0">Each card is estimated from 15,000 random deals, so a single card can be off by up to a point. The rank averages are steadier.</p>`;
