@@ -92,6 +92,7 @@
       <button data-tm="quiz" aria-pressed="false">Hand vs hand</button>
       <button data-tm="range" aria-pressed="false">Range trainer</button>
       <button data-tm="cbet" aria-pressed="false">C-bet</button>
+      <button data-tm="play" aria-pressed="false">Play</button>
     </div>
   </div>
 
@@ -295,6 +296,64 @@
         </ol>
       </div>
       <div class="note">Real solver output: 30 BTN vs BB flops solved with TexasSolver from Falcon's own preflop charts (the suits are shuffled so they look different each time). Your hand is dealt from the BTN opening range. Only bet or check is graded: the solver could bet a third or three quarters of the pot, and the two sizes are often close in value, so the feedback names a size only when the solver clearly prefers one. An action counts as correct if the solver takes it at least 25% of the time, and inaccurate if at least 5%. Keys: <b>K</b> check, <b>B</b> bet, <b>Enter</b> next spot.</div>
+    </aside>
+  </section>
+
+  <!-- Play: whole hands heads-up against a bot, BTN vs BB (js/play-core.js rules and bots, js/play.js page) -->
+  <section class="pf-grid" id="tr-play" hidden>
+    <div style="display:grid;gap:16px;align-content:start;min-width:0">
+      <div class="felt pl-felt">
+        <div id="pl-table" class="pl-table"></div>
+        <p class="sit" id="pl-sit"></p>
+        <div class="acts" id="pl-acts"></div>
+        <div id="pl-fb" aria-live="polite"></div>
+        <ol class="pl-log" id="pl-log" aria-label="This hand so far"></ol>
+      </div>
+    </div>
+    <aside class="panel">
+      <div>
+        <div class="label" style="margin-bottom:8px">Your seat</div>
+        <div class="seg small" role="group" aria-label="Your seat">
+          <button data-pl-seat="switch" aria-pressed="true">Switch each hand</button>
+          <button data-pl-seat="btn" aria-pressed="false">Button</button>
+          <button data-pl-seat="bb" aria-pressed="false">Big blind</button>
+        </div>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">Deal</div>
+        <div class="seg small" role="group" aria-label="Deal">
+          <button data-pl-deal="study" aria-pressed="true">Study deal</button>
+          <button data-pl-deal="random" aria-pressed="false">Random deal</button>
+        </div>
+        <p class="hint" id="pl-deal-hint" style="margin-top:8px"></p>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">Stacks</div>
+        <div class="seg small" role="group" aria-label="Stacks">
+          <button data-pl-stacks="reset" aria-pressed="true">100bb every hand</button>
+          <button data-pl-stacks="run" aria-pressed="false">Running stacks</button>
+        </div>
+        <p class="hint" id="pl-stacks-hint" style="margin-top:8px"></p>
+      </div>
+      <div>
+        <div class="label" style="margin-bottom:8px">Your results <button class="linkbtn" id="pl-reset" style="margin-left:6px">Reset</button></div>
+        <div class="scores">
+          <div class="score"><b id="pl-hands">0</b><span>hands played</span></div>
+          <div class="score"><b id="pl-acc">–</b><span id="pl-acc-of">graded decisions correct</span></div>
+          <div class="score"><b id="pl-net">0</b><span>bb won or lost</span></div>
+          <div class="score"><b id="pl-rate">–</b><span>bb per 100 hands</span></div>
+        </div>
+        <p class="hint" style="margin-top:8px">Results swing a lot over a few hundred hands, even when every decision is right. Judge yourself on the graded decisions.</p>
+      </div>
+      <div class="infobox">
+        <div class="label">What gets graded</div>
+        <ul class="tips">
+          <li><b>Preflop:</b> opening from the button, the big blind facing the open, and the button facing a 3-bet, against Falcon's charts.</li>
+          <li><b>Flop:</b> the button's bet or check after the big blind checks, against real solver output on the 30 solved flops.</li>
+          <li><b>Everything else</b> shows your numbers instead of a grade: your equity against the bot's range, the equity you need to call, and for each bet or raise how often the bot folds against how often a bluff needs it to.</li>
+        </ul>
+      </div>
+      <div class="note">The bot plays the charts preflop and the solver's flop strategy where Falcon has it. Its 4-bets, its answers to all-ins and everything on the turn and river follow simple rules built on equity against your range, so treat it as a sparring partner, not a solver. Equity counts what each hand wins if all five cards are dealt, before any more betting. Keys: <b>1</b>–<b>5</b> pick an action, <b>F</b> fold, <b>C</b> check or call, <b>Enter</b> next hand.</div>
     </aside>
   </section>
 </main>
@@ -1070,7 +1129,9 @@
 <script src="js/reading.js"></script>
 <script src="js/theory.js"></script>
 <script src="js/solved.js"></script>
+<script src="js/play-core.js"></script>
 <script src="js/postflop.js"></script>
+<script src="js/play.js"></script>
 <script src="js/app.js"></script>
 <script src="js/opfield.js"></script>
 <script>

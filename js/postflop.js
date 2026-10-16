@@ -233,35 +233,7 @@
      the same up to relabelling suits; any other flop borrows the closest solved flop by texture. */
   const SOLVED = window.Solved || null;
   const isSolvedSpot = m => SOLVED && m.group === "Single-raised pot" && m.agg === "BTN" && m.caller === "BB";
-  const SUIT_PERMS = [];
-  (function perms(a, rest) { if (!rest.length) SUIT_PERMS.push(a); rest.forEach((x, i) => perms(a.concat(x), rest.filter((_, j) => j !== i))); })([], [0, 1, 2, 3]);
-  function flopKey(cards) {
-    let best = null;
-    for (const p of SUIT_PERMS) {
-      const k = cards.map(c => E.card(E.rankOf(c), p[E.suitOf(c)])).sort((a, b) => b - a).join(",");
-      if (best === null || k < best) best = k;
-    }
-    return best;
-  }
-  function flopFeatures(cards) {
-    const t = E.texture(cards), r = cards.map(E.rankOf).sort((a, b) => b - a);
-    return { r, paired: t.paired, maxSuit: t.maxSuit, windows: t.windows };
-  }
-  const SOLVED_FLOPS = SOLVED ? SOLVED.flops.map(f => {
-    const cards = E.parseCards(f.board.match(/../g).join(" "));
-    return { ...f, cards, key: flopKey(cards), feat: flopFeatures(cards) };
-  }) : [];
-  // Texture distance: pairing and suits matter most, then the high card, then the rest
-  function flopDistance(a, b) {
-    return (a.paired !== b.paired ? 6 : 0) + Math.abs(a.maxSuit - b.maxSuit) * 3 + Math.abs(a.windows - b.windows) * 0.5 +
-      Math.abs(a.r[0] - b.r[0]) * 0.7 + Math.abs(a.r[1] - b.r[1]) * 0.35 + Math.abs(a.r[2] - b.r[2]) * 0.2;
-  }
-  function solvedFor(cards) {
-    const key = flopKey(cards), exact = SOLVED_FLOPS.find(f => f.key === key);
-    if (exact) return { flop: exact, exact: true };
-    const feat = flopFeatures(cards);
-    return { flop: SOLVED_FLOPS.reduce((best, f) => flopDistance(feat, f.feat) < flopDistance(feat, best.feat) ? f : best), exact: false };
-  }
+  const { SUIT_PERMS, flopKey, SOLVED_FLOPS, solvedFor } = window.PlayCore; // shared with play mode (play-core.js)
   const flopText = cards => cards.map(c => { const r = E.RANKS[E.rankOf(c)]; return (r === "T" ? "10" : r) + E.SUIT_SYMBOL[E.suitOf(c)]; }).join(" ");
   const ACT_COLORS = ["var(--call)", "var(--bet-small)", "var(--raise)"];
   const ACT_NAMES = ["Check", "Bet 33%", "Bet 75%"];
@@ -948,6 +920,7 @@
   }
 
   window.Postflop = {
+    cardHTML, handDescription, // also used by play mode (play.js)
     init() {
       document.querySelectorAll("[data-sub]").forEach(b => b.onclick = () => setSub(b.dataset.sub));
       initCalc();

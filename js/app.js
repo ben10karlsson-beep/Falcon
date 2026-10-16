@@ -12,8 +12,8 @@ let postflopReady = false;
 
 /* Trainer tab: every graded trainer, one at a time.
    hands = preflop trainer (preflop.js), read = range reading (reading.js),
-   quiz = Hand vs hand, range = Range trainer and cbet = C-bet trainer (all in postflop.js) */
-const TRAIN_MODES = { hands: "tr-hands", read: "tr-read", quiz: "pf-quiz", range: "pf-range", cbet: "pf-cbet" };
+   quiz = Hand vs hand, range = Range trainer and cbet = C-bet trainer (all in postflop.js), play = whole hands against a bot (play.js) */
+const TRAIN_MODES = { hands: "tr-hands", read: "tr-read", quiz: "pf-quiz", range: "pf-range", cbet: "pf-cbet", play: "tr-play" };
 let trainMode = "hands", trainSub = null;
 function setTrainMode(m, sub) {
   if (!TRAIN_MODES[m]) m = "hands";
@@ -22,6 +22,7 @@ function setTrainMode(m, sub) {
   document.querySelectorAll("[data-tm]").forEach(b => b.setAttribute("aria-pressed", b.dataset.tm === m));
   if (m === "hands" && !tr.cur) { deal(); renderLeaks(); }
   if (m === "read") Reading.show();
+  if (m === "play") Play.show();
   if (m === "quiz" || m === "range" || m === "cbet") Postflop.openTrainer(m, sub);
   if (view === "train") syncHash();
 }
@@ -73,6 +74,7 @@ document.addEventListener("keydown", e => {
   if (tag === "select" || tag === "textarea" || (tag === "input" && e.target.type !== "range")) return;
   if (view !== "train") return;
   if (trainMode === "read") { if (Reading.key(e)) e.preventDefault(); return; }
+  if (trainMode === "play") { if (Play.key(e)) e.preventDefault(); return; }
   if (trainMode === "quiz" || trainMode === "range" || trainMode === "cbet") { if (Postflop.key(e, trainMode)) e.preventDefault(); return; }
   const k = e.key.toLowerCase();
   const map = { f: "fold", c: "call", r: "raise" };
