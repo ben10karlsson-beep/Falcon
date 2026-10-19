@@ -1,4 +1,4 @@
-/* Falcon Op Field: the living layer. Loaded after app.js; nothing else depends on it.
+/* 169 Poker Op Field: the living layer. Loaded after app.js; nothing else depends on it.
    1. Lens: on the range grids, each unit's disc swells with closeness to the pointer, like a lens over the field.
    2. Ground: a dot field in the page gutters, its dots breathing on two slow interfering waves and swelling near the pointer.
    3. Ripple: when a trainer grades an answer, a ring runs out through the ground field in the grade's colour.

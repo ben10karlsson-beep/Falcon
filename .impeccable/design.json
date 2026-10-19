@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "generatedAt": "2026-10-14T12:00:00Z",
-  "title": "Design System: Falcon (Op Field)",
+  "title": "Design System: 169 Poker (Op Field)",
   "extensions": {
     "colorMeta": {
       "op-white": { "role": "neutral", "displayName": "Op-White", "canonical": "#eef0f5", "tonalRamp": ["oklch(15% 0.008 270)", "oklch(27% 0.008 270)", "oklch(39% 0.008 270)", "oklch(51% 0.008 270)", "oklch(63% 0.008 270)", "oklch(75% 0.008 270)", "oklch(87% 0.008 270)", "oklch(95.5% 0.008 270)"] },
@@ -134,7 +134,7 @@
   ],
   "narrative": {
     "northStar": "The Living Vasarely Field",
-    "overview": "The 169 starting hands already form an op-art field; Falcon draws them as one. Every hand is a plastic unit: a sharp square holding a disc whose area is the frequency the hand is played. The visitor sees the range as a pattern first and reads it second. Colour lives in the fields (the discs, the action blocks, the bars); text sits on calm, achromatic plates of white or op-white, so reading never fights the pattern.\n\nThe world is light, cool and exact. Every corner is square; circles are the only curves, and they always carry meaning (a frequency, a grade, a card back, a chapter number). Controls show every option at once as a ghost, and the chosen one is struck in solid ink. Motion belongs to the field: discs swell under the pointer like a lens, the page gutters breathe as a slow dot field, and a graded answer sends a ring through that field in the grade's colour. Under reduced motion, all of it holds still.\n\nThe world rejects the dark poker-felt study tool it replaces: no felt, no wood, no glow, no rounded casino chrome.",
+    "overview": "The 169 starting hands already form an op-art field; 169 Poker draws them as one. Every hand is a plastic unit: a sharp square holding a disc whose area is the frequency the hand is played. The visitor sees the range as a pattern first and reads it second. Colour lives in the fields (the discs, the action blocks, the bars); text sits on calm, achromatic plates of white or op-white, so reading never fights the pattern.\n\nThe world is light, cool and exact. Every corner is square; circles are the only curves, and they always carry meaning (a frequency, a grade, a card back, a chapter number). Controls show every option at once as a ghost, and the chosen one is struck in solid ink. Motion belongs to the field: discs swell under the pointer like a lens, the page gutters breathe as a slow dot field, and a graded answer sends a ring through that field in the grade's colour. Under reduced motion, all of it holds still.\n\nThe world rejects the dark poker-felt study tool it replaces: no felt, no wood, no glow, no rounded casino chrome.",
     "keyCharacteristics": [
       "Cool op-white ground, white reading plates, near-black ink.",
       "Two field colours with fixed meaning: ultramarine calls, magenta raises.",

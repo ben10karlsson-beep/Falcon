@@ -1,4 +1,4 @@
-/* Falcon postflop: equity calculator and board explorer (Postflop tab), plus the Hand vs hand quiz, range trainer and c-bet trainer (Trainer tab).
+/* 169 Poker postflop: equity calculator and board explorer (Postflop tab), plus the Hand vs hand quiz, range trainer and c-bet trainer (Trainer tab).
    Depends on Engine (engine.js) and range data/helpers (ranges.js). */
 (function () {
   "use strict";
@@ -284,7 +284,7 @@
       <div class="infobox">
         <div class="label">Why</div>
         <ul class="tips">${why.map(x => `<li>${x}</li>`).join("")}</ul>
-        <p class="note" style="border:0;padding:0">Solved with TexasSolver using Falcon's BTN opening and BB calling charts, 97.5bb behind, to within about 0.5% of the pot. BTN could check or bet 33% or 75% of the pot, BB could call, check-raise or fold. A different preflop chart or other bet sizes would change the numbers somewhat. Range equity and the hand bars above are for the flop you picked.</p>
+        <p class="note" style="border:0;padding:0">Solved with TexasSolver using 169 Poker's BTN opening and BB calling charts, 97.5bb behind, to within about 0.5% of the pot. BTN could check or bet 33% or 75% of the pot, BB could call, check-raise or fold. A different preflop chart or other bet sizes would change the numbers somewhat. Range equity and the hand bars above are for the flop you picked.</p>
       </div>`;
   }
 
@@ -453,7 +453,7 @@
     if (m.group === "3-bet pot") tips.push(`In 3-bet pots the stacks are short compared with the pot (SPR ${(m.behind / m.pot).toFixed(1)}), so top pair is often good enough to get all in, and bets tend to be smaller, around a third of the pot.`);
     if (!tips.length) tips.push(`A mixed board. ${m.agg} usually bets part of the range and checks the rest, often with a medium size.`);
     return `<ul class="tips">${tips.map(x => `<li>${x}</li>`).join("")}</ul>
-      <p class="note" style="border:0;padding:0">The numbers are calculated from Falcon's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. ${m.group === "3-bet pot" ? "In 3-bet pots the opener's range is the facing-a-3-bet calling chart, and the 3-bettor's range includes hands that would 5-bet." : "The opener's range includes hands that would have 4-bet, which slightly overstates it."}</p>`;
+      <p class="note" style="border:0;padding:0">The numbers are calculated from 169 Poker's preflop ranges. The tips are general tendencies from solver studies, not a solved strategy for this exact flop. ${m.group === "3-bet pot" ? "In 3-bet pots the opener's range is the facing-a-3-bet calling chart, and the 3-bettor's range includes hands that would 5-bet." : "The opener's range includes hands that would have 4-bet, which slightly overstates it."}</p>`;
   }
   // What the newest card did, measured against the board one street earlier
   function changeHTML(m, board, openMap, callMap, eA, pa, pb) {

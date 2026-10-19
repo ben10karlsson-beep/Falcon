@@ -1,4 +1,4 @@
-/* Falcon engine: card encoding, 5–7 card hand evaluator, equity calculations.
+/* 169 Poker engine: card encoding, 5–7 card hand evaluator, equity calculations.
    Card = rank*4 + suit. rank 0..12 = 2..A, suit 0..3 = s,h,d,c.
    Works in the browser (window.Engine) and in Node (module.exports). */
 (function (root) {

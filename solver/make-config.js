@@ -1,4 +1,4 @@
-/* Build a TexasSolver console config for BTN vs BB single-raised pots from Falcon's own charts.
+/* Build a TexasSolver console config for BTN vs BB single-raised pots from 169 Poker's own charts.
    Usage: node solver/make-config.js <board, e.g. Qs,Jh,2h> [out.txt] [result.json]
    Then, from solver/TexasSolver: ./console_solver.exe --input_file ../work/config.txt --resource_dir ./resources --mode holdem
    Units are tenths of a big blind: pot 5.5bb (2.5 + 2.5 + 0.5 SB dead), effective stack 97.5bb. */

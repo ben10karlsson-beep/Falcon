@@ -1,4 +1,4 @@
-/* Falcon play mode, the parts without a page: heads-up BTN vs BB hand rules (blinds, betting, all-ins, showdown),
+/* 169 Poker play mode, the parts without a page: heads-up BTN vs BB hand rules (blinds, betting, all-ins, showdown),
    ranges that narrow with every action, and the bots' strategies. Also the solved-flop helpers shared with postflop.js.
    Amounts are tenths of a bb, as in solver/ (an open to 2.5bb is 25). The small blind has folded: its 0.5bb is dead money.
    Uses Engine and the range helpers of ranges.js (plain globals). Browser: window.PlayCore. Node: load engine.js, ranges.js,

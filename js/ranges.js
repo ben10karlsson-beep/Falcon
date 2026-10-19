@@ -1,4 +1,4 @@
-/* Falcon preflop range data and shared helpers. */
+/* 169 Poker preflop range data and shared helpers. */
 const R="AKQJT98765432";
 const ri=c=>R.indexOf(c);
 

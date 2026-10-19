@@ -1,4 +1,4 @@
-# Falcon
+# 169 Poker
 
 A poker study app for understanding the math and strategy of No-Limit Hold'em, pre and post flop. Every tool explains *why*, in plain language.
 

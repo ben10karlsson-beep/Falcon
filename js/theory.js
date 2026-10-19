@@ -1,4 +1,4 @@
-/* Falcon theory page: chapter routing and calculators. */
+/* 169 Poker theory page: chapter routing and calculators. */
 function initTheory(){
   const bp=document.getElementById("betpct");
   const presetsB=[[33,"⅓ pot"],[50,"½ pot"],[75,"¾ pot"],[100,"Pot"],[150,"1.5× pot"]];

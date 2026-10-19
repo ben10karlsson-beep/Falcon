@@ -1,5 +1,5 @@
 ---
-name: Falcon (Op Field)
+name: 169 Poker (Op Field)
 description: A poker study app drawn as a living Vasarely field, where the area of each disc is how often a hand is played.
 colors:
   op-white: "#eef0f5"
@@ -125,13 +125,13 @@ components:
     rounded: "{rounded.none}"
 ---
 
-# Design System: Falcon (Op Field)
+# Design System: 169 Poker (Op Field)
 
 ## Overview
 
 **Creative North Star: "The Living Vasarely Field"**
 
-The 169 starting hands already form an op-art field; Falcon draws them as one. Every hand is a plastic unit: a sharp square holding a disc whose area is the frequency the hand is played. The visitor sees the range as a pattern first and reads it second. Colour lives in the fields (the discs, the action blocks, the bars); text sits on calm, achromatic plates of white or op-white, so reading never fights the pattern.
+The 169 starting hands already form an op-art field; 169 Poker draws them as one. Every hand is a plastic unit: a sharp square holding a disc whose area is the frequency the hand is played. The visitor sees the range as a pattern first and reads it second. Colour lives in the fields (the discs, the action blocks, the bars); text sits on calm, achromatic plates of white or op-white, so reading never fights the pattern.
 
 The world is light, cool and exact. Every corner is square; circles are the only curves, and they always carry meaning (a frequency, a grade, a card back, a chapter number). Controls show every option at once as a ghost, and the chosen one is struck in solid ink. Motion belongs to the field: discs swell under the pointer like a lens, the page gutters breathe as a slow dot field, and a graded answer sends a ring through that field in the grade's colour. Under reduced motion, all of it holds still.
 

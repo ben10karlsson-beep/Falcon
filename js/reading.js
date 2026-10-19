@@ -1,4 +1,4 @@
-/* Falcon range reading: paint the range a player has in a spot, then compare it with the chart in combos.
+/* 169 Poker range reading: paint the range a player has in a spot, then compare it with the chart in combos.
    After checking, "Play a flop" shows what the misread costs: your equity against your painted range vs the chart range.
    Depends on engine.js, ranges.js (RFI, VS, V3, threeBetSize, parse, getRange, freqs, rangeOverlap, handGroup) and preflop.js (openInChart). */
 (function(){
@@ -257,7 +257,7 @@
           <thead><tr><th>How the range hit the flop</th><th>Your range</th><th>Chart</th></tr></thead>
           <tbody>${rows}</tbody>
         </table></div>
-        <p class="hint">Equity is exact for this hand and flop, before any betting. The chart is Falcon's approximation of a solver range.</p>
+        <p class="hint">Equity is exact for this hand and flop, before any betting. The chart is 169 Poker's approximation of a solver range.</p>
         <div class="btns"><button class="btn" id="rd-flop-again">Deal another flop</button></div>
       </div>`;
     $("rd-flop-again").onclick=playFlop;

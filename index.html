@@ -3,18 +3,18 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Falcon · Poker study app</title>
+<title>169 Poker · Poker study app</title>
 <meta name="description" content="Learn the math and strategy of No-Limit Hold'em: preflop ranges, graded trainers, an equity calculator and a theory course that explains why.">
 <meta name="theme-color" content="#eef0f5">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%232430d8'/%3E%3Ccircle cx='16' cy='16' r='11' fill='%23d8226a'/%3E%3Ccircle cx='16' cy='16' r='5' fill='%23eef0f5'/%3E%3C/svg%3E">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Falcon · Poker study app">
+<meta property="og:title" content="169 Poker · Poker study app">
 <meta property="og:description" content="Learn the math and strategy of No-Limit Hold'em: preflop ranges, graded trainers, an equity calculator and a theory course that explains why.">
 <meta property="og:url" content="https://ben10karlsson-beep.github.io/Falcon/">
 <meta property="og:image" content="https://ben10karlsson-beep.github.io/Falcon/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="Falcon: poker math and strategy, explained. Shows the button opening range grid.">
+<meta property="og:image:alt" content="169 Poker: poker math and strategy, explained. Shows the button opening range grid.">
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,300..900&family=Hanken+Grotesk:wght@400..700&display=swap">
@@ -22,7 +22,7 @@
 <script>try{var t=localStorage.getItem("falcon-theme")||(matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light");document.documentElement.dataset.theme=t;document.documentElement.dataset.fx=localStorage.getItem("falcon-fx")==="off"?"off":"on";document.documentElement.dataset.dots=localStorage.getItem("falcon-dots")==="off"?"off":"on"}catch(e){}</script>
 </head>
 <body><header class="appbar">
-  <a class="brand" href="#welcome" aria-label="Falcon, welcome page"><svg class="opmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" class="sq"/><circle cx="16" cy="16" r="11" class="disc"/><circle cx="16" cy="16" r="5" class="core"/></svg>Falcon</a>
+  <a class="brand" href="#welcome" aria-label="169 Poker, welcome page"><svg class="opmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" class="sq"/><circle cx="16" cy="16" r="11" class="disc"/><circle cx="16" cy="16" r="5" class="core"/></svg>169</a>
   <nav class="tabs" aria-label="Tools">
     <button class="tab" id="t-ranges" aria-current="page">Preflop ranges</button>
     <button class="tab" id="t-train">Trainer</button>
@@ -46,7 +46,7 @@
       <li><button type="button" data-go="ranges"><b>Looking up a spot?</b><span>Open the preflop charts for every seat, facing a raise and facing a 3-bet.</span></button></li>
     </ul>
     <ul class="wl-facts">
-      <li>Every equity, combo count and outs figure is calculated by Falcon's own engine as you use it.</li>
+      <li>Every equity, combo count and outs figure is calculated by 169 Poker's own engine as you use it.</li>
       <li>The preflop charts are hand-built approximations shaped like solver output. Flop strategies for BTN vs BB come from real solver runs.</li>
       <li>Free, no account. Your trainer stats stay in this browser.</li>
     </ul>
@@ -194,7 +194,7 @@
           <li>Check the size: offsuit hands are 12 combos each, so they change it the most.</li>
         </ol>
       </div>
-      <div class="note">Graded against Falcon's charts, which are approximations shaped like solver output. Overlap counts combos: hands you both play, divided by everything either of you plays. A hand the chart plays half the time gives half credit either way. Keys: <b>Enter</b> check / next spot.</div>
+      <div class="note">Graded against 169 Poker's charts, which are approximations shaped like solver output. Overlap counts combos: hands you both play, divided by everything either of you plays. A hand the chart plays half the time gives half credit either way. Keys: <b>Enter</b> check / next spot.</div>
     </aside>
   </section>
 
@@ -263,7 +263,7 @@
         <p>The answer shows the same groups, so you can see which step you got wrong.</p>
         <p>Facing a bet, compare your estimate with the price: call ÷ (pot + call), with their bet counted in the pot. A half-pot bet asks for 25%, a pot-size bet for 33%. Theory chapters 5 and 6 walk through it.</p>
       </div>
-      <div class="note">Spots are single-raised pots from Falcon's preflop charts. Your hand is dealt from your own range, and the opponent's range is their full chart range before any flop betting. The opener's range also includes hands that would have 4-bet, which overstates it slightly. In call or fold, they bet their whole range and nobody bets after your call. Real players bet a narrower range and keep betting on later streets, and out of position you win less of your equity, so treat close calls as close. Keys: <b>Enter</b> lock in / next, <b>F</b>/<b>C</b> in call or fold.</div>
+      <div class="note">Spots are single-raised pots from 169 Poker's preflop charts. Your hand is dealt from your own range, and the opponent's range is their full chart range before any flop betting. The opener's range also includes hands that would have 4-bet, which overstates it slightly. In call or fold, they bet their whole range and nobody bets after your call. Real players bet a narrower range and keep betting on later streets, and out of position you win less of your equity, so treat close calls as close. Keys: <b>Enter</b> lock in / next, <b>F</b>/<b>C</b> in call or fold.</div>
     </aside>
   </section>
 
@@ -295,7 +295,7 @@
           <li>On a flop that favours you, bet often and small. On a flop that doesn't, check more.</li>
         </ol>
       </div>
-      <div class="note">Real solver output: 48 BTN vs BB flops solved with TexasSolver from Falcon's own preflop charts (the suits are shuffled so they look different each time). Your hand is dealt from the BTN opening range. Only bet or check is graded: the solver could bet a third or three quarters of the pot, and the two sizes are often close in value, so the feedback names a size only when the solver clearly prefers one. An action counts as correct if the solver takes it at least 25% of the time, and inaccurate if at least 5%. Keys: <b>K</b> check, <b>B</b> bet, <b>Enter</b> next spot.</div>
+      <div class="note">Real solver output: 48 BTN vs BB flops solved with TexasSolver from 169 Poker's own preflop charts (the suits are shuffled so they look different each time). Your hand is dealt from the BTN opening range. Only bet or check is graded: the solver could bet a third or three quarters of the pot, and the two sizes are often close in value, so the feedback names a size only when the solver clearly prefers one. An action counts as correct if the solver takes it at least 25% of the time, and inaccurate if at least 5%. Keys: <b>K</b> check, <b>B</b> bet, <b>Enter</b> next spot.</div>
     </aside>
   </section>
 
@@ -348,12 +348,12 @@
       <div class="infobox">
         <div class="label">What gets graded</div>
         <ul class="tips">
-          <li><b>Preflop:</b> opening from the button, the big blind facing the open, and the button facing a 3-bet, against Falcon's charts.</li>
+          <li><b>Preflop:</b> opening from the button, the big blind facing the open, and the button facing a 3-bet, against 169 Poker's charts.</li>
           <li><b>Flop:</b> the button's bet or check after the big blind checks, against real solver output on the 48 solved flops.</li>
           <li><b>Everything else</b> shows your numbers instead of a grade: your equity against the bot's range, the equity you need to call, and for each bet or raise how often the bot folds against how often a bluff needs it to.</li>
         </ul>
       </div>
-      <div class="note">The bot plays the charts preflop and the solver's flop strategy where Falcon has it. Its 4-bets, its answers to all-ins and everything on the turn and river follow simple rules built on equity against your range, so treat it as a sparring partner, not a solver. Equity counts what each hand wins if all five cards are dealt, before any more betting. Keys: <b>1</b>–<b>5</b> pick an action, <b>F</b> fold, <b>C</b> check or call, <b>Enter</b> next hand.</div>
+      <div class="note">The bot plays the charts preflop and the solver's flop strategy where 169 Poker has it. Its 4-bets, its answers to all-ins and everything on the turn and river follow simple rules built on equity against your range, so treat it as a sparring partner, not a solver. Equity counts what each hand wins if all five cards are dealt, before any more betting. Keys: <b>1</b>–<b>5</b> pick an action, <b>F</b> fold, <b>C</b> check or call, <b>Enter</b> next hand.</div>
     </aside>
   </section>
 </main>
@@ -457,7 +457,7 @@
         <p class="builds">Chapter 3 of 7 · Builds on: <a href="#theory/equity" data-ch="equity">1. Equity</a> · <a href="#theory/outs" data-ch="outs">2. Outs</a></p>
       </div>
       <p>Equity tells you how often you win. The <strong>price</strong> tells you how often you <em>need</em> to win for a call to pay off. Every call decision is just a comparison of the two.</p>
-      <p>Throughout Falcon, <strong>the pot</strong> means every chip in the middle before you call, including the bet you're facing. You risk your call to win the pot:</p>
+      <p>Throughout 169 Poker, <strong>the pot</strong> means every chip in the middle before you call, including the bet you're facing. You risk your call to win the pot:</p>
       <div class="formula">equity needed = call ÷ (pot + call)</div>
       <p>That number is your <strong>pot odds</strong>, written as the equity you need. Bets are usually described as a share of the pot <em>before</em> the bet, so there is a shortcut for that:</p>
       <div class="formula">equity needed = bet ÷ (pot before the bet + 2 × bet)</div>
@@ -591,7 +591,7 @@
         </table>
       </div>
       <p>Then add the chunks. "QQ+, AK" is 18 + 16 = <strong>34</strong> combos. "TT+, AQ+, AJs, KQs" is 30 + 32 + 4 + 4 = <strong>70</strong>. A hand played only part of the time counts for part of its combos: AJo played half the time is 6 combos instead of 12.</p>
-      <p>For a wide range, work from its size instead: every 1% of hands is about 13 combos, because there are 1,326 in total. Falcon's UTG open is 17% of hands, about 230 combos. The button open is 45%, about 600. You rarely need the total, but it tells you how much one hand matters: AA is 6 of UTG's 230 combos, under 3% of the range.</p>
+      <p>For a wide range, work from its size instead: every 1% of hands is about 13 combos, because there are 1,326 in total. The UTG open in these charts is 17% of hands, about 230 combos. The button open is 45%, about 600. You rarely need the total, but it tells you how much one hand matters: AA is 6 of UTG's 230 combos, under 3% of the range.</p>
 
       <h3>Blockers: adjust for the cards you can see</h3>
       <p>There are only four of each rank. Every card you can see is one they can't hold, so it <strong>blocks</strong> some of their combos: your two cards, and after the flop the board cards too. For each rank in the hand, count how many are left, then:</p>
@@ -970,7 +970,7 @@
         <div id="pc-range-wrap" hidden>
           <label class="sr" for="pc-range">Opponent range</label>
           <select id="pc-range" class="select"></select>
-          <p class="hint" style="margin-top:6px">Ranges come straight from Falcon's preflop charts.</p>
+          <p class="hint" style="margin-top:6px">Ranges come straight from 169 Poker's preflop charts.</p>
         </div>
       </div>
       <div class="slotgroup">
@@ -1034,7 +1034,7 @@
   <div class="article">
     <header>
       <h1>Getting good</h1>
-      <p>Falcon covers the fundamentals. These are the best outside resources for going further, in roughly the order they become useful.</p>
+      <p>169 Poker covers the fundamentals. These are the best outside resources for going further, in roughly the order they become useful.</p>
     </header>
 
     <section id="r-plan">
@@ -1061,7 +1061,7 @@
     <section id="r-paid">
       <h2>Paid study tools</h2>
       <div class="res">
-        <a class="ri" href="https://gtowizard.com/" target="_blank" rel="noopener"><b>GTO Wizard</b><span>Pre-solved strategies for thousands of spots, a trainer and a hand analyzer. The main inspiration for Falcon's range grid.</span><small>Subscription · Solutions + trainer</small></a>
+        <a class="ri" href="https://gtowizard.com/" target="_blank" rel="noopener"><b>GTO Wizard</b><span>Pre-solved strategies for thousands of spots, a trainer and a hand analyzer. The main inspiration for 169 Poker's range grid.</span><small>Subscription · Solutions + trainer</small></a>
         <a class="ri" href="https://piosolver.com/" target="_blank" rel="noopener"><b>PioSOLVER</b><span>The industry-standard desktop solver for building and solving your own spots. Powerful but has a steep learning curve.</span><small>One-time license · Solver</small></a>
         <a class="ri" href="https://www.gtoplus.com/" target="_blank" rel="noopener"><b>GTO+</b><span>A cheaper desktop solver with a friendlier interface. A solid step up from TexasSolver.</span><small>One-time license · Solver</small></a>
         <a class="ri" href="https://www.flopzilla.com/" target="_blank" rel="noopener"><b>Flopzilla</b><span>Shows exactly how a range hits a board, combo by combo. Great for building range-reading intuition.</span><small>One-time license · Range analysis</small></a>
@@ -1119,7 +1119,7 @@
 
 <footer class="sitefoot">
   <svg class="opmark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" class="sq"/><circle cx="16" cy="16" r="11" class="disc"/><circle cx="16" cy="16" r="5" class="core"/></svg>
-  <p>Falcon is a free study tool for 6-max cash games at 100bb. The preflop charts are hand-built approximations shaped like solver output, not exact solver data. Every equity, combo count and outs figure is calculated by Falcon's own engine. Flop strategies for BTN vs BB come from TexasSolver runs on these charts.</p>
+  <p>169 Poker is a free study tool for 6-max cash games at 100bb. The preflop charts are hand-built approximations shaped like solver output, not exact solver data. Every equity, combo count and outs figure is calculated by 169 Poker's own engine. Flop strategies for BTN vs BB come from TexasSolver runs on these charts.</p>
   <p>Play responsibly, and only with money you can afford to lose.</p>
 </footer>
 
@@ -1135,7 +1135,7 @@
 <script src="js/app.js"></script>
 <script src="js/opfield.js"></script>
 <script>
-  // GoatCounter analytics (no cookies). Falcon's views live in the address hash (#trainer/read, #theory/...), which GoatCounter ignores by default
+  // GoatCounter analytics (no cookies). 169 Poker's views live in the address hash (#trainer/read, #theory/...), which GoatCounter ignores by default
   window.goatcounter = {path: function () { return location.pathname + location.hash; }};
   window.addEventListener("hashchange", function () {
     if (window.goatcounter.count) window.goatcounter.count({path: location.pathname + location.hash});

@@ -1,4 +1,4 @@
-/* Falcon preflop: range viewer + trainer. Depends on ranges.js. */
+/* 169 Poker preflop: range viewer + trainer. Depends on ranges.js. */
 /* ---------- RANGES VIEW ---------- */
 let state={mode:"rfi",seat:"BTN",vs:0,v3:0,sel:"A5s"};
 const spotFromState=()=>state.mode==="rfi"?{mode:"rfi",seat:state.seat}:state.mode==="v3"?{mode:"v3",v3:state.v3}:{mode:"vs",vs:state.vs};
@@ -177,7 +177,7 @@ function deal(){
   if(tr.pool==="leaks"){
     const played=totalPlayed();
     if(played<10){
-      hint.textContent=`Play ${10-played} more hand${10-played===1?"":"s"} so Falcon can find your weak spots. Until then you get a mix of everything.`;
+      hint.textContent=`Play ${10-played} more hand${10-played===1?"":"s"} so 169 Poker can find your weak spots. Until then you get a mix of everything.`;
     }else{
       const queue=ST.missed.filter(m=>spotFromKey(m.key));
       hint.textContent=`Dealing more of your weakest spots${queue.length?`, plus ${queue.length} missed hand${queue.length===1?"":"s"} waiting for review`:""}.`;

@@ -5,13 +5,13 @@ primary_target: "index.html"
 related_targets: []
 ---
 
-Scope: the whole Falcon app (index.html and every view), visual experiment on branch experiment/living-art. Visitor mode: experience, while staying a working study tool.
+Scope: the whole 169 Poker app (index.html and every view), visual experiment on branch experiment/living-art. Visitor mode: experience, while staying a working study tool.
 
 Audience and job: self-taught 6-max NLHE players studying between sessions; they read ranges, answer trainers and read theory. Every feature and all copy stay; phone width must work.
 
 ## Direction contract
 
-THESIS: The 169 starting hands are already an op-art field. Falcon becomes a living Vasarely field where shape area is frequency, refusing the dark poker-felt study tool.
+THESIS: The 169 starting hands are already an op-art field. 169 Poker becomes a living Vasarely field where shape area is frequency, refusing the dark poker-felt study tool.
 
 OWN-WORLD: Cool op-white ground (#eef0f5), white reading plates, near-black ink (#15161d), ultramarine (#2430d8) for calls and structure, magenta (#d8226a) for raises, orange (#ff9a1f) as the rare highlight. All corners sharp; circles are the only curves. Anybody (wide, heavy) for display, Hanken Grotesk for reading. Controls show every option as a ghost; the chosen one is struck in solid ink.
 

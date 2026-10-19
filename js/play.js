@@ -1,5 +1,5 @@
-/* Falcon play mode (Trainer tab): whole hands heads-up against a bot, BTN vs BB at 100bb, seats switching each hand.
-   Graded where Falcon has data (the preflop charts, BTN's c-bet on the solved flops); everywhere else your equity against
+/* 169 Poker play mode (Trainer tab): whole hands heads-up against a bot, BTN vs BB at 100bb, seats switching each hand.
+   Graded where 169 Poker has data (the preflop charts, BTN's c-bet on the solved flops); everywhere else your equity against
    the bot's range and the equity a call needs. Rules, ranges and bots are in play-core.js (window.PlayCore). */
 (function () {
   "use strict";
@@ -97,7 +97,7 @@
     const st = pl.st, seat = pl.heroSeat, hole = st.hole[seat], hc = E.handClass(hole[0], hole[1]);
     if (st.street === 0) {
       const mix = C.chartMix(st, hc);
-      if (!mix) return { head: "Not graded", body: [`Falcon has no chart for this spot, so it isn't graded. The bot answers ${st.raises === 3 ? "4-bets" : "all-ins"} with a simple rule: it continues with ${st.raises === 3 ? "QQ+, AK and AQs (all-in with KK+ and AKs)" : "QQ+ and AK"}.`] };
+      if (!mix) return { head: "Not graded", body: [`169 Poker has no chart for this spot, so it isn't graded. The bot answers ${st.raises === 3 ? "4-bets" : "all-ins"} with a simple rule: it continues with ${st.raises === 3 ? "QQ+, AK and AQs (all-in with KK+ and AKs)" : "QQ+ and AK"}.`] };
       if (mix.unopened) return { head: "Not graded", body: [`The button's chart doesn't open ${hc}, so there is no chart for it facing a 3-bet. Open it less often and this spot won't come up.`] };
       const words = CHART_WORDS[st.raises], took = tookShare(mix, opt), grade = gradeOf(took, 1e-9);
       const parts = Object.keys(words).filter(k => mix[k] > 0.001).map(k => `${words[k]} ${pct(mix[k])}`);
@@ -151,7 +151,7 @@
         : `This flop isn't one of the 48 solved ones, so the c-bet isn't graded. The bot plays the closest solved flop (${flopText(pl.sv.flop.cards)}) by hand type.`);
       else if (seat === C.BB && st.streetBets === 1) {
         const last = st.history[st.history.length - 1], r = last.tags.includes("small") ? pl.sv.flop.vsSmall : last.tags.includes("big") ? pl.sv.flop.vsBig : null;
-        if (r) fb.body.push(`Against this bet the solver's big blind folds ${pc(r[0])}, calls ${pc(r[1])} and raises ${pc(r[2])} of its range${near}. Your exact hand isn't graded: Falcon has the big blind's overall split, not its strategy per hand.`);
+        if (r) fb.body.push(`Against this bet the solver's big blind folds ${pc(r[0])}, calls ${pc(r[1])} and raises ${pc(r[2])} of its range${near}. Your exact hand isn't graded: 169 Poker has the big blind's overall split, not its strategy per hand.`);
       }
     }
     return fb;
