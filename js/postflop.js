@@ -770,7 +770,7 @@
   /* ================= 5. C-BET TRAINER (lives in the Trainer tab) ================= */
   /* BTN opens, BB calls, BB checks the flop: bet or check? Graded per combo against the solver (js/solved-combos.js,
      loaded on first use). Only bet vs check is graded; the solver's two sizes are often close in value, so the size
-     is only mentioned when it clearly prefers one. Flops are the 30 solved ones with their suits relabelled at random. */
+     is only mentioned when it clearly prefers one. Flops are the 48 solved ones with their suits relabelled at random. */
   const ALPHA = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
   const cb = { cur: null, answered: false, n: 0, good: 0, streak: 0, loading: false };
   const CB_NEED_SMALL = 0.33 / 1.33;
@@ -806,7 +806,7 @@
       const data = cbData(), fi = (Math.random() * SOLVED_FLOPS.length) | 0, list = data[fi];
       let r = Math.random() * list.reduce((s, x) => s + x.w, 0), pick = list[0];
       for (const x of list) { r -= x.w; if (r <= 0) { pick = x; break; } }
-      // Relabel suits at random so the same 30 flops don't always look the same
+      // Relabel suits at random so the same 48 flops don't always look the same
       const perm = SUIT_PERMS[(Math.random() * SUIT_PERMS.length) | 0], relabel = c => E.card(E.rankOf(c), perm[E.suitOf(c)]);
       const board = SOLVED_FLOPS[fi].cards.map(relabel).sort((a, b) => b - a);
       cb.cur = { fi, flop: SOLVED_FLOPS[fi], board, hero: pick.c.map(relabel), mix: pick.mix, list };

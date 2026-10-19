@@ -27,7 +27,7 @@
 
   /* ---------- Dealing ---------- */
   function shuffle(d) { for (let i = d.length - 1; i > 0; i--) { const j = (Math.random() * (i + 1)) | 0; [d[i], d[j]] = [d[j], d[i]]; } return d; }
-  // Study deal: the flop is one of the 30 solved flops with its suits shuffled; everything else is random
+  // Study deal: the flop is one of the 48 solved flops with its suits shuffled; everything else is random
   function makeDeck() {
     if (pl.opts.deal !== "study") return shuffle(E.remainingDeck([]));
     const f = C.SOLVED_FLOPS[(Math.random() * C.SOLVED_FLOPS.length) | 0], p = C.SUIT_PERMS[(Math.random() * 24) | 0];
@@ -148,7 +148,7 @@
       const near = pl.sv.exact ? "" : ` (from the closest solved flop, ${flopText(pl.sv.flop.cards)})`;
       if (seat === C.BB && !owed) fb.body.push(`In the solves the big blind always checks the flop to the preflop raiser, and the bot does the same.`);
       else if (seat === C.BTN && !owed) fb.body.push(pl.sv.exact ? `The button's chart doesn't open ${hc}, so the solver has no strategy for it and the c-bet isn't graded.`
-        : `This flop isn't one of the 30 solved ones, so the c-bet isn't graded. The bot plays the closest solved flop (${flopText(pl.sv.flop.cards)}) by hand type.`);
+        : `This flop isn't one of the 48 solved ones, so the c-bet isn't graded. The bot plays the closest solved flop (${flopText(pl.sv.flop.cards)}) by hand type.`);
       else if (seat === C.BB && st.streetBets === 1) {
         const last = st.history[st.history.length - 1], r = last.tags.includes("small") ? pl.sv.flop.vsSmall : last.tags.includes("big") ? pl.sv.flop.vsBig : null;
         if (r) fb.body.push(`Against this bet the solver's big blind folds ${pc(r[0])}, calls ${pc(r[1])} and raises ${pc(r[2])} of its range${near}. Your exact hand isn't graded: Falcon has the big blind's overall split, not its strategy per hand.`);
@@ -301,7 +301,7 @@
   function renderOpts() {
     for (const k of ["seat", "deal", "stacks"]) document.querySelectorAll(`[data-pl-${k}]`).forEach(b => b.setAttribute("aria-pressed", b.dataset["pl" + k[0].toUpperCase() + k.slice(1)] === pl.opts[k]));
     $("pl-deal-hint").textContent = pl.opts.deal === "study"
-      ? "Flops come only from the 30 solved ones (suits shuffled), so the button's c-bet can always be graded. Takes effect next hand."
+      ? "Flops come only from the 48 solved ones (suits shuffled), so the button's c-bet can always be graded. Takes effect next hand."
       : "Fully random. Only about 2 flops in 100 match a solved one, so the c-bet is rarely graded; the bot uses the closest solved flop. Takes effect next hand.";
     $("pl-stacks-hint").textContent = pl.opts.stacks === "reset"
       ? "Both players start every hand with 100bb, the depth the charts and solves assume."

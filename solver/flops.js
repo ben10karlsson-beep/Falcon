@@ -37,5 +37,24 @@ module.exports = [
   // Monotone
   { board: "Ah,9h,5h", family: "Monotone ace-high" },
   { board: "Qh,8h,3h", family: "Monotone high" },
-  { board: "9h,7h,4h", family: "Monotone middle" }
+  { board: "9h,7h,4h", family: "Monotone middle" },
+  // Second batch (2026-10-19): fills texture gaps between the first 30
+  { board: "As,Qd,3c", family: "Ace-queen dry" },
+  { board: "As,Kd,Qc", family: "Ace-high three broadway" },
+  { board: "Ks,Qs,Jd", family: "King-high broadway two-tone" },
+  { board: "Ks,Jd,4c", family: "King-jack dry" },
+  { board: "Qs,Td,4c", family: "Queen-ten dry" },
+  { board: "Qs,6d,5c", family: "Queen-high low connected" },
+  { board: "Js,9s,4d", family: "Jack-high two-tone" },
+  { board: "Js,8d,5c", family: "Jack-high middle" },
+  { board: "Ts,8s,2d", family: "Ten-high two-tone" },
+  { board: "9s,8d,5c", family: "Nine-high connected" },
+  { board: "7s,6s,3d", family: "Seven-high two-tone" },
+  { board: "7s,5d,2c", family: "Seven-high dry" },
+  { board: "Qs,Qd,6c", family: "Paired queens" },
+  { board: "Ts,Td,4c", family: "Paired tens" },
+  { board: "7s,7d,2s", family: "Paired low two-tone" },
+  { board: "As,5d,5c", family: "Paired low with an ace" },
+  { board: "Kh,Th,6h", family: "Monotone king-high" },
+  { board: "6h,5h,2h", family: "Monotone low" }
 ];
