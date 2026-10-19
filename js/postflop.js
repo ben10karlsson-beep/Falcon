@@ -139,9 +139,9 @@
         <div class="vs">${hero.map(c => cardHTML(c, "sm")).join("")}<span>vs</span>${label}</div>
       </div>
       <div class="split" role="img" aria-label="Win ${fmt(res.win)}, tie ${fmt(res.tie)}, lose ${fmt(res.lose)}">
-        <span style="width:${res.win * 100}%;background:var(--red)"></span><span style="width:${res.tie * 100}%;background:var(--call)"></span><span style="width:${res.lose * 100}%;background:var(--fold)"></span>
+        <span style="width:${res.win * 100}%;background:var(--win)"></span><span style="width:${res.tie * 100}%;background:var(--tie)"></span><span style="width:${res.lose * 100}%;background:var(--fold)"></span>
       </div>
-      <div class="stats"><span><i class="sw" style="background:var(--red)"></i>Win <b>${fmt(res.win)}</b></span><span><i class="sw" style="background:var(--call)"></i>Tie <b>${fmt(res.tie)}</b></span><span><i class="sw" style="background:var(--fold);outline:1px solid var(--line)"></i>Lose <b>${fmt(res.lose)}</b></span></div>
+      <div class="stats"><span><i class="sw" style="background:var(--win)"></i>Win <b>${fmt(res.win)}</b></span><span><i class="sw" style="background:var(--tie)"></i>Tie <b>${fmt(res.tie)}</b></span><span><i class="sw" style="background:var(--fold);outline:1px solid var(--line)"></i>Lose <b>${fmt(res.lose)}</b></span></div>
       <div class="note" style="border:0;padding:0">${exact ? "Exact: every remaining card combination was counted." : `Estimated from ${res.samples.toLocaleString("en")} random run-outs (accurate to about ±0.5%).`}</div>`;
     if (desc) html += `<div class="infobox"><div class="label">Your hand now</div><p><strong>${desc.made}</strong>${desc.draws.length ? ` with ${desc.draws.join(" and ")}` : ""}</p></div>`;
     if (nxt) {
@@ -169,8 +169,8 @@
     $("pc-result").innerHTML = html;
   }
 
-  // Strong to nothing: magenta, pale magenta, pale ultramarine, ultramarine, bare grey
-  const BUCKET_COLORS = ["var(--magenta)", "var(--bet-small)", "#9ea5f2", "var(--ultra)", "var(--nothing)"];
+  // Strong to nothing: raise colour, its pale tint, pale call colour, call colour, bare grey
+  const BUCKET_COLORS = ["var(--magenta)", "var(--bet-small)", "#a8c1ff", "var(--ultra)", "var(--nothing)"];
   function profileBars(rows) {
     return `<div class="profile">${rows.map(r => `
         <div class="prof-row"><span class="pn">${r.name}</span><span class="pbar">${r.prof.buckets.map((x, i) => `<span style="width:${x * 100}%;background:${BUCKET_COLORS[i]}" title="${E.BUCKETS[i]}: ${fmt(x)}"></span>`).join("")}</span></div>`).join("")}
@@ -388,7 +388,7 @@
     }
     el.innerHTML = `
       <div class="label" style="margin-bottom:6px">Which ${next} cards help whom</div>
-      <p class="hint" style="margin:0 0 8px">${m.agg}'s range equity after each ${next} card, compared with ${fmt(base)} now. Magenta cards help ${m.agg}, blue cards help ${m.caller}, and the stronger the colour, the bigger the swing. Click a card to deal it.</p>
+      <p class="hint" style="margin:0 0 8px">${m.agg}'s range equity after each ${next} card, compared with ${fmt(base)} now. Orange cards help ${m.agg}, blue cards help ${m.caller}, and the stronger the colour, the bigger the swing. Click a card to deal it.</p>
       <div class="picker nextmap">${grid}</div>
       <ul class="tips" style="margin-top:10px">${lines.map(x => `<li>${x}</li>`).join("")}</ul>
       <p class="note" style="border:0;padding:0">Each card is estimated from 15,000 random deals, so a single card can be off by up to a point. The rank averages are steadier.</p>`;

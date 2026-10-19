@@ -1,0 +1,342 @@
+/* =====================================================================
+   FIELD KIT (experiment). An industrial-instrument skin over the app, after
+   Teenage Engineering's hardware: aluminium-grey ground, off-white plates,
+   black ink, and colour only where it means something, like the OP-1's knobs:
+   orange raises, blue calls, green is a right answer. Every choice is a key;
+   the chosen key is pressed in ink with its LED lit. Loaded after falcon.css.
+   ===================================================================== */
+:root{
+  --bg:#e3e3df; --surface:#f5f5f2; --surface-2:#d6d6d1; --line:#b9b9b3;
+  --text:#121211; --text-2:#2f2f2c; --muted:#585853; --dim:#75756e; --fold-ink:#75756e;
+  --ink:#121211;
+  /* The knobs: orange, blue, green, plus the grey cap */
+  --orange:#ff5a1f; --blue:#4a82ff; --green:#14b26b; --led:#ff5a1f;
+  --magenta:var(--orange); --ultra:var(--blue);
+  --red:var(--orange); --red-soft:#c43f0b; --raise:var(--orange); --call:var(--blue); --fold:#d0d0cb; --bet-small:#ffab85;
+  --good:#0f9a5c; --warn:#b97a00;
+  --card:#ffffff; --card-ink:#121211; --card-red:#d13d00; --card-edge:#121211;
+  --pair:#ececE8; --pair-2:#dcdcd7; --hair:rgba(18,18,17,.12); --nothing:#b9b9b3;
+  /* Text on a knob colour is always near-black: orange, blue and green all carry it at 5:1 or better */
+  --on-knob:#121211;
+  /* Gutter field: speaker-grille perforations in ink */
+  --field-ink:#121211; --field-alpha:.16;
+  --key:#ecece8; --key-edge:#b4b4ae; --key-shadow:0 1px 0 #a9a9a2,0 2px 3px rgba(18,18,17,.12);
+  --r-key:3px;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --body:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --mono:"Martian Mono",ui-monospace,monospace;
+}
+:root[data-theme="dark"]{
+  --bg:#141414; --surface:#1d1d1c; --surface-2:#2b2b29; --line:#3d3d3a;
+  --text:#f0f0ec; --text-2:#cfcfca; --muted:#a2a29b; --dim:#7f7f78; --fold-ink:#7f7f78;
+  --ink:#f0f0ec;
+  --orange:#ff6a2b; --blue:#5f8fff; --green:#2fcf86; --led:#ff6a2b;
+  --magenta:var(--orange); --ultra:var(--blue);
+  --fold:#2e2e2c; --bet-small:#ffb08f;
+  --good:#2fcf86; --warn:#f0b033; --red-soft:#ff8a5c;
+  --pair:#222221; --pair-2:#1f1f1e; --hair:rgba(255,255,255,.08); --nothing:#4a4a46;
+  --field-ink:#f0f0ec; --field-alpha:.13;
+  --key:#2a2a28; --key-edge:#3f3f3c; --key-shadow:0 1px 0 #050505,0 2px 3px rgba(0,0,0,.4);
+}
+
+body{font-family:var(--body);font-size:15px;font-stretch:100%;letter-spacing:0}
+::selection{background:color-mix(in srgb,var(--orange) 35%,transparent);color:var(--text)}
+html{accent-color:var(--orange);scrollbar-color:var(--key-edge) var(--bg)}
+input,textarea{caret-color:var(--orange)}
+:focus-visible,.btn:focus-visible,.chip:focus-visible,.seg button:focus-visible,.tab:focus-visible,.path button:focus-visible{outline:2px solid var(--orange);outline-offset:2px}
+
+/* Type: Archivo, medium weight and slightly wide, small and exact. Numbers and readouts in Martian Mono */
+.summary h1,.article header h1,.article h2,.article h3,.fb .head,.hand .big,.eqbig,.brand,.wl-text h1,.wl-paths b,.pl-stack,.pl-pot b{font-family:var(--display);font-stretch:112%}
+.summary h1{font-weight:600;font-size:clamp(30px,3.4vw,46px);line-height:1;letter-spacing:-.025em}
+.article header h1{font-weight:600;font-size:clamp(36px,4.6vw,58px);line-height:1;letter-spacing:-.03em;font-stretch:112%}
+.article h2{font-weight:600;font-size:clamp(26px,2.8vw,34px);line-height:1.08;letter-spacing:-.02em}
+.article h3{font-weight:600;font-size:19px}
+.wl-text h1{font-weight:600;font-size:clamp(36px,4.6vw,62px);line-height:1;letter-spacing:-.035em}
+.wl-paths b{font-weight:600;font-size:19px;letter-spacing:-.01em}
+.fb .head{font-weight:600;font-size:24px;letter-spacing:-.02em}
+.hand .big,.eqbig,.score b,.outs b,.fact b,.pl-stack,.pl-pot b,.pcard .rk,.pcard .c,.mc b{font-family:var(--mono);font-stretch:87.5%;font-weight:500;letter-spacing:-.03em}
+.hand .big{font-size:clamp(40px,3.8vw,52px)}
+.eqbig{font-size:52px}
+.score b,.outs b{font-size:22px}
+.fact b{font-size:16px}
+.stats b,.freq .pct,.leak b,.seatbar,.re-eq,.calc .ctrl label b,.log .h,.gloss dt,.mtable .hh,.cls,.chip,.pk,.seat,.potbar,.eq,.split.tall,.tinput,.article code{font-family:var(--mono);font-stretch:87.5%}
+.stats b,.calc .ctrl label b{font-weight:600}
+.label{font-weight:500;color:var(--muted);font-size:12.5px}
+
+/* App bar: an off-white top panel with one ink rule */
+.appbar{background:var(--surface);box-shadow:inset 0 -1px 0 var(--ink);padding:12px 20px;gap:20px}
+.brand{font-weight:700;font-size:22px;font-stretch:112%;letter-spacing:-.04em;gap:10px}
+.brand svg{width:auto;height:22px}
+.knobs .k{stroke:var(--ink);stroke-width:1.2}
+.knobs .k1{fill:var(--blue)}.knobs .k2{fill:var(--green)}.knobs .k3{fill:var(--surface)}.knobs .k4{fill:var(--orange)}
+.knobs .tick{stroke:var(--on-knob);stroke-width:1.6;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s cubic-bezier(.16,1,.3,1)}
+.knobs .k3+.tick{stroke:var(--ink)}
+.brand:hover .knobs .tick{transform:rotate(90deg)}
+.brand:hover .knobs .tick:nth-of-type(2n){transform:rotate(-60deg)}
+.sitefoot .knobs{height:16px;width:auto;margin:0 auto 12px;display:block}
+
+/* Keys: tabs, rails, chips and buttons are hardware keys. The chosen key is pressed in ink and its LED is lit */
+.tab,.seg button,.chip,.btn,.pk{position:relative}
+.tabs{gap:6px}
+.tab{border-radius:var(--r-key);background:var(--key);box-shadow:inset 0 0 0 1px var(--key-edge),var(--key-shadow);color:var(--text-2);font-weight:500;padding:7px 14px 7px 24px;transition:background .15s,color .15s,transform .08s,box-shadow .08s}
+.tab::before,.seg button::before,.chip::before{content:"";position:absolute;left:10px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:var(--surface-2);box-shadow:inset 0 0 0 1px var(--key-edge);transition:background .15s,box-shadow .15s}
+.tab:hover:not([disabled]){color:var(--ink);background:color-mix(in srgb,var(--ink) 5%,var(--key))}
+.tab[aria-current="page"],.tab[aria-current="page"]:hover{background:var(--ink);color:var(--surface);font-weight:600;box-shadow:inset 0 0 0 1px var(--ink);transform:translateY(1px)}
+.tab[aria-current="page"]::before,.seg button[aria-pressed="true"]::before,.chip[aria-pressed="true"]::before{background:var(--led);box-shadow:0 0 0 2px color-mix(in srgb,var(--led) 30%,transparent)}
+
+.seg{background:var(--surface-2);border-radius:calc(var(--r-key) + 3px);box-shadow:inset 0 0 0 1px var(--key-edge);padding:3px;gap:3px}
+.seg button{border-radius:var(--r-key);background:var(--key);box-shadow:inset 0 0 0 1px var(--key-edge),var(--key-shadow);color:var(--text-2);padding:6px 12px 6px 22px;font-weight:500;transition:color .15s}
+.seg button::before{left:9px}
+.seg button:hover:not([aria-pressed="true"]){color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--surface);box-shadow:inset 0 0 0 1px var(--ink)}
+.seg.slides button[aria-pressed="true"]{background:none;box-shadow:none;color:var(--surface)}
+.seg-thumb{border-radius:var(--r-key);background:var(--ink);box-shadow:none}
+.seg.small button{padding:4px 9px 4px 20px;font-size:13px}
+.seg.small button::before{left:8px;width:5px;height:5px;margin-top:-2.5px}
+
+.chip{border:0;border-radius:var(--r-key);background:var(--key);box-shadow:inset 0 0 0 1px var(--key-edge),var(--key-shadow);color:var(--text-2);font-size:12px;padding:6px 10px 6px 21px;transition:background .15s,color .15s,transform .08s}
+.chip::before{left:8px;width:5px;height:5px;margin-top:-2.5px}
+.chip:hover{color:var(--ink);background:color-mix(in srgb,var(--ink) 5%,var(--key));border-color:transparent}
+.chip:active:not([disabled]){transform:translateY(1px);box-shadow:inset 0 0 0 1px var(--key-edge)}
+.chip[aria-pressed="true"],.chip[aria-pressed="true"]:hover{background:var(--ink);color:var(--surface);box-shadow:inset 0 0 0 1px var(--ink);transform:translateY(1px)}
+
+.btn{border-radius:var(--r-key);background:var(--key);box-shadow:inset 0 0 0 1px var(--key-edge),var(--key-shadow);color:var(--ink);font-weight:600;transition:background .15s,transform .08s,box-shadow .08s}
+.btn:hover{background:color-mix(in srgb,var(--ink) 5%,var(--key))}
+.btn:active{transform:translateY(1px);box-shadow:inset 0 0 0 1px var(--key-edge)}
+.btn.primary{background:var(--orange);color:var(--on-knob);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--orange) 70%,#000),0 1px 0 color-mix(in srgb,var(--orange) 55%,#000),0 2px 3px rgba(18,18,17,.15)}
+.btn.primary:hover,:root[data-theme="dark"] .btn.primary:hover{background:color-mix(in srgb,var(--orange) 88%,#fff);color:var(--on-knob)}
+.btn.primary:active{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--orange) 70%,#000)}
+
+/* Action keys: big keys in the knob colours, labels in black */
+.act{border-radius:var(--r-key);font-family:var(--display);font-stretch:112%;font-weight:600;font-size:16px;color:var(--on-knob);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28),0 2px 0 rgba(0,0,0,.28),0 3px 6px rgba(18,18,17,.14);transition:transform .08s,box-shadow .08s,opacity .2s}
+.act:hover:not([disabled]){opacity:1;filter:brightness(1.05)}
+.act:active:not([disabled]){transform:translateY(2px);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+.act.call{background:var(--blue);color:var(--on-knob)}
+.act.raise{background:var(--orange);color:var(--on-knob)}
+.act.fold,.act.fold[disabled]{background:var(--key);color:var(--ink);box-shadow:inset 0 0 0 1px var(--key-edge),0 2px 0 var(--key-edge),0 3px 6px rgba(18,18,17,.1)}
+.act kbd{font-family:var(--mono);font-stretch:87.5%;font-size:10.5px;opacity:.75}
+.act[disabled]{opacity:.3;box-shadow:inset 0 0 0 1px rgba(0,0,0,.2)}
+.act.picked,.act.fold.picked{opacity:1!important;transform:translateY(2px);outline:2px solid var(--ink);outline-offset:3px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+
+/* Plates: off-white panels on the grey ground, a hairline edge, slightly rounded like a device face */
+.panel,.calc,.example,.recap,.step,.steps li,.ri,.bk,.felt{border-radius:6px}
+.panel{background:var(--surface);box-shadow:0 0 0 1px var(--hair)}
+.calc,.example,.recap,.step,.steps li,.ri,.bk{background:var(--surface);box-shadow:0 0 0 1px var(--hair)}
+.score,.fact,.outs div,.log button,.infobox,.insight,.tag2{border-radius:4px;background:var(--bg)}
+.ri:hover{box-shadow:0 0 0 1px var(--ink)}
+.practice{border:1px dashed var(--ink);border-radius:6px}
+.formula{border-radius:4px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--ink);font-family:var(--mono);font-stretch:87.5%;font-weight:500;font-size:14px}
+.insight .label,.example .label,.recap .label,.lvl{color:var(--ink)}
+
+/* Trainer tables: a strip of speaker-grille perforations along the top, like the TP-7's face */
+.felt{padding-top:40px;box-shadow:0 0 0 1px var(--hair);
+  background:radial-gradient(circle,var(--ink) 0 1.6px,transparent 2.1px) 6px 8px/9px 9px repeat-x,
+             radial-gradient(circle,var(--ink) 0 1.6px,transparent 2.1px) 10.5px 17px/9px 9px repeat-x,var(--surface)}
+.seats .seat{border-radius:var(--r-key);background:var(--bg);border-color:transparent}
+.seat.hero{background:var(--orange);border-color:var(--orange);color:var(--on-knob)}
+.seat.vil{border-color:var(--ink);background:var(--surface)}
+.sit b{color:var(--red-soft)}
+
+/* Feedback: a plate with a grade LED */
+.fb{border-radius:6px;background:var(--surface);border-width:1.5px}
+.fb.good{border-color:var(--good)}.fb.ok{border-color:var(--warn)}.fb.bad{border-color:var(--orange)}
+.fb .dot{width:14px;height:14px;box-shadow:0 0 0 3px color-mix(in srgb,currentColor 0%,transparent)}
+.fb .dot::after{background:none;-webkit-mask:none;mask:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.25),0 0 0 3px var(--surface),0 0 0 4px var(--key-edge);border-radius:50%}
+.fb.pl-num{border-color:var(--line)}
+.fb.pl-end{border-color:var(--ink)}
+
+/* The range field: 169 keys. Each square is a key cap; the disc's area is the frequency */
+.cell{border-radius:2px;background:var(--surface);box-shadow:inset 0 0 0 1px var(--hair)}
+.cell.pair{background:var(--pair)}
+.cell .r{font-family:var(--mono);font-stretch:75%;font-weight:600;letter-spacing:-.04em}
+.cell .s{font-family:var(--mono);font-stretch:75%;font-weight:500}
+/* Labels on a disc stay near-black: every knob colour carries black text */
+.cell .inv,:root[data-theme="dark"] .cell .inv,.cell.lit,:root[data-theme="dark"] .cell.lit{color:var(--on-knob)}
+.cell,.cell.lit{color:var(--ink)}
+.cell.zero,.rd-grid .cell.zero{color:var(--muted)}
+.cell[aria-pressed="true"]::after{box-shadow:inset 0 0 0 2px var(--ink),inset 0 0 0 4px var(--surface);border-radius:2px}
+.rd-grid .cell{background:var(--bg)}
+.rd-grid .cell.pair{background:var(--pair-2)}
+.rd-grid .cell.rd-extra{outline:2px solid var(--orange);outline-offset:-2px}
+.axis{font-size:12px}
+
+/* Bars and readouts: flat strips, black numerals on the knob colours */
+.bar,.split,.pbar,.potbar,.eq,.freq .track,.leak .track,.seatbar .t,.re-eq i{border-radius:2px}
+.split.tall span,.potbar span,.eq span{color:var(--on-knob)}
+.potbar span:first-child{color:var(--ink)}
+.nextmap .pk,.nextmap .pk.red,.nextmap .pk.on{color:var(--ink)}
+.nextmap .pk.on{color:var(--on-knob)}
+.tag,.rl{border-radius:2px}
+.tag{font-family:var(--mono);font-stretch:87.5%;font-weight:500}
+.sw{border-radius:50%}
+
+/* Inputs: recessed wells */
+.select,.tinput{border-radius:var(--r-key);background:var(--surface);border:1px solid var(--ink);box-shadow:inset 0 1px 2px rgba(18,18,17,.12)}
+.tinput:focus{outline:2px solid var(--orange);outline-offset:1px}
+.tinput[aria-invalid="true"]{border-color:var(--orange)}
+.calc input[type=range]{accent-color:var(--orange)}
+
+/* Card picker keys and playing cards */
+.pk{border-radius:2px;background:var(--key);box-shadow:inset 0 0 0 1px var(--key-edge);color:var(--ink)}
+.pk.red{color:var(--card-red)}
+:root[data-theme="dark"] .pk.red{color:var(--orange)}
+.pk:hover:not([disabled]){background:var(--surface);box-shadow:inset 0 0 0 1px var(--ink)}
+.pcard,.mc,.slot,.fan .mc{border-radius:5px}
+.mc.sm{border-radius:4px}.mc.xs{border-radius:3px}
+.pcard .rk{font-size:44px}
+.slot{border:1px dashed var(--ink)}
+.slot.active{border:2px solid var(--orange);background:var(--surface)}
+.slot.filled.active .mc{outline:2px solid var(--orange)}
+/* Card back: a grille of perforations */
+.mc.back,:root[data-theme="dark"] .mc.back{background:radial-gradient(circle,var(--ink) 0 1.4px,transparent 1.9px) 0 0/6px 6px,var(--surface);box-shadow:inset 0 0 0 3px var(--surface),inset 0 0 0 4px var(--ink)}
+
+/* Theory path: chapter numbers on small round keys; the current one lit orange */
+.path button{border-left-width:1px}
+.path button b{background:var(--key);box-shadow:inset 0 0 0 1px var(--key-edge);color:var(--ink);font-family:var(--mono);font-stretch:87.5%;font-weight:600}
+.path button[aria-current] b{background:var(--orange);box-shadow:none;color:var(--on-knob)}
+.path button[aria-current],.path button:hover{border-left-color:var(--ink)}
+.steps li::before,.step>b{background:var(--orange);color:var(--on-knob);font-family:var(--mono);font-stretch:87.5%}
+ol.takeaways li::marker{color:var(--red-soft)}
+.article a{text-decoration-color:var(--orange);text-decoration-thickness:1.5px;text-underline-offset:3px}
+@media (max-width:900px){.path button,.path .gl{border-radius:var(--r-key)}.toc a{border-radius:var(--r-key)}}
+
+/* App bar switches: small square keys */
+.fx-icon,.dots-icon,.theme-switch .ts{border-radius:var(--r-key);box-shadow:inset 0 0 0 1px var(--ink)}
+.theme-switch .ts i{border-radius:2px}
+.theme-switch .ts i.on{background:radial-gradient(circle closest-side,var(--led) 0 40%,transparent 48%),var(--ink)}
+.fx-switch,.dots-switch,.theme-switch{font-weight:500}
+
+/* Welcome: paths are rows of keys */
+.wl-paths{border-top:1px solid var(--ink)}
+.wl-paths li{border-bottom:1px solid var(--ink)}
+.wl-paths button::before{width:12px;height:12px;margin-top:6px;box-shadow:none;background:var(--orange)}
+.wl-paths li:nth-child(2) button::before{box-shadow:none;background:var(--blue)}
+.wl-paths li:nth-child(3) button::before{box-shadow:none;background:var(--green)}
+.wl-paths button:hover::before,.wl-paths li:nth-child(2) button:hover::before,.wl-paths li:nth-child(3) button:hover::before{box-shadow:0 0 0 3px color-mix(in srgb,var(--surface) 30%,transparent)}
+
+/* Play */
+.pl-seat{border-radius:4px}
+.pl-seat.turn{box-shadow:inset 0 0 0 1px var(--ink)}
+.pl-seat.turn .label::before{content:"";display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--led);margin-right:6px;vertical-align:1px}
+
+/* Celebration and ripples read the knob colours from the tokens */
+.fx-ring{border-radius:var(--r-key)}
+
+@media (prefers-reduced-motion:reduce){.tab,.seg button,.chip,.btn,.act,.knobs .tick{transition:none}.tab[aria-current="page"],.chip[aria-pressed="true"],.act.picked,.act:active:not([disabled]),.btn:active{transform:none}}
+
+/* Orange is a fill colour; as text on a plate it drops to the deeper orange for contrast */
+.verdict[style*="--raise"]{color:var(--red-soft)!important}
+.cell .r{font-weight:500}
+.cell .s{font-weight:400}
+
+/* Review fixes: LEDs have no glow; "you" is marked in ink, not the raise colour; path markers are plain ink LEDs; word chips in Archivo; display at medium weight */
+.tab[aria-current="page"]::before,.seg button[aria-pressed="true"]::before,.chip[aria-pressed="true"]::before{box-shadow:none}
+.seat.hero{background:var(--ink);border-color:var(--ink);color:var(--surface)}
+.wl-paths button::before,.wl-paths li:nth-child(2) button::before,.wl-paths li:nth-child(3) button::before{width:8px;height:8px;margin-top:8px;background:var(--ink);box-shadow:none}
+.wl-paths button:hover::before,.wl-paths button:focus-visible::before,.wl-paths li:nth-child(2) button:hover::before,.wl-paths li:nth-child(3) button:hover::before{background:var(--led);box-shadow:none}
+.chip{font-family:var(--body);font-stretch:100%;font-size:13px}
+.summary h1,.article header h1,.article h2,.article h3,.wl-text h1,.wl-paths b,.fb .head{font-weight:500}
+
+/* Second review: orange and blue mean raise and call only, so win and tie are ink and grey; the current chapter is a pressed ink key */
+:root{--win:var(--ink);--tie:var(--muted)}
+.path button[aria-current] b{background:var(--ink);color:var(--surface)}
+/* Phone app bar: switches join the brand row, tabs pack into the rows below */
+@media (max-width:640px){
+  .appbar{gap:10px 12px;padding:10px 16px}
+  .appbar .tabs{order:3;flex-basis:100%;gap:5px}
+  .tab{padding:6px 10px 6px 20px}
+  .tab::before{left:8px}
+}
+
+/* =====================================================================
+   TACTILE. Keys travel down fast and spring back with a little overshoot,
+   like a sprung switch; LEDs warm up with a flicker; cards are dealt with
+   weight. js/opfield.js holds each press for at least 90ms (.pressing) so a
+   quick click still shows its travel, and gives a 5ms buzz on phones.
+   Everything here stops when effects are paused or motion is reduced.
+   ===================================================================== */
+:root{--spring:cubic-bezier(.3,1.7,.45,1);--snap:cubic-bezier(.2,.9,.3,1)}
+.tab,.seg button,.chip,.btn,.pk,.act,.cell,.wl-paths button,.path button,.fx-switch,.dots-switch,.theme-switch{
+  transition:transform .32s var(--spring),box-shadow .32s var(--spring),background-color .18s,color .18s,filter .18s,opacity .2s}
+/* Hover: the cap lifts a hair and its lip grows */
+.tab:hover:not([disabled]):not([aria-current]),.seg button:hover:not([aria-pressed="true"]),.chip:hover:not([disabled]):not([aria-pressed="true"]),.btn:hover:not([disabled]),.pk:hover:not([disabled]){
+  transform:translateY(-1px);box-shadow:inset 0 0 0 1px var(--key-edge),0 2px 0 #a9a9a2,0 4px 6px rgba(18,18,17,.14)}
+:root[data-theme="dark"] .tab:hover:not([disabled]):not([aria-current]),:root[data-theme="dark"] .seg button:hover:not([aria-pressed="true"]),:root[data-theme="dark"] .chip:hover:not([disabled]):not([aria-pressed="true"]),:root[data-theme="dark"] .btn:hover:not([disabled]),:root[data-theme="dark"] .pk:hover:not([disabled]){box-shadow:inset 0 0 0 1px var(--key-edge),0 2px 0 #050505,0 4px 6px rgba(0,0,0,.45)}
+.btn.primary:hover{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--orange) 70%,#000),0 2px 0 color-mix(in srgb,var(--orange) 55%,#000),0 4px 6px rgba(18,18,17,.16)}
+/* Press: fast travel down, lip gone, a touch of squash */
+.tab:active,.tab.pressing,.seg button:active,.seg button.pressing,.chip:active:not([disabled]),.chip.pressing,.btn:active:not([disabled]),.btn.pressing,.pk:active:not([disabled]),.pk.pressing{
+  transform:translateY(2px) scale(.97,.95);box-shadow:inset 0 0 0 1px var(--key-edge),inset 0 2px 3px rgba(0,0,0,.18);transition-duration:.05s;transition-timing-function:var(--snap)}
+.btn.primary:active,.btn.primary.pressing{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--orange) 70%,#000),inset 0 2px 3px rgba(0,0,0,.22)}
+.act:hover:not([disabled]){transform:translateY(-2px);box-shadow:inset 0 0 0 1px rgba(0,0,0,.28),0 4px 0 rgba(0,0,0,.28),0 7px 12px rgba(18,18,17,.16);filter:none}
+.act:active:not([disabled]),.act.pressing:not([disabled]){transform:translateY(4px) scale(.98,.96);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 3px 5px rgba(0,0,0,.22);transition-duration:.05s;transition-timing-function:var(--snap)}
+.act.picked,.act.fold.picked{transform:translateY(3px);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 2px 4px rgba(0,0,0,.2)}
+.cell:active,.cell.pressing{transform:scale(.92);transition-duration:.05s}
+.rd-grid .cell:active,.rd-grid .cell.pressing{transform:scale(.95)}
+/* A key that becomes chosen latches down with a bounce */
+.tab[aria-current="page"],.chip[aria-pressed="true"]{animation:key-latch .42s var(--spring)}
+@keyframes key-latch{0%{transform:translateY(3px) scale(.96,.94)}55%{transform:translateY(0)}100%{transform:translateY(1px)}}
+/* LEDs warm up: a quick flicker to full brightness */
+.tab[aria-current="page"]::before,.seg button[aria-pressed="true"]::before,.chip[aria-pressed="true"]::before,.pl-seat.turn .label::before{animation:led-on .38s steps(1,end) both}
+@keyframes led-on{0%{background:color-mix(in srgb,var(--led) 25%,var(--surface-2))}18%{background:var(--led)}30%{background:color-mix(in srgb,var(--led) 45%,var(--surface-2))}46%{background:var(--led)}58%{background:color-mix(in srgb,var(--led) 70%,var(--surface-2))}72%,100%{background:var(--led)}}
+/* The rail's ink block slides like a fader cap: a little overshoot, then settles */
+.seg-thumb{transition:transform .46s cubic-bezier(.3,1.45,.45,1),width .46s cubic-bezier(.3,1.45,.45,1),height .46s cubic-bezier(.3,1.45,.45,1)}
+/* App bar switches: the glyph squeezes on press and springs back */
+.theme-switch .ts i{transition:background .25s}
+.theme-switch .ts,.fx-icon,.dots-icon{transition:transform .34s var(--spring)}
+.theme-switch:active .ts,.theme-switch.pressing .ts,.fx-switch:active .fx-icon,.fx-switch.pressing .fx-icon,.dots-switch:active .dots-icon,.dots-switch.pressing .dots-icon{transform:scale(.86);transition:transform .05s}
+/* Cards are dealt with weight: they drop in at an angle, overshoot and settle */
+.pcard{animation:te-deal .55s cubic-bezier(.25,1.4,.45,1) both;transform-origin:50% 90%;transition:transform .35s var(--spring)}
+.pcard:nth-child(1){--tilt:-7deg}.pcard:nth-child(2){--tilt:6deg;animation-delay:.09s}
+@keyframes te-deal{0%{transform:translate(40px,-60px) rotate(calc(var(--tilt,0deg) * 3));opacity:0}35%{opacity:1}100%{transform:none;opacity:1}}
+.felt:hover .pcard:nth-child(1){transform:rotate(-2deg) translateY(-2px)}
+.felt:hover .pcard:nth-child(2){transform:rotate(2deg) translateY(-2px)}
+/* Cards placed in a slot snap in */
+.slot.filled .mc{animation:card-in .4s var(--spring) both}
+@keyframes card-in{from{transform:translateY(-8px) scale(.9);opacity:0}}
+/* Feedback plates slide up and their grade LED blinks on */
+.fb{animation:plate-in .42s cubic-bezier(.25,1.3,.45,1) both}
+@keyframes plate-in{from{transform:translateY(10px);opacity:0}}
+.fb .dot{animation:led-blink .5s steps(1,end) both}
+@keyframes led-blink{0%{opacity:.2}20%{opacity:1}35%{opacity:.35}55%,100%{opacity:1}}
+/* Readouts tick over: the big numbers roll up a few pixels when they change */
+.eqbig,.hand .big{animation:readout .35s var(--snap) both}
+@keyframes readout{from{transform:translateY(6px);opacity:.3}}
+
+/* Paused or reduced: no travel, no flicker, no deal */
+:root[data-fx="off"] :is(.tab,.seg button,.chip,.btn,.pk,.act,.cell,.wl-paths button,.path button,.pcard,.slot.filled .mc,.fb,.fb .dot,.eqbig,.hand .big,.theme-switch .ts,.fx-icon,.dots-icon),
+:root[data-fx="off"] :is(.tab,.seg button,.chip,.pl-seat .label)::before{animation:none!important;transition-property:background-color,color,opacity!important}
+:root[data-fx="off"] .seg-thumb{transition-timing-function:ease}
+@media (prefers-reduced-motion:reduce){
+  :is(.tab,.seg button,.chip,.btn,.pk,.act,.cell,.wl-paths button,.path button,.pcard,.slot.filled .mc,.fb,.fb .dot,.eqbig,.hand .big,.theme-switch .ts,.fx-icon,.dots-icon),
+  :is(.tab,.seg button,.chip,.pl-seat .label)::before{animation:none!important;transition-property:background-color,color,opacity!important}
+  .seg-thumb{transition:none}
+}
+
+/* Playing cards: ranks in Unbounded, wide and rounded, heavy enough to read at a glance */
+:root{--cardface:"Unbounded","Archivo",sans-serif}
+.pcard .rk,.pcard .c,.mc b{font-family:var(--cardface);font-stretch:100%;font-weight:800;letter-spacing:-.05em}
+.pcard .rk{font-size:42px}
+.pcard .c{font-size:14px;font-weight:700;letter-spacing:-.04em}
+.mc b{font-size:24px}
+.mc.sm b{font-size:16px}.mc.xs b{font-size:12px}
+.qtable .mc b{font-size:28px}
+.pk{font-family:var(--cardface);font-stretch:100%;font-weight:700;letter-spacing:-.04em;font-size:12px}
+
+/* Labels over small discs: below 60% the disc is smaller than the label, so the label stays one colour (ink)
+   on a halo of the square's own colour and the disc shows around it. Only discs big enough to hold the label invert it. */
+.cell{--cellbg:var(--surface)}
+.cell.pair{--cellbg:var(--pair)}
+.rd-grid .cell{--cellbg:var(--bg)}
+.rd-grid .cell.pair{--cellbg:var(--pair-2)}
+.cell:not(.lit) .inv{display:none}
+.cell:not(.lit):not(.zero)>.lab{text-shadow:1px 0 0 var(--cellbg),-1px 0 0 var(--cellbg),0 1px 0 var(--cellbg),0 -1px 0 var(--cellbg),1px 1px 0 var(--cellbg),-1px -1px 0 var(--cellbg),1px -1px 0 var(--cellbg),-1px 1px 0 var(--cellbg),0 0 3px var(--cellbg)}
+/* Next-card map: the tint carries who the card helps, so every label stays ink, red suits included */
+.nextmap .pk.red,:root[data-theme="dark"] .nextmap .pk.red{color:var(--ink)}
+/* Phones: the card picker and next-card map shrink to fit 13 columns instead of scrolling sideways */
+@media (max-width:480px){
+  .prow{min-width:0;grid-template-columns:repeat(13,minmax(0,1fr));gap:2px}
+  .pk{font-size:10px;padding:5px 0;letter-spacing:-.06em}
+  .pk i{font-size:9px}
+}
+/* Key hints inside the orange button: ink, not faded, so they keep their contrast */
+.btn.primary span[style*="opacity"]{opacity:1!important;color:var(--on-knob)}

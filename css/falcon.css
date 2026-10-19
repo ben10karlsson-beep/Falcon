@@ -8,6 +8,8 @@ body{margin:0}img{max-width:100%}[hidden]{display:none!important}
   --text:#15161d; --text-2:#343846; --muted:#565c6d; --dim:#7a8091; --fold-ink:#8a90a0;
   --ink:#15161d; --ultra:#2430d8; --magenta:#d8226a; --orange:#ff9a1f;
   /* Grid colours: raise magenta, call ultramarine, fold is the bare square */
+  /* Equity calculator: win and tie segments */
+  --win:var(--red); --tie:var(--call);
   --red:var(--magenta); --red-soft:#b0154f; --raise:var(--magenta); --call:var(--ultra); --fold:#dfe2ea; --bet-small:#f07aa6;
   --good:#0e8f63; --warn:#c96a00;
   --card:#ffffff; --card-ink:#15161d; --card-red:#d8226a;

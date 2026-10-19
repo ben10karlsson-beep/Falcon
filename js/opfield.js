@@ -62,7 +62,7 @@
   // pw is how much the pointer counts: 1 deep in a gutter, easing to 0 toward the content, so hovering the page never disturbs the field.
   let W = 0, H = 0, dpr = 1, running = false, tx = -9999, ty = -9999, mx = -9999, my = -9999, pw = 0, tpw = 0;
   const ripples = [];
-  let ink = css("--ultra") || "#2430d8", baseAlpha = parseFloat(css("--field-alpha")) || 0.42;
+  let ink = (css("--field-ink") || css("--ultra")) || "#2430d8", baseAlpha = parseFloat(css("--field-alpha")) || 0.42;
 
   function resize() {
     dpr = Math.min(2, devicePixelRatio || 1);
@@ -136,7 +136,7 @@
   document.addEventListener("pointerleave", () => { tpw = 0; });
 
   // The field takes its ink from the theme; re-read it when the theme switches
-  new MutationObserver(() => { ink = css("--ultra") || ink; baseAlpha = parseFloat(css("--field-alpha")) || 0.42; if (!running) draw(lastT); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+  new MutationObserver(() => { ink = (css("--field-ink") || css("--ultra")) || ink; baseAlpha = parseFloat(css("--field-alpha")) || 0.42; if (!running) draw(lastT); }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
 
   // A graded answer sends a ring out through the field from the feedback's position
   const GRADE = { good: "--good", ok: "--warn", bad: "--magenta" };
@@ -150,7 +150,7 @@
       const r = fb.getBoundingClientRect();
       ripples.push({ x: r.left + r.width / 2, y: r.top + 24, t0: performance.now(), color: css(GRADE[grade]) });
       if (grade === "good") celebrate(fb);
-      ink = css("--ultra") || ink;
+      ink = (css("--field-ink") || css("--ultra")) || ink;
     }
   }).observe(document.body, { childList: true, subtree: true });
 
@@ -230,4 +230,24 @@
     setDots(!dotsOff);
     try { localStorage.setItem("falcon-dots", dotsOff ? "off" : "on"); } catch (e) {}
   };
+})();
+
+/* Tactile keys: hold every press for at least 90ms (.pressing) so a quick click still shows the key's travel,
+   and give a 5ms buzz on phones that support it. Skipped when effects are paused or motion is reduced. */
+(function () {
+  const KEYS = ".tab,.seg button,.chip,.btn,.pk,.act,.cell,.fx-switch,.dots-switch,.theme-switch";
+  const off = () => document.documentElement.dataset.fx === "off" || matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function press(el) {
+    if (!el || el.disabled || off()) return;
+    const t = performance.now();
+    el.classList.add("pressing");
+    try { if (navigator.vibrate) navigator.vibrate(5); } catch (e) {}
+    const release = () => {
+      setTimeout(() => el.classList.remove("pressing"), Math.max(0, 90 - (performance.now() - t)));
+      removeEventListener("pointerup", release); removeEventListener("pointercancel", release); removeEventListener("keyup", release);
+    };
+    addEventListener("pointerup", release); addEventListener("pointercancel", release); addEventListener("keyup", release);
+  }
+  addEventListener("pointerdown", e => press(e.target.closest(KEYS)));
+  addEventListener("keydown", e => { if ((e.key === "Enter" || e.key === " ") && !e.repeat) press(document.activeElement && document.activeElement.closest(KEYS)); });
 })();

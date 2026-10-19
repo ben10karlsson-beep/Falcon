@@ -1,333 +1,322 @@
 ---
-name: 169 Poker (Op Field)
-description: A poker study app drawn as a living Vasarely field, where the area of each disc is how often a hand is played.
+name: 169 Poker (Field Kit)
+description: A poker study app built like a piece of Teenage Engineering hardware. Every choice is a key, and orange and blue mean raise and call.
 colors:
-  op-white: "#eef0f5"
-  plate-white: "#fbfbfd"
-  rail-grey: "#e3e6ee"
-  hairline: "#c9cdd8"
-  ink: "#15161d"
-  ink-soft: "#343846"
-  muted: "#565c6d"
-  dim: "#7a8091"
-  ultramarine: "#2430d8"
-  magenta: "#d8226a"
-  magenta-light: "#f07aa6"
-  fold-square: "#dfe2ea"
-  pair-square: "#f2f3f8"
-  grade-good: "#0e8f63"
-  grade-warn: "#c96a00"
+  aluminium-ground: "#e3e3df"
+  plate-white: "#f5f5f2"
+  rail-grey: "#d6d6d1"
+  key-cap: "#ecece8"
+  key-edge: "#b4b4ae"
+  line: "#b9b9b3"
+  ink: "#121211"
+  ink-soft: "#2f2f2c"
+  muted: "#585853"
+  dim: "#75756e"
+  knob-orange: "#ff5a1f"
+  knob-orange-deep: "#c43f0b"
+  knob-orange-light: "#ffab85"
+  knob-blue: "#4a82ff"
+  knob-green: "#14b26b"
+  on-knob: "#121211"
+  grade-good: "#0f9a5c"
+  grade-warn: "#b97a00"
+  fold-square: "#d0d0cb"
+  pair-square: "#ececE8"
   card-stock: "#ffffff"
+  card-red: "#d13d00"
+  night-ground: "#141414"
+  night-plate: "#1d1d1c"
+  night-ink: "#f0f0ec"
+  night-orange: "#ff6a2b"
+  night-blue: "#5f8fff"
+  night-green: "#2fcf86"
 typography:
   display:
-    fontFamily: "Anybody, Hanken Grotesk, system-ui, sans-serif"
-    fontSize: "clamp(34px, 4.6vw, 64px)"
-    fontWeight: 850
-    lineHeight: 0.92
-    letterSpacing: "-0.025em"
-    fontVariation: "'wdth' 118"
+    fontFamily: "Archivo, Helvetica Neue, Arial, sans-serif"
+    fontSize: "clamp(36px, 4.6vw, 62px)"
+    fontWeight: 500
+    lineHeight: 1
+    letterSpacing: "-0.03em"
+    fontVariation: "'wdth' 112"
   headline:
-    fontFamily: "Anybody, Hanken Grotesk, system-ui, sans-serif"
-    fontSize: "clamp(30px, 3.6vw, 44px)"
-    fontWeight: 800
-    lineHeight: 1.06
-    letterSpacing: "-0.02em"
-    fontVariation: "'wdth' 118"
+    fontFamily: "Archivo, Helvetica Neue, Arial, sans-serif"
+    fontSize: "clamp(30px, 3.4vw, 46px)"
+    fontWeight: 500
+    lineHeight: 1
+    letterSpacing: "-0.025em"
+    fontVariation: "'wdth' 112"
   title:
-    fontFamily: "Anybody, Hanken Grotesk, system-ui, sans-serif"
-    fontSize: "22px"
-    fontWeight: 750
-    lineHeight: 1.1
-    fontVariation: "'wdth' 118"
+    fontFamily: "Archivo, Helvetica Neue, Arial, sans-serif"
+    fontSize: "clamp(26px, 2.8vw, 34px)"
+    fontWeight: 500
+    lineHeight: 1.08
+    letterSpacing: "-0.02em"
+    fontVariation: "'wdth' 112"
   body:
-    fontFamily: "Hanken Grotesk, system-ui, sans-serif"
+    fontFamily: "Archivo, Helvetica Neue, Arial, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.5
-    fontFeature: "'tnum'"
-  body-long:
-    fontFamily: "Hanken Grotesk, system-ui, sans-serif"
-    fontSize: "16px"
-    fontWeight: 400
-    lineHeight: 1.7
+    letterSpacing: "0"
   label:
-    fontFamily: "Hanken Grotesk, system-ui, sans-serif"
-    fontSize: "13px"
-    fontWeight: 600
-    letterSpacing: "normal"
+    fontFamily: "Archivo, Helvetica Neue, Arial, sans-serif"
+    fontSize: "12.5px"
+    fontWeight: 500
+    letterSpacing: "0"
+  readout:
+    fontFamily: "Martian Mono, ui-monospace, monospace"
+    fontSize: "52px"
+    fontWeight: 500
+    letterSpacing: "-0.03em"
+    fontVariation: "'wdth' 87.5"
+  grid-label:
+    fontFamily: "Martian Mono, ui-monospace, monospace"
+    fontWeight: 500
+    letterSpacing: "-0.04em"
+    fontVariation: "'wdth' 75"
+  card-rank:
+    fontFamily: "Unbounded, Archivo, sans-serif"
+    fontSize: "42px"
+    fontWeight: 800
+    letterSpacing: "-0.05em"
 rounded:
-  none: "0px"
+  cell: "2px"
+  key: "3px"
+  well: "4px"
+  card: "5px"
+  plate: "6px"
   disc: "50%"
 spacing:
   grid-gap: "3px"
   grid-gap-phone: "2px"
-  control-gap: "6px"
+  key-gap: "6px"
+  rail-inset: "3px"
   plate-padding: "20px"
   column-gap: "24px"
 components:
-  button-primary:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.plate-white}"
-    rounded: "{rounded.none}"
-    padding: "9px 18px"
-  button-primary-hover:
-    backgroundColor: "{colors.ultramarine}"
-    textColor: "{colors.plate-white}"
-  button-ghost:
-    backgroundColor: "transparent"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "9px 18px"
-  segment-option:
-    backgroundColor: "transparent"
-    textColor: "{colors.muted}"
-    rounded: "{rounded.none}"
-    padding: "6px 14px"
-  segment-option-struck:
-    backgroundColor: "{colors.ink}"
-    textColor: "{colors.plate-white}"
-  chip:
-    backgroundColor: "transparent"
+  key:
+    backgroundColor: "{colors.key-cap}"
     textColor: "{colors.ink-soft}"
-    rounded: "{rounded.none}"
-    padding: "6px 12px"
-  chip-struck:
+    rounded: "{rounded.key}"
+    padding: "7px 14px 7px 24px"
+  key-chosen:
     backgroundColor: "{colors.ink}"
     textColor: "{colors.plate-white}"
-  action-call:
-    backgroundColor: "{colors.ultramarine}"
-    textColor: "#ffffff"
-    rounded: "{rounded.none}"
-    padding: "14px 12px"
+    rounded: "{rounded.key}"
+  button:
+    backgroundColor: "{colors.key-cap}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.key}"
+    padding: "9px 18px"
+  button-primary:
+    backgroundColor: "{colors.knob-orange}"
+    textColor: "{colors.on-knob}"
+    rounded: "{rounded.key}"
+    padding: "9px 18px"
+  chip:
+    backgroundColor: "{colors.key-cap}"
+    textColor: "{colors.ink-soft}"
+    rounded: "{rounded.key}"
+    padding: "6px 10px 6px 21px"
+  chip-chosen:
+    backgroundColor: "{colors.ink}"
+    textColor: "{colors.plate-white}"
+  rail:
+    backgroundColor: "{colors.rail-grey}"
+    rounded: "6px"
+    padding: "3px"
   action-raise:
-    backgroundColor: "{colors.magenta}"
-    textColor: "#ffffff"
-    rounded: "{rounded.none}"
+    backgroundColor: "{colors.knob-orange}"
+    textColor: "{colors.on-knob}"
+    rounded: "{rounded.key}"
+    padding: "14px 12px"
+  action-call:
+    backgroundColor: "{colors.knob-blue}"
+    textColor: "{colors.on-knob}"
+    rounded: "{rounded.key}"
     padding: "14px 12px"
   action-fold:
-    backgroundColor: "transparent"
+    backgroundColor: "{colors.key-cap}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.key}"
     padding: "14px 12px"
   plate:
     backgroundColor: "{colors.plate-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.plate}"
     padding: "20px"
+  readout-well:
+    backgroundColor: "{colors.aluminium-ground}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.well}"
   input:
     backgroundColor: "{colors.plate-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
-    padding: "9px 10px"
-  grid-unit:
+    rounded: "{rounded.key}"
+  range-cell:
     backgroundColor: "{colors.plate-white}"
     textColor: "{colors.ink}"
-    rounded: "{rounded.none}"
+    rounded: "{rounded.cell}"
 ---
 
-# Design System: 169 Poker (Op Field)
+# Design System: 169 Poker (Field Kit)
 
 ## Overview
 
-**Creative North Star: "The Living Vasarely Field"**
+**Creative North Star: "The Field Kit"**
 
-The 169 starting hands already form an op-art field; 169 Poker draws them as one. Every hand is a plastic unit: a sharp square holding a disc whose area is the frequency the hand is played. The visitor sees the range as a pattern first and reads it second. Colour lives in the fields (the discs, the action blocks, the bars); text sits on calm, achromatic plates of white or op-white, so reading never fights the pattern.
+169 Poker is operated like a Teenage Engineering instrument (OP-1, TP-7): an aluminium-grey ground, off-white plates, black ink, and colour only where it carries meaning, the way the OP-1's four knobs do. Orange raises, blue calls, green is a right answer. Every control is a hardware key with a small lip and an LED; the chosen key is pressed down in ink and its LED is lit. Numbers read like device readouts in a condensed mono.
 
-The world is light, cool and exact. Every corner is square; circles are the only curves, and they always carry meaning (a frequency, a grade, a card back, a chapter number). Controls show every option at once as a ghost, and the chosen one is struck in solid ink. Motion belongs to the field: discs swell under the pointer like a lens, the page gutters breathe as a slow dot field, and a graded answer sends a ring through that field in the grade's colour. Under reduced motion, all of it holds still.
+The layout is the incumbent app's, unchanged: the same views, grid, hand plate and trainers, reskinned as a precise instrument. Density is high but calm; the 13x13 range grid is 169 key caps, which is where the name comes from. The world refuses both the dark poker-felt app and the op-art poster it replaces.
 
-The world rejects the dark poker-felt study tool it replaces: no felt, no wood, no glow, no rounded casino chrome.
+Motion is tactile, not decorative: keys travel down fast and spring back, LEDs flicker on, cards are dealt with weight. All of it stops when effects are paused or motion is reduced.
 
 **Key Characteristics:**
-- Cool op-white ground, white reading plates, near-black ink.
-- Two field colours with fixed meaning: ultramarine calls, magenta raises.
-- Selection is marked in ink: an inset frame on the chosen grid unit, an outline on the picked action, a 2px ink border on the active card slot. (Orange was used for this at first and dropped: it read as unintentional.)
-- All corners sharp; circles are the only curves.
-- Ghost-and-struck controls: options outlined or bare, the chosen one solid ink.
-- Wide, heavy Anybody display over Hanken Grotesk reading text.
-- Flat plates separated by tone and hairlines, never by shadow.
-- A living ground: lens, breathing gutter dots, grade ripples; still under reduced motion.
+- Grey ground, off-white plates with a hairline, ink text; colour reserved for the knob meanings.
+- Every choice is a key (3px corner, LED dot, small lip); chosen means pressed in ink with a flat orange LED.
+- Archivo medium, slightly wide, for words; Martian Mono condensed for numbers, readouts and grid labels; Unbounded heavy for card ranks.
+- Disc area is frequency on the range grid.
+- Speaker-grille perforations as the secondary texture: gutter dot field, trainer table strip, card backs.
+- Two themes: light aluminium and OP-1 black.
 
 ## Colors
 
-A cool, near-achromatic paper world with two saturated field colours and one rare highlight.
+A neutral hardware palette (grey, off-white, ink) with three knob colours that each mean one thing.
 
 ### Primary
-- **Ultramarine**: the call colour and the structural accent. Call discs and the call action block, the formula and link underlines, focus rings, the hover state of the primary button, the square of the logo mark, and the base ink of the gutter dot field.
+- **Knob Orange** (light #ff5a1f, dark #ff6a2b): the raise colour (raise discs, raise action key, raise bars, the aggressor's side of an equity split). Also the instrument's signal colour: the LED of a chosen key (`--led`), focus outlines, text caret, range-slider accent, the active card slot, and the single primary button. As text on a plate it drops to Deep Orange (#c43f0b light, #ff8a5c dark) for contrast. Light Orange (#ffab85) marks the small bet size in bars.
 
 ### Secondary
-- **Op Magenta**: the raise colour. Raise discs, the raise action block, the hero seat, the band of op discs over trainer plates, the current Theory chapter disc, emphasised words in the trainer prompt, the "Mistake" grade outline and ripple. **Light Magenta** is only the small-bet segment in board explorer bars, where its label is set in ink, not white.
+- **Knob Blue** (light #4a82ff, dark #5f8fff): the call colour only (call rings on the grid, call action key, call bars, the caller's side of an equity split).
 
 ### Tertiary
+- **Knob Green** (light #14b26b, dark #2fcf86): the third logo knob. For grading, text and borders use Grade Good (#0f9a5c light, #2fcf86 dark); Grade Warn (#b97a00 light, #f0b033 dark) marks inaccurate answers.
 
 ### Neutral
-- **Op-White**: the page ground, the background of stat tiles, info boxes and the read-ranges grid.
-- **Plate White**: reading plates, the app bar, inputs, grid units and the primary button's text.
-- **Rail Grey**: secondary fills (Theory chapter number discs, tracks).
-- **Hairline**: quiet dividers and unchosen chip borders.
-- **Ink**: all primary text, every rule and outline, the struck state of every control.
-- **Ink Soft**: secondary body copy. **Muted**: labels, unchosen options, captions. **Dim**: non-essential hints only.
-- **Fold Square** and **Pair Square**: the bare fill of the fold part of bars and the slightly cooler square behind pocket pairs.
-- **Grade Good** and **Grade Warn**: grading only (feedback outline, ripple colour). "Bad" grades use magenta.
+- **Aluminium Ground** (#e3e3df; night #141414): the page and readout wells.
+- **Plate White** (#f5f5f2; night #1d1d1c): plates, the app bar, input wells, grid squares.
+- **Rail Grey** (#d6d6d1): the recessed bed of segmented rails, unlit LEDs.
+- **Key Cap** (#ecece8, edge #b4b4ae; night #2a2a28, edge #3f3f3c): the face and rim of every unchosen key.
+- **Ink** (#121211; night #f0f0ec): all strong text, chosen keys, rules, grille dots, the selected-hand frame, win in equity bars (`--win`).
+- **Ink Soft** (#2f2f2c), **Muted** (#585853, also `--tie`), **Dim** (#75756e, hints only).
+- **On Knob** (#121211 in both themes): the text colour on every knob colour. Orange, blue and green all carry near-black at 5:1 or better, so labels on knob colours are never white.
+- **Fold Square** (#d0d0cb), **Pair Square** (#ececE8), **Card Stock** (#ffffff) with **Card Red** (#d13d00) for red suits.
 
 ### Named Rules
-**The Field Colour Rule.** Ultramarine means call, magenta means raise, everywhere they appear as fills. A button, bar or disc in either colour is making that claim.
+**The Knob Meaning Rule.** Orange is raise and blue is call (and aggressor vs caller in an equity split). Win and tie are ink and muted grey, the hero seat is ink, chapter markers are ink. Do not use blue for anything but calling; orange's only other job is the instrument signal (LED, focus, the primary key).
 
-**The Ink Selection Rule.** Selection is always ink, drawn inside the element (an inset frame) so a scroll box can never clip it.
+**The Black-On-Knob Rule.** Text on orange, blue or green is `--on-knob` near-black in both themes.
 
-**The Achromatic Plate Rule.** Text plates are white or op-white. Colour belongs to the fields and to thin rules; it does not tint reading surfaces.
+**The Token Rule.** Every colour goes through a token so light and OP-1 black both work; `--ink` is the strongest foreground in both. Text keeps 4.5:1 on ground and plate; `--dim` is for non-essential hints only.
 
 ## Typography
 
-**Display Font:** Anybody (with Hanken Grotesk, system-ui), variable width 50-150 and weight 300-900
-**Body Font:** Hanken Grotesk (with system-ui), weight 400-700
-**Label/Mono Font:** Hanken Grotesk with tabular figures (`--mono` points at it)
+**Display Font:** Archivo (with Helvetica Neue, Arial), width 112%
+**Body Font:** Archivo at normal width
+**Label/Mono Font:** Martian Mono, condensed (87.5% for readouts, 75% for grid labels)
+**Card Font:** Unbounded (playing-card ranks and the card picker)
 
-**Character:** Anybody set wide (width 112-135%) and very heavy (750-900), tight leading and negative tracking, gives headings the mass of a printed op poster. Hanken Grotesk is calm and legible for the explanations, and its tabular figures keep equities and combos aligned.
+**Character:** A grotesque at medium weight, set slightly wide and small, like the printing on a device face; numbers in a condensed mono like an LCD readout.
 
 ### Hierarchy
-- **Display** (850, clamp(34px, 4.6vw, 64px), 0.92): the view title over the field ("BTN open-raise"). Theory chapter titles go larger (clamp(40px, 6vw, 76px), width 125%, 0.96).
-- **Headline** (800, clamp(30px, 3.6vw, 44px), 1.06): Theory section headings. The hand name in the hand plate (900, clamp(44px, 4.2vw, 56px), width 112%) and the grade head in feedback (800, 28px) sit at this level.
-- **Title** (750, 22px): Theory sub-headings; stat figures in tiles (800) and action block labels (750, 17px, width 115%) also use Anybody.
-- **Body** (400, 15px, 1.5): UI copy on plates, capped near 62ch. Long-form Theory paragraphs run 16px at 1.7, capped near 66ch.
-- **Label** (600, 13px, no letter-spacing, sentence case): control group labels, plate labels ("This spot", "This session"), captions.
+- **Display** (500, clamp(36px, 4.6vw, 62px), line-height 1, -0.03em): Welcome title and Theory chapter titles.
+- **Headline** (500, clamp(30px, 3.4vw, 46px), 1): view titles. The feedback grade head (24px) sits between headline and title.
+- **Title** (500, clamp(26px, 2.8vw, 34px), 1.08): Theory section headings; sub-headings at 19px.
+- **Body** (400, 15px, 1.5): all UI copy and theory text.
+- **Label** (500, 12.5px, muted): plate and control labels.
+- **Readout** (Martian Mono 500, 87.5% width, -0.03em; 52px for big equity, 22px scores, 16px facts): every figure, stat, bar value, formula and seat tag. Chips with words stay in Archivo 13px.
+- **Grid label** (Martian Mono, 75% width, 500 rank / 400 suit, -0.04em): hand labels in the range grid.
+- **Card rank** (Unbounded 800, 42px on the table, 24px picked cards, -0.05em): playing cards; the card picker uses Unbounded 700 at 12px.
+- **Wordmark** (Archivo 700, 22px, 112% width, -0.04em): "169" beside the knob logo.
 
 ### Named Rules
-**The Wide Ink Rule.** Display type is Anybody, wide and heavy, and only for titles, hand names, grades and figures. Never set reading copy in it.
+**The Readout Rule.** If it is a number the player reads, it is Martian Mono condensed. Words stay in Archivo.
 
-**The Sentence Case Rule.** Labels are sentence case with normal tracking. No all-caps, no letter-spaced labels.
+**The Sentence Case Rule.** Labels and controls are sentence case with no positive letter-spacing and no all-caps. Display sizes tighten slightly; nothing is tracked out.
 
 ## Layout
 
-One grid module runs through the app. The range field is a 13 x 13 grid of square units with a 3px gap (2px at 420px and below, where columns become `minmax(0, 1fr)` so the field fits a 390px phone). The Preflop and Trainer views use a two-column wrap (max 1180px: the field column plus a 340px sticky plate, 24px gap), collapsing to one column at 900px. Theory uses a 190px chapter path beside a 720px article column, also stacking at 900px. The wide display title sits directly over the field; controls stack above it in rows with 6px gaps and 14px between groups.
-
-The page gutters outside the 1200px content band carry the dot field (20px pitch). On screens without gutters (less than 24px each side) the field draws nothing.
+The incumbent layout, unchanged by this world: a centred column up to 1180px with a 340px side column for the hand plate (one column below 900px), 24px between columns, plates padded 20px. The range grid is 13 columns with a 3px gap (2px and fluid columns at 420px and below, so phones near 390px never scroll sideways). Keys sit 6px apart. Below 640px the app bar puts the switches on the brand row and the tabs wrap onto full-width rows beneath; the card picker and next-card map shrink to 13 fitting columns below 480px.
 
 ## Elevation & Depth
 
-The system is flat. Depth comes from tone (op-white ground, white plates) and from ink rules, never from cast shadow. The only "shadows" in the build are box-shadow rings used as borders.
+Flat plates on a flat ground: plates separate by tone and a hairline (`0 0 0 1px var(--hair)`), never by a cast shadow. The only depth is mechanical: keys carry a small lip under their rim, which grows a pixel on hover and disappears when pressed, replaced by a shallow inner shadow. Inputs are recessed wells.
 
 ### Shadow Vocabulary
-- **Plate hairline** (`box-shadow: 0 0 0 1px rgba(21,22,29,.07)`): edge of plates, trainer tables, worked examples, steps.
-- **Ink rule** (`box-shadow: inset 0 0 0 1.5px #15161d`, via `var(--ink)`): segmented rails, ghost buttons, playing cards, formula boxes, the hovered resource item.
-- **App bar rule** (`box-shadow: inset 0 -2px 0 #15161d`): the single heavy ink line under the app bar.
+- **Plate hairline** (`box-shadow: 0 0 0 1px var(--hair)`): plates, examples, steps, trainer tables. A border, not a shadow.
+- **Key lip** (`inset 0 0 0 1px var(--key-edge), 0 1px 0 #a9a9a2, 0 2px 3px rgba(18,18,17,.12)`; night `0 1px 0 #050505, 0 2px 3px rgba(0,0,0,.4)`): the rest state of every key.
+- **Key lip, hover** (`inset 0 0 0 1px var(--key-edge), 0 2px 0 #a9a9a2, 0 4px 6px rgba(18,18,17,.14)`): the cap lifts 1px.
+- **Key pressed** (`inset 0 0 0 1px var(--key-edge), inset 0 2px 3px rgba(0,0,0,.18)`): travel down, lip gone.
+- **Action key lip** (`inset 0 0 0 1px rgba(0,0,0,.28), 0 2px 0 rgba(0,0,0,.28), 0 3px 6px rgba(18,18,17,.14)`): the big raise / call / fold keys.
+- **Input well** (`inset 0 1px 2px rgba(18,18,17,.12)` with a 1px ink border).
 
 ### Named Rules
-**The No-Cast-Shadow Rule.** Nothing floats. Plates sit on the ground and are separated from it by tone and a hairline.
+**The No-Glow Rule.** LEDs are flat discs of colour. No glow, no halo, no gradient on any light.
+
+**The Lip-Is-Travel Rule.** A key's lip exists only to show travel: it grows on hover, vanishes on press. Plates never get one.
 
 ## Shapes
 
-All corners are square (0px) on plates, controls, inputs, bars, tags, seats and playing cards. Circles (50%) are the only curves and each one carries meaning: the frequency disc inside a grid unit, the feedback grade marker, Theory chapter numbers, the trainer's band of op discs, the concentric rings on card backs, and the dots of the gutter field. Outlines are ink at 1.5px (2px on the fold action block and feedback plates); dashed ink marks something to do (the "Practice this" box, missing hands in Read ranges).
-
-**The Only-Circles Rule.** A shape is either a square-cornered rectangle or a true circle. No pills, no rounded rectangles.
+Slightly rounded like a device face: plates 6px, playing cards 5px, readout wells and seats 4px, keys 3px, grid squares and bars 2px. Circles are the knobs, the LEDs, the frequency discs and the grille perforations. The logo is four OP-1 knobs in a row (blue, green, plate-white, orange, each with an ink rim and a tick that turns on hover); the favicon is the same four knobs in a 2x2 square.
 
 ## Components
 
-### Buttons
-Ruled rectangles, decisive and printed.
-- **Shape:** square corners (0px).
-- **Primary:** solid ink with plate-white text; hover turns it ultramarine. Transition 0.2s on background and colour; no lift, no press offset.
-- **Ghost:** transparent with a 1.5px inset ink rule and ink text; hover lays a 7% ink wash.
-- **Focus:** 2px ultramarine outline, 2px offset.
+### Keys (tabs, segmented rails, chips, buttons)
+Hardware keys, pressed with intent.
+- **Shape:** 3px corner, key-cap face, 1px key-edge rim, the key lip below.
+- **LED:** a 6px dot (5px on chips and small rails) left of the label, unlit in rail grey.
+- **Chosen:** pressed in solid ink with plate-white text, 1px lower, and the LED lit flat orange. Selection is always ink; there is no separate highlight colour.
+- **Rails:** keys sit in a recessed rail-grey bed (6px corner, 3px inset); one ink block slides to the choice like a fader cap with a slight overshoot.
+- **Primary button:** the one orange key, near-black label; at most one per context.
+- **Focus:** 2px orange outline, 2px offset.
 
-### Segmented rails (signature control)
-Every option is visible as a ghost; the chosen one is struck in ink.
-- **Rail:** transparent with a 1.5px inset ink rule and 3px padding.
-- **Options:** muted text, ink on hover.
-- **Struck:** with JavaScript, one ink thumb slides along the rail to the selected option (transform, width and height over 0.34s, cubic-bezier(.16,1,.3,1)), and the selected label turns plate white. Without JavaScript the selected option is filled in ink directly.
+### Action keys (fold, call, raise)
+Big keys in the knob colours: raise orange, call blue, both with near-black Archivo labels at 16px and a mono key hint; fold is a plain key cap. They travel 4px on press; the picked key stays down with a 2px ink outline.
 
-### Chips
-- **Style:** transparent, 1px hairline border, ink-soft text.
-- **State:** hover gives a white fill and ink border; selected is struck in solid ink with plate-white text. App bar tabs follow the same grammar: bare muted text, the current tab struck in ink.
+### Plates
+Plate White, 6px corner, plate hairline, 20px padding. Score, fact and outs boxes inside plates are 4px wells in the ground colour. Practice blocks use a 1px dashed ink border. Formulas sit in a plate with an inset ink rule in mono.
 
-### Action blocks
-Enamel blocks in the field colours: call is solid ultramarine, raise is solid magenta (both with white Anybody labels), fold is a transparent block with a 2px ink rule. Disabled blocks drop to 22% opacity. The block the player picked carries a 3px ink outline.
+### Feedback plate
+A plate with a 1.5px border in the grade colour (good green, warn amber) and a grade LED dot that blinks on; it slides up on arrival.
 
-### Cards / Containers (plates)
-- **Corner Style:** square (0px).
-- **Background:** plate white; stat tiles, info boxes and log rows sit inside in op-white.
-- **Shadow Strategy:** plate hairline only (see Elevation & Depth).
-- **Internal Padding:** 20px on the main plate, 18px gaps between its blocks.
-
-### Trainer table
-The trainer plate carries a band of magenta op discs along its top edge (14px pitch, repeated across). Seats are op-white squares; the hero seat is solid magenta with white text, the villain seat is ruled in ink, folded seats are struck through.
-
-### Feedback
-A white plate ruled 2px in the grade colour (good green, warn amber, magenta for a mistake), headed in Anybody 800 at 28px. Its marker is a grade-coloured disc with concentric white rings (an op target). Appearing, it sends a ripple through the gutter field in the same colour.
-
-### Inputs / Fields
-- **Style:** plate-white fill, 1.5px ink border, square corners.
-- **Focus:** 2px ultramarine outline.
-- **Error:** border turns to the raise accent.
-
-### Playing cards
-White stock with a 1.5px inset ink rule, square corners; red suits in magenta. The card back is a concentric-ring target: ultramarine and plate-white rings at a 6px period, inside a white margin and an ink edge.
+### Inputs
+Recessed wells: plate white, 1px ink border, 3px corner, inner shadow; orange focus outline and orange border when invalid.
 
 ### Navigation
-App bar: a plate-white strip closed by a 2px ink rule. The brand is Anybody 900 at width 135% beside the op mark (an ultramarine square, a magenta disc, an op-white core; the disc shrinks to 72% on hover). Tabs are ghost-and-struck. The Theory path numbers chapters in rail-grey discs; the current chapter's disc is magenta.
+The app bar is a plate-white strip closed by one ink rule, holding the knob logo and "169", the tab keys, and three small square switch keys (theme, effects, dots). The current tab is a chosen key. Theory chapters are numbered on small square keys; the current chapter is pressed in ink.
 
-### Range field units (signature component)
-Each of the 169 hands is a square plate-white unit (pairs a touch cooler) holding a centred disc. The disc's area equals the frequency: radius is the square root of the share, so a hand played half the time fills half the disc area, not half the radius. A mixed hand shows two concentric fills (inner share in one field colour, outer ring in the other). The label is drawn twice: ink underneath, and a white copy clipped to the disc's exact radius, so the text inverts precisely at the disc edge; a disc of 90% or more carries the whole white label. Never-played hands keep a muted label on the bare square.
+### Range grid (signature)
+169 key caps (2px corner, plate-white, hairline). Each holds a disc whose area is the frequency: orange core for raise, blue ring for call, a bare square for fold. Labels on discs below 60% stay one ink colour on a halo of the square's own colour, so the disc shows around them; only lit discs (60% or more) invert the label to near-black-on-knob. The selected hand gets an ink frame inside its square. The grid lens swells discs toward the pointer.
 
-On pointer hover, units near the cursor swell (up to 1.42x, Gaussian falloff) like a lens over the field. When a range loads, discs sweep in diagonally from the top-left (0.6s each, 20ms stagger per row plus column).
+### Playing cards
+White card stock, 5px corner, ranks in Unbounded 800; red suits in Card Red. Card backs are a grille of ink perforations inside an ink rule. Cards are dealt in at an angle, overshoot and settle; cards placed in a slot snap in.
 
-### Living ground
-A canvas behind the page draws a 20px dot field in ultramarine at 42% opacity, only in the gutters outside the content band. Dot radii breathe on two slow crossing sine waves and swell near the pointer. A graded answer sends a ring out from the feedback plate (about 0.62px per ms, fading over 2.6s) that enlarges and recolours the dots it passes.
+### Speaker grille (signature texture)
+Ink perforations: the gutter dot field in the page margins (drawn by the living layer from `--field-ink` at 16% light, 13% dark), a two-row strip along the top of trainer tables, and card backs.
 
-### Reduced motion
-Under `prefers-reduced-motion: reduce`, the ground field draws a single still frame and never ripples, the lens does not respond, the disc sweep and clip transitions are removed, the logo disc does not scale, and the feedback marker does not animate in. The animation loop also stops whenever the page is hidden.
+### Motion
+- Keys: hover lifts 1px; press travels 2px with a slight squash in 50ms (`--snap`), then springs back over 320ms with overshoot (`--spring`). Every press is held at least 90ms (`.pressing`, set by the living layer) so a quick click still shows travel, with a 5ms buzz on phones.
+- A key that becomes chosen latches down with a bounce; its LED flickers on over 380ms.
+- Feedback plates slide in; big readouts roll up 6px when they change; the grade ripple and right-answer pop come from the living layer.
+- Everything above stops under `data-fx="off"` and `prefers-reduced-motion`.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** encode frequency as disc area (radius = square root of the share) in any range or frequency view.
-- **Do** use ultramarine for call and magenta for raise on every fill that means an action.
-- **Do** strike the chosen option in solid ink and leave the others visible as ghosts.
-- **Do** keep reading text on plate white or op-white, in ink, ink soft or muted.
-- **Do** keep every corner square and reserve circles for things that mean something.
-- **Do** mark the current selection in ink, inside the element.
-- **Do** give every new animation a still state under reduced motion.
+- **Do** make every choice a key: 3px corner, LED, lip; chosen means pressed in ink with a flat orange LED.
+- **Do** keep orange for raise and blue for call, and put near-black `--on-knob` text on every knob colour.
+- **Do** set every number in Martian Mono condensed, and words in Archivo at medium weight.
+- **Do** keep the disc area equal to frequency, and invert a grid label only when its disc is lit (60% or more).
+- **Do** route every colour through tokens so light and OP-1 black both work.
+- **Do** give every new motion an off state under `data-fx="off"` and reduced motion.
 
 ### Don't:
-- **Don't** use pills or rounded rectangles; corners are 0px, curves are full circles.
-- **Don't** cast shadows or lift elements on hover; depth is tone plus hairline.
-- **Don't** tint text plates with the field colours.
-- **Don't** set body copy in Anybody, or labels in all caps or letter-spacing.
-- **Don't** use dim for anything a player needs to read.
-- **Don't** let the gutter field enter the content band.
+- **Don't** use orange or blue for win, tie, "you", chapter markers or decoration; those are ink and grey.
+- **Don't** put white text on a knob colour.
+- **Don't** give LEDs a glow or plates a cast shadow; depth is the key lip only.
+- **Don't** use ALL-CAPS labels or positive letter-spacing.
+- **Don't** bring back the poker-felt green table or the op-art poster.
 
-## Themes
+## Previous design
 
-Two themes share every rule above; only the tokens change. The switch sits at the right of the app bar (two small plastic units, the active one struck in ink) and the choice is saved in localStorage (`falcon-theme`). A first visit follows the system's `prefers-color-scheme`; an inline script in `<head>` sets `data-theme` on `<html>` before first paint.
-
-- **Light (default world):** the tokens at the top of this file.
-- **Dark ("Op Field at night"):** ground `#0f1120`, plates `#171a2c`, surface-2 `#22263b`, line `#30354f`, ink and text `#eceef6`, text-2 `#c4c8da`, muted `#9ba1b9`, ultramarine lifted to `#5361ff`, magenta to `#e8357f`, fold square `#262a40`, good `#3cc58f`, warn `#f0a03a`. Playing cards stay white with their ink edge. The gutter dot field reads its colour and alpha from the theme.
-
-Because `--ink` is the strongest foreground in both themes, "struck" controls (ink fill, surface-coloured text) invert correctly in dark without extra rules.
-
-## Lens
-
-The lens swells a unit's disc toward the pointer but caps each disc at the size where it touches its square's sides (`1 / (0.88 x b)`), so full discs never get clipped into squares.
-
-## Effects switch
-
-A "Pause effects" switch sits left of the theme switch (a two-bar pause glyph in an ink frame that becomes a play triangle). It is saved as `falcon-fx` and set on `<html>` as `data-fx` before first paint. Paused (or under reduced motion): the gutter field holds a still frame, the lens, ripples, range sweep and grading toss stop. On phones both switches show icons only.
-
-## Gutter field and the pointer
-
-The pointer only affects the field while it is in a gutter: its weight eases from 0 at the content edge to 1 about 120px into the gutter, and its position is eased each frame, so moving between the page and the margin never makes the dots jump. Dots are drawn only where the gutter is visible and never grow beyond 46% of their spacing, so neighbours cannot merge.
-
-## Dots switch
-
-A "Hide dots" switch sits left of the effects switch (four dots in an ink frame; hidden shows them as ghost rings). Saved as `falcon-dots`, set on `<html>` as `data-dots` before first paint. Hidden removes the gutter field and its ripples entirely; the grid lens and other effects follow the effects switch on their own.
-
-## Right-answer celebration
-
-When a trainer grades an answer as correct (a `.fb.good` appears), the button that was pressed (`.act.picked`, or the last clicked button in that trainer, else the feedback marker) hops (lift, slight scale, settle, 560ms), a green ring flashes off it, and 18 small shapes (discs, squares and rings in good green, magenta, ultramarine and ink) pop from its edge outward and fall away over about a second. It plays alongside the green ripple in the gutter field, runs on a fixed pointer-free layer, and is skipped when effects are paused or reduced motion is on. Only fully correct answers get it; "inaccurate" and "close" do not.
-
-## Trainer table band
-
-Each trainer table (`.felt`) has a plain, still checkerboard along its top edge: two rows of 11px ink squares (a 22px conic-gradient tile repeated across), inverting with the theme. No animation. It replaced a static magenta dot strip and two animated experiments that read as generic tech effects.
-
-## Welcome page
-
-Shown on a first visit (no address hash and no `falcon-welcomed` in localStorage) and whenever the logo is clicked (`#welcome`). Left: a large Anybody headline, a one-sentence lede, three starting paths and three plain facts. The paths are full-width rows ruled in ink, each with an outlined disc marker (magenta, ultramarine, ink) that fills and inverts the row to solid ink on hover. They are not a row of cards. Right: the button's real opening range as a live unit field (lens included); picking a hand opens it in the preflop charts. Stacks to one column under 900px.
+Op Field (the living op-art field) is preserved as git tag `design-op-field` and lives on as the base layer in `css/falcon.css`, which `css/te.css` overrides. Warm charcoal is git tag `design-warm-charcoal` and `archive/warm-charcoal/`.

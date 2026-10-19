@@ -1,175 +1,174 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-10-14T12:00:00Z",
-  "title": "Design System: 169 Poker (Op Field)",
+  "generatedAt": "2026-10-20T12:00:00Z",
+  "title": "Design System: 169 Poker (Field Kit)",
   "extensions": {
     "colorMeta": {
-      "op-white": { "role": "neutral", "displayName": "Op-White", "canonical": "#eef0f5", "tonalRamp": ["oklch(15% 0.008 270)", "oklch(27% 0.008 270)", "oklch(39% 0.008 270)", "oklch(51% 0.008 270)", "oklch(63% 0.008 270)", "oklch(75% 0.008 270)", "oklch(87% 0.008 270)", "oklch(95.5% 0.008 270)"] },
-      "plate-white": { "role": "neutral", "displayName": "Plate White", "canonical": "#fbfbfd", "tonalRamp": ["oklch(15% 0.003 270)", "oklch(27% 0.003 270)", "oklch(39% 0.003 270)", "oklch(51% 0.003 270)", "oklch(63% 0.003 270)", "oklch(75% 0.003 270)", "oklch(87% 0.003 270)", "oklch(99% 0.003 270)"] },
-      "rail-grey": { "role": "neutral", "displayName": "Rail Grey", "canonical": "#e3e6ee" },
-      "hairline": { "role": "neutral", "displayName": "Hairline", "canonical": "#c9cdd8" },
-      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#15161d", "tonalRamp": ["oklch(15% 0.015 280)", "oklch(20% 0.015 280)", "oklch(32% 0.015 280)", "oklch(45% 0.015 280)", "oklch(58% 0.015 280)", "oklch(71% 0.015 280)", "oklch(84% 0.015 280)", "oklch(95% 0.015 280)"] },
-      "ink-soft": { "role": "neutral", "displayName": "Ink Soft", "canonical": "#343846" },
-      "muted": { "role": "neutral", "displayName": "Muted", "canonical": "#565c6d" },
-      "dim": { "role": "neutral", "displayName": "Dim (hints only)", "canonical": "#7a8091" },
-      "ultramarine": { "role": "primary", "displayName": "Ultramarine", "canonical": "#2430d8", "tonalRamp": ["oklch(15% 0.1 268)", "oklch(25% 0.16 268)", "oklch(35% 0.21 268)", "oklch(45% 0.25 268)", "oklch(58% 0.2 268)", "oklch(70% 0.14 268)", "oklch(83% 0.08 268)", "oklch(95% 0.025 268)"] },
-      "magenta": { "role": "secondary", "displayName": "Op Magenta", "canonical": "#d8226a", "tonalRamp": ["oklch(15% 0.06 5)", "oklch(27% 0.11 5)", "oklch(39% 0.16 5)", "oklch(51% 0.2 5)", "oklch(56% 0.21 5)", "oklch(70% 0.15 5)", "oklch(83% 0.08 5)", "oklch(95% 0.025 5)"] },
-      "magenta-light": { "role": "secondary", "displayName": "Light Magenta (small-bet bars)", "canonical": "#f07aa6" },
-      "selection-orange": { "role": "tertiary", "displayName": "Selection Orange", "canonical": "#ff9a1f", "tonalRamp": ["oklch(15% 0.05 63)", "oklch(27% 0.08 63)", "oklch(39% 0.11 63)", "oklch(51% 0.13 63)", "oklch(63% 0.15 63)", "oklch(78% 0.17 63)", "oklch(87% 0.09 63)", "oklch(95% 0.03 63)"] },
-      "fold-square": { "role": "neutral", "displayName": "Fold Square", "canonical": "#dfe2ea" },
-      "pair-square": { "role": "neutral", "displayName": "Pair Square", "canonical": "#f2f3f8" },
-      "grade-good": { "role": "neutral", "displayName": "Grade Good", "canonical": "#0e8f63" },
-      "grade-warn": { "role": "neutral", "displayName": "Grade Warn", "canonical": "#c96a00" },
-      "card-stock": { "role": "neutral", "displayName": "Card Stock", "canonical": "#ffffff" }
+      "aluminium-ground": { "role": "neutral", "displayName": "Aluminium Ground", "canonical": "#e3e3df", "tonalRamp": ["oklch(15% 0.004 106)", "oklch(27% 0.004 106)", "oklch(39% 0.004 106)", "oklch(51% 0.004 106)", "oklch(63% 0.004 106)", "oklch(75% 0.004 106)", "oklch(85% 0.004 106)", "oklch(91% 0.004 106)"] },
+      "plate-white": { "role": "neutral", "displayName": "Plate White", "canonical": "#f5f5f2", "tonalRamp": ["oklch(15% 0.003 106)", "oklch(27% 0.003 106)", "oklch(39% 0.003 106)", "oklch(51% 0.003 106)", "oklch(63% 0.003 106)", "oklch(75% 0.003 106)", "oklch(87% 0.003 106)", "oklch(96.5% 0.003 106)"] },
+      "rail-grey": { "role": "neutral", "displayName": "Rail Grey", "canonical": "#d6d6d1" },
+      "key-cap": { "role": "neutral", "displayName": "Key Cap", "canonical": "#ecece8" },
+      "key-edge": { "role": "neutral", "displayName": "Key Edge", "canonical": "#b4b4ae" },
+      "line": { "role": "neutral", "displayName": "Line", "canonical": "#b9b9b3" },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#121211", "tonalRamp": ["oklch(15% 0.002 106)", "oklch(19% 0.002 106)", "oklch(32% 0.002 106)", "oklch(45% 0.002 106)", "oklch(58% 0.002 106)", "oklch(71% 0.002 106)", "oklch(84% 0.002 106)", "oklch(95% 0.002 106)"] },
+      "ink-soft": { "role": "neutral", "displayName": "Ink Soft", "canonical": "#2f2f2c" },
+      "muted": { "role": "neutral", "displayName": "Muted (also tie)", "canonical": "#585853" },
+      "dim": { "role": "neutral", "displayName": "Dim (hints only)", "canonical": "#75756e" },
+      "knob-orange": { "role": "primary", "displayName": "Knob Orange (raise, LED)", "canonical": "#ff5a1f", "tonalRamp": ["oklch(15% 0.05 40)", "oklch(27% 0.09 40)", "oklch(39% 0.13 40)", "oklch(51% 0.17 40)", "oklch(60% 0.2 40)", "oklch(68% 0.21 40)", "oklch(83% 0.1 40)", "oklch(95% 0.03 40)"] },
+      "knob-orange-deep": { "role": "primary", "displayName": "Deep Orange (orange as text)", "canonical": "#c43f0b" },
+      "knob-orange-light": { "role": "primary", "displayName": "Light Orange (small bet)", "canonical": "#ffab85" },
+      "knob-blue": { "role": "secondary", "displayName": "Knob Blue (call)", "canonical": "#4a82ff", "tonalRamp": ["oklch(15% 0.06 265)", "oklch(27% 0.11 265)", "oklch(39% 0.16 265)", "oklch(51% 0.2 265)", "oklch(63% 0.19 265)", "oklch(74% 0.13 265)", "oklch(85% 0.07 265)", "oklch(95% 0.025 265)"] },
+      "knob-green": { "role": "tertiary", "displayName": "Knob Green", "canonical": "#14b26b", "tonalRamp": ["oklch(15% 0.04 158)", "oklch(27% 0.07 158)", "oklch(39% 0.1 158)", "oklch(51% 0.13 158)", "oklch(66% 0.16 158)", "oklch(76% 0.13 158)", "oklch(86% 0.08 158)", "oklch(95% 0.03 158)"] },
+      "on-knob": { "role": "neutral", "displayName": "On Knob (text on every knob colour, both themes)", "canonical": "#121211" },
+      "grade-good": { "role": "neutral", "displayName": "Grade Good", "canonical": "#0f9a5c" },
+      "grade-warn": { "role": "neutral", "displayName": "Grade Warn", "canonical": "#b97a00" },
+      "fold-square": { "role": "neutral", "displayName": "Fold Square", "canonical": "#d0d0cb" },
+      "pair-square": { "role": "neutral", "displayName": "Pair Square", "canonical": "#ececE8" },
+      "card-stock": { "role": "neutral", "displayName": "Card Stock", "canonical": "#ffffff" },
+      "card-red": { "role": "neutral", "displayName": "Card Red", "canonical": "#d13d00" },
+      "night-ground": { "role": "neutral", "displayName": "OP-1 Black (dark ground)", "canonical": "#141414" },
+      "night-plate": { "role": "neutral", "displayName": "Night Plate", "canonical": "#1d1d1c" },
+      "night-ink": { "role": "neutral", "displayName": "Night Ink", "canonical": "#f0f0ec" },
+      "night-orange": { "role": "primary", "displayName": "Night Orange", "canonical": "#ff6a2b" },
+      "night-blue": { "role": "secondary", "displayName": "Night Blue", "canonical": "#5f8fff" },
+      "night-green": { "role": "tertiary", "displayName": "Night Green (also grade good)", "canonical": "#2fcf86" }
     },
     "typographyMeta": {
-      "display": { "displayName": "Display", "purpose": "View titles over the field; Theory chapter titles go larger and wider (clamp(40px, 6vw, 76px), width 125%)." },
-      "headline": { "displayName": "Headline", "purpose": "Theory section headings; the hand name in the hand plate and the feedback grade head sit at this level." },
-      "title": { "displayName": "Title", "purpose": "Theory sub-headings, stat figures, action block labels." },
-      "body": { "displayName": "Body", "purpose": "UI copy on plates, about 62ch, tabular figures." },
-      "body-long": { "displayName": "Body long", "purpose": "Theory paragraphs and takeaways, about 66ch." },
-      "label": { "displayName": "Label", "purpose": "Sentence-case control and plate labels; no tracking, no caps." }
+      "display": { "displayName": "Display", "purpose": "Welcome title and Theory chapter titles; Archivo 500 at 112% width." },
+      "headline": { "displayName": "Headline", "purpose": "View titles." },
+      "title": { "displayName": "Title", "purpose": "Theory section headings; sub-headings at 19px." },
+      "body": { "displayName": "Body", "purpose": "All UI copy and theory text." },
+      "label": { "displayName": "Label", "purpose": "Sentence-case plate and control labels, muted, no tracking." },
+      "readout": { "displayName": "Readout", "purpose": "Every number the player reads: equities, scores, stats, bars, formulas, seat tags. Martian Mono at 87.5% width." },
+      "grid-label": { "displayName": "Grid label", "purpose": "Hand labels in the range grid, Martian Mono at 75% width." },
+      "card-rank": { "displayName": "Card rank", "purpose": "Playing-card ranks (42px table, 24px picked) and the card picker (700, 12px)." }
     },
     "shadows": [
-      { "name": "plate-hairline", "value": "0 0 0 1px rgba(21,22,29,.07)", "purpose": "Edge of plates, trainer tables, examples and steps. A border, not a shadow." },
-      { "name": "ink-rule", "value": "inset 0 0 0 1.5px var(--ink)", "purpose": "Segmented rails, ghost buttons, playing cards, formula boxes." },
-      { "name": "appbar-rule", "value": "inset 0 -2px 0 var(--ink)", "purpose": "The heavy ink line closing the app bar." }
+      { "name": "plate-hairline", "value": "0 0 0 1px var(--hair)", "purpose": "Edge of plates, examples, steps, trainer tables. A border, not a shadow." },
+      { "name": "key-lip", "value": "inset 0 0 0 1px var(--key-edge), 0 1px 0 #a9a9a2, 0 2px 3px rgba(18,18,17,.12)", "purpose": "Rest state of every key (night: 0 1px 0 #050505, 0 2px 3px rgba(0,0,0,.4))." },
+      { "name": "key-lip-hover", "value": "inset 0 0 0 1px var(--key-edge), 0 2px 0 #a9a9a2, 0 4px 6px rgba(18,18,17,.14)", "purpose": "The cap lifts 1px on hover." },
+      { "name": "key-pressed", "value": "inset 0 0 0 1px var(--key-edge), inset 0 2px 3px rgba(0,0,0,.18)", "purpose": "Travel down, lip gone." },
+      { "name": "action-lip", "value": "inset 0 0 0 1px rgba(0,0,0,.28), 0 2px 0 rgba(0,0,0,.28), 0 3px 6px rgba(18,18,17,.14)", "purpose": "Big raise / call / fold keys." },
+      { "name": "input-well", "value": "inset 0 1px 2px rgba(18,18,17,.12)", "purpose": "Recessed inputs, with a 1px ink border." },
+      { "name": "appbar-rule", "value": "inset 0 -1px 0 var(--ink)", "purpose": "The ink rule closing the app bar." }
     ],
     "motion": [
-      { "name": "ease-op", "value": "cubic-bezier(.16,1,.3,1)", "purpose": "Seg thumb slide (0.34s), lens settle (0.35s), disc sweep-in (0.6s), logo disc scale (0.5s)." },
-      { "name": "lens-follow", "value": "0.12s linear", "purpose": "Disc scale and label clip while the pointer moves over a grid; up to 1.42x with Gaussian falloff." },
-      { "name": "sweep-stagger", "value": "calc((row + column) * 20ms)", "purpose": "Diagonal entrance of the discs when a range loads." },
-      { "name": "control-fade", "value": "0.2s", "purpose": "Colour and background changes on tabs, chips, buttons, action blocks." },
-      { "name": "ground-ripple", "value": "0.62px/ms, 2600ms fade", "purpose": "Grade ring through the gutter dot field." },
-      { "name": "reduced-motion", "value": "prefers-reduced-motion: reduce", "purpose": "Ground draws one still frame, no ripples, no lens, no sweep or clip transitions, no logo scale, no feedback marker toss." }
+      { "name": "spring", "value": "cubic-bezier(.3,1.7,.45,1)", "purpose": "Key return after a press (0.32s), latch bounce (0.42s), card snap-in, switch glyphs." },
+      { "name": "snap", "value": "cubic-bezier(.2,.9,.3,1)", "purpose": "Key press travel (0.05s), readout roll (0.35s)." },
+      { "name": "press-hold", "value": "90ms minimum", "purpose": "js/opfield.js adds .pressing for at least 90ms per press so quick clicks show travel; 5ms vibrate on phones." },
+      { "name": "led-on", "value": "0.38s steps(1,end)", "purpose": "LED flicker to full brightness when a key becomes chosen." },
+      { "name": "fader", "value": "0.46s cubic-bezier(.3,1.45,.45,1)", "purpose": "The rail's ink block slides with slight overshoot." },
+      { "name": "deal", "value": "0.55s cubic-bezier(.25,1.4,.45,1)", "purpose": "Hole cards drop in at an angle and settle; second card 0.09s later." },
+      { "name": "plate-in", "value": "0.42s cubic-bezier(.25,1.3,.45,1)", "purpose": "Feedback plates slide up 10px; grade LED blinks on (0.5s)." },
+      { "name": "off-states", "value": "data-fx=\"off\" and prefers-reduced-motion", "purpose": "All travel, flicker, deal, slide and roll stop; colour changes remain." }
     ],
     "breakpoints": [
-      { "name": "phone-grid", "value": "420px" },
-      { "name": "narrow", "value": "480px" },
-      { "name": "stack", "value": "900px" },
-      { "name": "content-band", "value": "1200px" }
+      { "name": "two-column", "value": "900px" },
+      { "name": "appbar-phone", "value": "640px" },
+      { "name": "picker-phone", "value": "480px" },
+      { "name": "grid-fluid", "value": "420px" }
     ]
   },
   "components": [
     {
-      "name": "Primary Button",
+      "name": "Key",
+      "kind": "button",
+      "refersTo": "key",
+      "description": "Every tab, rail option and chip: a hardware key with an LED; chosen is pressed in ink with a flat orange LED.",
+      "html": "<div class=\"ds-row\"><button class=\"ds-key\">Preflop ranges</button><button class=\"ds-key\" aria-pressed=\"true\">Trainer</button><button class=\"ds-key\">Theory</button></div>",
+      "css": ".ds-row{display:flex;gap:6px;padding:16px;background:#e3e3df}.ds-key{position:relative;border:0;border-radius:3px;background:#ecece8;box-shadow:inset 0 0 0 1px #b4b4ae,0 1px 0 #a9a9a2,0 2px 3px rgba(18,18,17,.12);color:#2f2f2c;font:500 15px Archivo,Helvetica Neue,Arial,sans-serif;padding:7px 14px 7px 24px;cursor:pointer;transition:transform .32s cubic-bezier(.3,1.7,.45,1),box-shadow .32s cubic-bezier(.3,1.7,.45,1),background-color .18s,color .18s}.ds-key::before{content:\"\";position:absolute;left:10px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#d6d6d1;box-shadow:inset 0 0 0 1px #b4b4ae}.ds-key:hover:not([aria-pressed=\"true\"]){color:#121211;transform:translateY(-1px);box-shadow:inset 0 0 0 1px #b4b4ae,0 2px 0 #a9a9a2,0 4px 6px rgba(18,18,17,.14)}.ds-key:active{transform:translateY(2px) scale(.97,.95);box-shadow:inset 0 0 0 1px #b4b4ae,inset 0 2px 3px rgba(0,0,0,.18);transition-duration:.05s}.ds-key[aria-pressed=\"true\"]{background:#121211;color:#f5f5f2;font-weight:600;box-shadow:inset 0 0 0 1px #121211;transform:translateY(1px)}.ds-key[aria-pressed=\"true\"]::before{background:#ff5a1f;box-shadow:none}.ds-key:focus-visible{outline:2px solid #ff5a1f;outline-offset:2px}"
+    },
+    {
+      "name": "Primary button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Solid ink rectangle for the main action; turns ultramarine on hover.",
+      "description": "The one orange key in a context, near-black label.",
       "html": "<button class=\"ds-btn-primary\">Next hand</button>",
-      "css": ".ds-btn-primary { background: var(--ink, #15161d); color: var(--surface, #fbfbfd); border: 0; border-radius: 0; padding: 9px 18px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: background .2s, color .2s; } .ds-btn-primary:hover { background: var(--ultra, #2430d8); } .ds-btn-primary:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
+      "css": ".ds-btn-primary{border:0;border-radius:3px;background:#ff5a1f;color:#121211;font:600 15px Archivo,Helvetica Neue,Arial,sans-serif;padding:9px 18px;cursor:pointer;box-shadow:inset 0 0 0 1px #b33f16,0 1px 0 #8c3111,0 2px 3px rgba(18,18,17,.15);transition:transform .32s cubic-bezier(.3,1.7,.45,1),background-color .18s}.ds-btn-primary:hover{background:#ff7240;transform:translateY(-1px)}.ds-btn-primary:active{transform:translateY(2px) scale(.97,.95);box-shadow:inset 0 0 0 1px #b33f16,inset 0 2px 3px rgba(0,0,0,.22);transition-duration:.05s}.ds-btn-primary:focus-visible{outline:2px solid #121211;outline-offset:2px}"
     },
     {
-      "name": "Ghost Button",
-      "kind": "button",
-      "refersTo": "button-ghost",
-      "description": "Transparent rectangle ruled in ink for secondary actions.",
-      "html": "<button class=\"ds-btn-ghost\">See in chart</button>",
-      "css": ".ds-btn-ghost { background: transparent; color: var(--ink, #15161d); border: 0; border-radius: 0; box-shadow: inset 0 0 0 1.5px var(--ink, #15161d); padding: 9px 18px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-weight: 600; font-size: 15px; cursor: pointer; transition: background .2s; } .ds-btn-ghost:hover { background: rgba(21,22,29,.07); } .ds-btn-ghost:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
-    },
-    {
-      "name": "Segmented Rail",
-      "kind": "nav",
-      "refersTo": "segment-option",
-      "description": "Every option visible as a ghost inside an ink-ruled rail; the chosen one struck in ink (in the build an ink thumb slides to it).",
-      "html": "<div class=\"ds-seg\"><button class=\"ds-seg-on\">First in (open)</button><button>Facing a raise</button><button>Facing a 3-bet</button></div>",
-      "css": ".ds-seg { display: inline-flex; gap: 2px; padding: 3px; box-shadow: inset 0 0 0 1.5px var(--ink, #15161d); background: transparent; } .ds-seg button { border: 0; border-radius: 0; background: none; padding: 6px 14px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 15px; font-weight: 500; color: var(--muted, #565c6d); cursor: pointer; transition: color .25s, background .34s cubic-bezier(.16,1,.3,1); } .ds-seg button:hover { color: var(--ink, #15161d); } .ds-seg button.ds-seg-on { background: var(--ink, #15161d); color: var(--surface, #fbfbfd); } .ds-seg button:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
-    },
-    {
-      "name": "Chip",
-      "kind": "chip",
-      "refersTo": "chip",
-      "description": "Seat and option chips: hairline ghost, struck in ink when chosen.",
-      "html": "<div style=\"display:flex;gap:6px\"><button class=\"ds-chip\">CO</button><button class=\"ds-chip ds-chip-on\">BTN</button><button class=\"ds-chip\">SB</button></div>",
-      "css": ".ds-chip { border: 1px solid var(--line, #c9cdd8); border-radius: 0; background: transparent; color: var(--text-2, #343846); padding: 6px 12px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 13px; cursor: pointer; transition: background .2s, color .2s, border-color .2s; } .ds-chip:hover { background: var(--surface, #fbfbfd); color: var(--ink, #15161d); border-color: var(--ink, #15161d); } .ds-chip-on, .ds-chip-on:hover { background: var(--ink, #15161d); border-color: var(--ink, #15161d); color: var(--surface, #fbfbfd); } .ds-chip:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
-    },
-    {
-      "name": "Action Blocks",
+      "name": "Action keys",
       "kind": "button",
       "refersTo": "action-raise",
-      "description": "Trainer answers as enamel blocks: fold ruled in ink, call ultramarine, raise magenta; the picked one gets the orange selection outline.",
-      "html": "<div style=\"display:flex;gap:10px\"><button class=\"ds-act ds-fold\">Fold</button><button class=\"ds-act ds-call\">Call</button><button class=\"ds-act ds-raise ds-picked\">3-bet 11bb</button></div>",
-      "css": ".ds-act { flex: 1; min-width: 100px; padding: 14px 12px; border: 0; border-radius: 0; cursor: pointer; font-family: 'Anybody', 'Hanken Grotesk', sans-serif; font-stretch: 115%; font-weight: 750; font-size: 17px; transition: opacity .2s; } .ds-act:hover { opacity: .9; } .ds-fold { background: transparent; color: var(--ink, #15161d); box-shadow: inset 0 0 0 2px var(--ink, #15161d); } .ds-call { background: var(--ultra, #2430d8); color: #fff; } .ds-raise { background: var(--magenta, #d8226a); color: #fff; } .ds-picked { outline: 3px solid var(--orange, #ff9a1f); outline-offset: 3px; } .ds-act:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 2px; }"
+      "description": "Fold, call, raise: big keys in the knob colours with near-black labels and a mono key hint.",
+      "html": "<div class=\"ds-acts\"><button class=\"ds-act ds-fold\">Fold<kbd>F</kbd></button><button class=\"ds-act ds-call\">Call<kbd>C</kbd></button><button class=\"ds-act ds-raise\">Raise<kbd>R</kbd></button></div>",
+      "css": ".ds-acts{display:flex;gap:8px;padding:16px;background:#f5f5f2}.ds-act{flex:1;display:grid;gap:2px;border:0;border-radius:3px;padding:14px 12px;font:600 16px Archivo,Helvetica Neue,Arial,sans-serif;font-stretch:112%;color:#121211;cursor:pointer;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28),0 2px 0 rgba(0,0,0,.28),0 3px 6px rgba(18,18,17,.14);transition:transform .32s cubic-bezier(.3,1.7,.45,1),box-shadow .32s cubic-bezier(.3,1.7,.45,1)}.ds-act kbd{font:500 10.5px 'Martian Mono',monospace;opacity:.75}.ds-call{background:#4a82ff}.ds-raise{background:#ff5a1f}.ds-fold{background:#ecece8;box-shadow:inset 0 0 0 1px #b4b4ae,0 2px 0 #b4b4ae,0 3px 6px rgba(18,18,17,.1)}.ds-act:hover{transform:translateY(-2px)}.ds-act:active{transform:translateY(4px) scale(.98,.96);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3),inset 0 3px 5px rgba(0,0,0,.22);transition-duration:.05s}.ds-act:focus-visible{outline:2px solid #ff5a1f;outline-offset:2px}"
+    },
+    {
+      "name": "Segmented rail",
+      "kind": "nav",
+      "refersTo": "rail",
+      "description": "Keys in a recessed rail-grey bed; the chosen key is ink with its LED lit.",
+      "html": "<div class=\"ds-seg\"><button>UTG</button><button>CO</button><button aria-pressed=\"true\">BTN</button><button>SB</button></div>",
+      "css": ".ds-seg{display:inline-flex;gap:3px;padding:3px;background:#d6d6d1;border-radius:6px;box-shadow:inset 0 0 0 1px #b4b4ae}.ds-seg button{position:relative;border:0;border-radius:3px;background:#ecece8;box-shadow:inset 0 0 0 1px #b4b4ae,0 1px 0 #a9a9a2;color:#2f2f2c;font:500 15px Archivo,Helvetica Neue,Arial,sans-serif;padding:6px 12px 6px 22px;cursor:pointer}.ds-seg button::before{content:\"\";position:absolute;left:9px;top:50%;width:6px;height:6px;margin-top:-3px;border-radius:50%;background:#d6d6d1;box-shadow:inset 0 0 0 1px #b4b4ae}.ds-seg button:hover:not([aria-pressed=\"true\"]){color:#121211}.ds-seg button[aria-pressed=\"true\"]{background:#121211;color:#f5f5f2;box-shadow:inset 0 0 0 1px #121211}.ds-seg button[aria-pressed=\"true\"]::before{background:#ff5a1f;box-shadow:none}.ds-seg button:focus-visible{outline:2px solid #ff5a1f;outline-offset:2px}"
     },
     {
       "name": "Plate",
       "kind": "card",
       "refersTo": "plate",
-      "description": "Flat white reading plate on the op-white ground, edged by a hairline; tiles inside sit in op-white.",
-      "html": "<div class=\"ds-plate\"><div class=\"ds-label\">This spot</div><p>The best seat at the table: you act last on every street.</p><div class=\"ds-tile\"><b>0.3%</b><span>of all starting hands</span></div></div>",
-      "css": ".ds-plate { background: var(--surface, #fbfbfd); border-radius: 0; box-shadow: 0 0 0 1px rgba(21,22,29,.07); padding: 20px; display: grid; gap: 14px; max-width: 320px; font-family: 'Hanken Grotesk', system-ui, sans-serif; color: var(--ink, #15161d); } .ds-plate p { margin: 0; color: var(--text-2, #343846); font-size: 15px; line-height: 1.5; } .ds-label { font-size: 13px; font-weight: 600; color: var(--ink, #15161d); } .ds-tile { background: var(--bg, #eef0f5); padding: 12px; display: grid; gap: 2px; } .ds-tile b { font-family: 'Anybody', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 18px; } .ds-tile span { font-size: 12px; color: var(--muted, #565c6d); }"
+      "description": "Off-white panel on the grey ground, 6px corner, hairline edge; readouts in mono wells.",
+      "html": "<div class=\"ds-ground\"><div class=\"ds-plate\"><span class=\"ds-label\">Equity vs range</span><b class=\"ds-readout\">54.2%</b><div class=\"ds-well\"><span class=\"ds-label\">Combos</span><b>12</b></div></div></div>",
+      "css": ".ds-ground{background:#e3e3df;padding:20px}.ds-plate{background:#f5f5f2;border-radius:6px;box-shadow:0 0 0 1px rgba(18,18,17,.12);padding:20px;display:grid;gap:10px;color:#121211;font:400 15px/1.5 Archivo,Helvetica Neue,Arial,sans-serif}.ds-label{font-size:12.5px;font-weight:500;color:#585853}.ds-readout{font:500 52px/1 'Martian Mono',monospace;font-stretch:87.5%;letter-spacing:-.03em}.ds-well{background:#e3e3df;border-radius:4px;padding:8px 10px;display:flex;justify-content:space-between}.ds-well b{font:600 16px 'Martian Mono',monospace;font-stretch:87.5%}"
     },
     {
-      "name": "Text Input",
+      "name": "Input well",
       "kind": "input",
       "refersTo": "input",
-      "description": "Range-string and number input: white field, 1.5px ink border, square corners.",
-      "html": "<input class=\"ds-input\" value=\"55+, A2s+, KTs-K8s\" aria-label=\"Range\">",
-      "css": ".ds-input { background: var(--surface, #fbfbfd); color: var(--ink, #15161d); border: 1.5px solid var(--ink, #15161d); border-radius: 0; padding: 9px 10px; font-family: 'Hanken Grotesk', system-ui, sans-serif; font-size: 14px; font-variant-numeric: tabular-nums; caret-color: var(--magenta, #d8226a); } .ds-input:focus-visible { outline: 2px solid var(--ultra, #2430d8); outline-offset: 1px; }"
+      "description": "A recessed well with an ink border; orange focus.",
+      "html": "<input class=\"ds-input\" value=\"55+, A2s+, KTs+\">",
+      "css": ".ds-input{border:1px solid #121211;border-radius:3px;background:#f5f5f2;box-shadow:inset 0 1px 2px rgba(18,18,17,.12);padding:8px 10px;font:400 14px 'Martian Mono',monospace;font-stretch:87.5%;color:#121211;caret-color:#ff5a1f}.ds-input:focus{outline:2px solid #ff5a1f;outline-offset:1px}"
     },
     {
-      "name": "Range Field Units",
+      "name": "Range grid cells",
       "kind": "custom",
-      "refersTo": "grid-unit",
-      "description": "Plastic units: square cells holding a disc whose area is the frequency (radius = sqrt(share)); white label clipped to the disc, ink label beneath; orange outline on the selected unit.",
-      "html": "<div class=\"ds-field\"><div class=\"ds-u\" style=\"--b:1\"><span>AA</span><span class=\"ds-inv\">AA</span></div><div class=\"ds-u\" style=\"--b:.707\"><span>Q3s</span><span class=\"ds-inv\">Q3s</span></div><div class=\"ds-u ds-sel\" style=\"--b:.5;--c:#2430d8\"><span>87o</span><span class=\"ds-inv\">87o</span></div><div class=\"ds-u\" style=\"--b:0\"><span>72o</span><span class=\"ds-inv\">72o</span></div></div>",
-      "css": ".ds-field { display: grid; grid-template-columns: repeat(4, 56px); gap: 3px; } .ds-u { position: relative; aspect-ratio: 1; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle closest-side, var(--c, #d8226a) 0 calc(var(--b) * 88%), transparent calc(var(--b) * 88% + 1px)), var(--surface, #fbfbfd); color: var(--ink, #15161d); font-family: 'Hanken Grotesk', sans-serif; font-weight: 700; font-size: 14px; transition: scale .35s cubic-bezier(.16,1,.3,1); } .ds-u:hover { scale: 1.12; } .ds-inv { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #fff; clip-path: circle(calc(var(--b) * 44%) at 50% 50%); } .ds-sel { outline: 3px solid var(--orange, #ff9a1f); z-index: 1; } @media (prefers-reduced-motion: reduce) { .ds-u { transition: none; } .ds-u:hover { scale: 1; } }"
+      "refersTo": "range-cell",
+      "description": "Key caps whose disc area is frequency: orange core raise, blue ring call. Below 60% the label stays ink on a halo; lit discs carry near-black.",
+      "html": "<div class=\"ds-grid\"><div class=\"ds-cell\"><i class=\"ds-disc\" style=\"width:100%;height:100%;background:#ff5a1f\"></i><span class=\"ds-lab\">AA</span></div><div class=\"ds-cell\"><i class=\"ds-disc\" style=\"width:77%;height:77%;background:#4a82ff\"></i><span class=\"ds-lab\">KJs</span></div><div class=\"ds-cell\"><i class=\"ds-disc\" style=\"width:55%;height:55%;background:#ff5a1f\"></i><span class=\"ds-lab ds-halo\">A5o</span></div><div class=\"ds-cell\"><span class=\"ds-lab\" style=\"color:#585853\">72o</span></div></div>",
+      "css": ".ds-grid{display:grid;grid-template-columns:repeat(4,44px);gap:3px;padding:12px;background:#e3e3df}.ds-cell{position:relative;width:44px;height:44px;border-radius:2px;background:#f5f5f2;box-shadow:inset 0 0 0 1px rgba(18,18,17,.12);display:grid;place-items:center}.ds-disc{position:absolute;border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%)}.ds-lab{position:relative;font:500 12px 'Martian Mono',monospace;font-stretch:75%;letter-spacing:-.04em;color:#121211}.ds-halo{text-shadow:1px 0 0 #f5f5f2,-1px 0 0 #f5f5f2,0 1px 0 #f5f5f2,0 -1px 0 #f5f5f2,0 0 3px #f5f5f2}"
     },
     {
-      "name": "Feedback Plate with Op Target",
+      "name": "Knob logo",
       "kind": "custom",
-      "refersTo": "plate",
-      "description": "Grade plate ruled 2px in the grade colour, its marker a disc with concentric white rings.",
-      "html": "<div class=\"ds-fb\"><div class=\"ds-fb-head\"><i class=\"ds-dot\"></i>Mistake</div><p>You chose 3-bet, but the chart never does that with 43o here. Always fold.</p></div>",
-      "css": ".ds-fb { background: var(--surface, #fbfbfd); border: 2px solid var(--magenta, #d8226a); border-radius: 0; padding: 16px 18px; display: grid; gap: 12px; max-width: 340px; font-family: 'Hanken Grotesk', sans-serif; } .ds-fb p { margin: 0; color: var(--text-2, #343846); } .ds-fb-head { display: flex; align-items: center; gap: 10px; font-family: 'Anybody', sans-serif; font-stretch: 118%; font-weight: 800; font-size: 28px; letter-spacing: -.015em; color: var(--ink, #15161d); } .ds-dot { width: 18px; height: 18px; border-radius: 50%; background: repeating-radial-gradient(circle, transparent 0 2.5px, rgba(255,255,255,.85) 2.5px 4px), var(--magenta, #d8226a); }"
-    },
-    {
-      "name": "Card Back",
-      "kind": "custom",
-      "refersTo": "plate",
-      "description": "Concentric-ring op target on a square card with a white margin and ink edge.",
-      "html": "<div class=\"ds-back\"></div>",
-      "css": ".ds-back { width: 56px; height: 78px; border-radius: 0; background: repeating-radial-gradient(circle at 50% 50%, var(--ultra, #2430d8) 0 3px, var(--surface, #fbfbfd) 3px 6px); box-shadow: inset 0 0 0 3px var(--surface, #fbfbfd), inset 0 0 0 4.5px var(--ink, #15161d); }"
+      "refersTo": "brand",
+      "description": "Four OP-1 knobs (blue, green, plate, orange) with ink rims and ticks that turn on hover, beside the 169 wordmark. The favicon is the same four knobs in a 2x2 square.",
+      "html": "<a class=\"ds-brand\" href=\"#\"><svg viewBox=\"0 0 92 22\" height=\"22\"><circle cx=\"11\" cy=\"11\" r=\"9.6\" fill=\"#4a82ff\"/><line x1=\"11\" y1=\"11\" x2=\"11\" y2=\"4\"/><circle cx=\"34\" cy=\"11\" r=\"9.6\" fill=\"#14b26b\"/><line x1=\"34\" y1=\"11\" x2=\"34\" y2=\"4\"/><circle cx=\"57\" cy=\"11\" r=\"9.6\" fill=\"#f5f5f2\"/><line x1=\"57\" y1=\"11\" x2=\"57\" y2=\"4\"/><circle cx=\"80\" cy=\"11\" r=\"9.6\" fill=\"#ff5a1f\"/><line x1=\"80\" y1=\"11\" x2=\"80\" y2=\"4\"/></svg>169</a>",
+      "css": ".ds-brand{display:inline-flex;align-items:center;gap:10px;font:700 22px Archivo,Helvetica Neue,Arial,sans-serif;font-stretch:112%;letter-spacing:-.04em;color:#121211;text-decoration:none;padding:12px 20px;background:#f5f5f2}.ds-brand circle{stroke:#121211;stroke-width:1.2}.ds-brand line{stroke:#121211;stroke-width:1.6;stroke-linecap:round;transform-box:fill-box;transform-origin:50% 100%;transition:transform .5s cubic-bezier(.16,1,.3,1)}.ds-brand:hover line{transform:rotate(90deg)}.ds-brand:focus-visible{outline:2px solid #ff5a1f;outline-offset:2px}"
     }
   ],
   "narrative": {
-    "northStar": "The Living Vasarely Field",
-    "overview": "The 169 starting hands already form an op-art field; 169 Poker draws them as one. Every hand is a plastic unit: a sharp square holding a disc whose area is the frequency the hand is played. The visitor sees the range as a pattern first and reads it second. Colour lives in the fields (the discs, the action blocks, the bars); text sits on calm, achromatic plates of white or op-white, so reading never fights the pattern.\n\nThe world is light, cool and exact. Every corner is square; circles are the only curves, and they always carry meaning (a frequency, a grade, a card back, a chapter number). Controls show every option at once as a ghost, and the chosen one is struck in solid ink. Motion belongs to the field: discs swell under the pointer like a lens, the page gutters breathe as a slow dot field, and a graded answer sends a ring through that field in the grade's colour. Under reduced motion, all of it holds still.\n\nThe world rejects the dark poker-felt study tool it replaces: no felt, no wood, no glow, no rounded casino chrome.",
+    "northStar": "The Field Kit",
+    "overview": "169 Poker is operated like a Teenage Engineering instrument (OP-1, TP-7): an aluminium-grey ground, off-white plates, black ink, and colour only where it carries meaning, the way the OP-1's four knobs do. Orange raises, blue calls, green is a right answer. Every control is a hardware key with a small lip and an LED; the chosen key is pressed down in ink and its LED is lit. Numbers read like device readouts in a condensed mono.\n\nThe layout is the incumbent app's, unchanged: the same views, grid, hand plate and trainers, reskinned as a precise instrument. Density is high but calm; the 13x13 range grid is 169 key caps, which is where the name comes from. The world refuses both the dark poker-felt app and the op-art poster it replaces.\n\nMotion is tactile, not decorative: keys travel down fast and spring back, LEDs flicker on, cards are dealt with weight. All of it stops when effects are paused or motion is reduced.",
     "keyCharacteristics": [
-      "Cool op-white ground, white reading plates, near-black ink.",
-      "Two field colours with fixed meaning: ultramarine calls, magenta raises.",
-      "Orange appears only to mark the current selection.",
-      "All corners sharp; circles are the only curves.",
-      "Ghost-and-struck controls: options outlined or bare, the chosen one solid ink.",
-      "Wide, heavy Anybody display over Hanken Grotesk reading text.",
-      "Flat plates separated by tone and hairlines, never by shadow.",
-      "A living ground: lens, breathing gutter dots, grade ripples; still under reduced motion."
+      "Grey ground, off-white plates with a hairline, ink text; colour reserved for the knob meanings.",
+      "Every choice is a key (3px corner, LED dot, small lip); chosen means pressed in ink with a flat orange LED.",
+      "Archivo medium, slightly wide, for words; Martian Mono condensed for numbers, readouts and grid labels; Unbounded heavy for card ranks.",
+      "Disc area is frequency on the range grid.",
+      "Speaker-grille perforations as the secondary texture: gutter dot field, trainer table strip, card backs.",
+      "Two themes: light aluminium and OP-1 black."
     ],
     "rules": [
-      { "name": "The Field Colour Rule", "body": "Ultramarine means call, magenta means raise, everywhere they appear as fills. A button, bar or disc in either colour is making that claim.", "section": "colors" },
-      { "name": "The One Orange Rule", "body": "Orange marks the current selection and nothing else. It is never a fill for content, a heading or a decoration.", "section": "colors" },
-      { "name": "The Achromatic Plate Rule", "body": "Text plates are white or op-white. Colour belongs to the fields and to thin rules; it does not tint reading surfaces.", "section": "colors" },
-      { "name": "The Wide Ink Rule", "body": "Display type is Anybody, wide and heavy, and only for titles, hand names, grades and figures. Never set reading copy in it.", "section": "typography" },
-      { "name": "The Sentence Case Rule", "body": "Labels are sentence case with normal tracking. No all-caps, no letter-spaced labels.", "section": "typography" },
-      { "name": "The No-Cast-Shadow Rule", "body": "Nothing floats. Plates sit on the ground and are separated from it by tone and a hairline.", "section": "elevation" },
-      { "name": "The Only-Circles Rule", "body": "A shape is either a square-cornered rectangle or a true circle. No pills, no rounded rectangles.", "section": "shapes" }
+      { "name": "The Knob Meaning Rule", "body": "Orange is raise and blue is call (and aggressor vs caller in an equity split). Win and tie are ink and muted grey, the hero seat is ink, chapter markers are ink. Do not use blue for anything but calling; orange's only other job is the instrument signal (LED, focus, the primary key).", "section": "colors" },
+      { "name": "The Black-On-Knob Rule", "body": "Text on orange, blue or green is `--on-knob` near-black in both themes.", "section": "colors" },
+      { "name": "The Token Rule", "body": "Every colour goes through a token so light and OP-1 black both work; `--ink` is the strongest foreground in both. Text keeps 4.5:1 on ground and plate; `--dim` is for non-essential hints only.", "section": "colors" },
+      { "name": "The Readout Rule", "body": "If it is a number the player reads, it is Martian Mono condensed. Words stay in Archivo.", "section": "typography" },
+      { "name": "The Sentence Case Rule", "body": "Labels and controls are sentence case with no positive letter-spacing and no all-caps. Display sizes tighten slightly; nothing is tracked out.", "section": "typography" },
+      { "name": "The No-Glow Rule", "body": "LEDs are flat discs of colour. No glow, no halo, no gradient on any light.", "section": "elevation" },
+      { "name": "The Lip-Is-Travel Rule", "body": "A key's lip exists only to show travel: it grows on hover, vanishes on press. Plates never get one.", "section": "elevation" }
     ],
     "dos": [
-      "Do encode frequency as disc area (radius = square root of the share) in any range or frequency view.",
-      "Do use ultramarine for call and magenta for raise on every fill that means an action.",
-      "Do strike the chosen option in solid ink and leave the others visible as ghosts.",
-      "Do keep reading text on plate white or op-white, in ink, ink soft or muted.",
-      "Do keep every corner square and reserve circles for things that mean something.",
-      "Do use orange only for the current selection.",
-      "Do give every new animation a still state under reduced motion."
+      "**Do** make every choice a key: 3px corner, LED, lip; chosen means pressed in ink with a flat orange LED.",
+      "**Do** keep orange for raise and blue for call, and put near-black `--on-knob` text on every knob colour.",
+      "**Do** set every number in Martian Mono condensed, and words in Archivo at medium weight.",
+      "**Do** keep the disc area equal to frequency, and invert a grid label only when its disc is lit (60% or more).",
+      "**Do** route every colour through tokens so light and OP-1 black both work.",
+      "**Do** give every new motion an off state under `data-fx=\"off\"` and reduced motion."
     ],
     "donts": [
-      "Don't use pills or rounded rectangles; corners are 0px, curves are full circles.",
-      "Don't cast shadows or lift elements on hover; depth is tone plus hairline.",
-      "Don't tint text plates with the field colours.",
-      "Don't set body copy in Anybody, or labels in all caps or letter-spacing.",
-      "Don't use dim for anything a player needs to read.",
-      "Don't let the gutter field enter the content band."
+      "**Don't** use orange or blue for win, tie, \"you\", chapter markers or decoration; those are ink and grey.",
+      "**Don't** put white text on a knob colour.",
+      "**Don't** give LEDs a glow or plates a cast shadow; depth is the key lip only.",
+      "**Don't** use ALL-CAPS labels or positive letter-spacing.",
+      "**Don't** bring back the poker-felt green table or the op-art poster."
     ]
   }
 }

@@ -71,9 +71,13 @@
     render();
     step();
   }
+  // Both ranges after the last action on a street: the bot's, and yours as the bot's strategy reads your actions
   function rangeSnap(board) {
-    const r = C.live(pl.ranges[botSeat()], board);
-    return { shares: C.classShares(pl.ranges[botSeat()], board), combos: r.reduce((t, x) => t + x.w, 0) };
+    const one = seat => {
+      const r = C.live(pl.ranges[seat], board);
+      return { shares: C.classShares(pl.ranges[seat], board), combos: r.reduce((t, x) => t + x.w, 0) };
+    };
+    return { bot: one(botSeat()), you: one(pl.heroSeat) };
   }
   function heroAct(i) {
     const st = pl.st;
@@ -261,22 +265,29 @@
     const streets = pl.snaps.map((s, i) => s ? i : -1).filter(i => i >= 0);
     // Added under the feedback on your last decision, which stays in view
     $("pl-fb").insertAdjacentHTML("beforeend", `<div class="fb pl-end"><div class="head">${head}</div><p>${how}${pl.rebuy ? " " + pl.rebuy : ""}</p>${decs}
-      ${streets.length ? `<div class="pl-range"><div class="label">The bot's range as it played the hand</div>
+      ${streets.length ? `<div class="pl-range"><div class="label">The ranges as the hand was played</div>
+        <div class="chips" role="group" aria-label="Whose range"><button class="chip" data-who="bot" aria-pressed="true">The bot</button><button class="chip" data-who="you" aria-pressed="false">You</button></div>
         <div class="chips" role="group" aria-label="Street">${streets.map(i => `<button class="chip" data-snap="${i}" aria-pressed="${i === streets[streets.length - 1]}">${STREETS[i]}</button>`).join("")}</div>
         <div class="gridbox"><div class="grid pl-grid" id="pl-grid" role="img"></div></div><p class="hint" id="pl-range-cap"></p></div>` : ""}
       <div class="btns"><button class="btn primary" id="pl-next">Next hand <span style="opacity:.6;font-weight:500">(Enter)</span></button></div></div>`);
     if (streets.length) {
+      let street = streets[streets.length - 1], who = "bot";
       document.querySelectorAll("[data-snap]").forEach(b => b.onclick = () => {
         document.querySelectorAll("[data-snap]").forEach(x => x.setAttribute("aria-pressed", x === b));
-        drawRange(+b.dataset.snap);
+        street = +b.dataset.snap; drawRange(street, who);
       });
-      drawRange(streets[streets.length - 1]);
+      document.querySelectorAll("[data-who]").forEach(b => b.onclick = () => {
+        document.querySelectorAll("[data-who]").forEach(x => x.setAttribute("aria-pressed", x === b));
+        who = b.dataset.who; drawRange(street, who);
+      });
+      drawRange(street, who);
     }
     $("pl-next").onclick = newHand;
     $("pl-next").focus({ preventScroll: true });
   }
-  function drawRange(street) {
-    const snap = pl.snaps[street], g = $("pl-grid"), bh = pl.st.hole[botSeat()], own = E.handClass(bh[0], bh[1]);
+  function drawRange(street, who) {
+    const you = who === "you", snap = pl.snaps[street][who], g = $("pl-grid");
+    const bh = pl.st.hole[you ? pl.heroSeat : botSeat()], own = E.handClass(bh[0], bh[1]);
     g.innerHTML = "";
     for (let i = 0; i < 13; i++) for (let j = 0; j < 13; j++) {
       // Shares under 2% would be specks; they are left bare so the hands the bot really holds stand out
@@ -287,8 +298,10 @@
       if (h === own) d.setAttribute("aria-pressed", "true");
       g.appendChild(d);
     }
-    g.setAttribute("aria-label", `The bot's range after its ${STREETS[street].toLowerCase()} action`);
-    $("pl-range-cap").innerHTML = `${STREETS[street]}: about ${Math.round(snap.combos)} combos (${pct(snap.combos / 1326)} of all hands). A full disc is a hand it still holds every way it can (shares under 2% are left bare); the framed square is the hand it had, ${flopText(bh)}.`;
+    g.setAttribute("aria-label", you ? `Your range after your ${STREETS[street].toLowerCase()} action` : `The bot's range after its ${STREETS[street].toLowerCase()} action`);
+    $("pl-range-cap").innerHTML = you
+      ? `${STREETS[street]}: about ${Math.round(snap.combos)} combos (${pct(snap.combos / 1326)} of all hands). This is your range as the bot reads it: the hands its own strategy would play the way you did. An action that strategy never takes leaves your range as it was. A full disc is a hand you still hold every way you can (shares under 2% are left bare); the framed square is the hand you had, ${flopText(bh)}.`
+      : `${STREETS[street]}: about ${Math.round(snap.combos)} combos (${pct(snap.combos / 1326)} of all hands). A full disc is a hand it still holds every way it can (shares under 2% are left bare); the framed square is the hand it had, ${flopText(bh)}.`;
   }
   function renderStats() {
     const s = pl.stats;
